@@ -8681,6 +8681,8 @@ in
 
   libvorbis = callPackage ../development/libraries/libvorbis { };
 
+  libvulkan = callPackage ../development/libraries/libvulkan { };
+
   libwebp = callPackage ../development/libraries/libwebp { };
 
   libwmf = callPackage ../development/libraries/libwmf { };
