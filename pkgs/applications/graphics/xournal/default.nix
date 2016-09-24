@@ -1,7 +1,7 @@
 { stdenv, fetchurl
-, ghostscript, atk, gtk, glib, fontconfig, freetype
+, ghostscript, atk, gtk2, glib, fontconfig, freetype
 , libgnomecanvas, libgnomeprint, libgnomeprintui
-, pango, libX11, xproto, zlib, poppler, poppler_data
+, pango, libX11, xproto, zlib, poppler
 , autoconf, automake, libtool, pkgconfig}:
 stdenv.mkDerivation rec {
   version = "0.4.8";
@@ -12,14 +12,14 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    ghostscript atk gtk glib fontconfig freetype
+    ghostscript atk gtk2 glib fontconfig freetype
     libgnomecanvas libgnomeprint libgnomeprintui
-    pango libX11 xproto zlib poppler poppler_data
+    pango libX11 xproto zlib poppler
   ];
 
   nativeBuildInputs = [ autoconf automake libtool pkgconfig ];
 
-  NIX_LDFLAGS="-lX11 -lz";
+  NIX_LDFLAGS = [ "-lX11" "-lz" ];
 
   meta = {
     homepage = http://xournal.sourceforge.net/;

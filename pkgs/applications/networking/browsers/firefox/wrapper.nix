@@ -2,11 +2,12 @@
 
 ## various stuff that can be plugged in
 , gnash, flashplayer, hal-flash
-, MPlayerPlugin, gecko_mediaplayer, ffmpeg, gst_all, xorg, libpulseaudio, libcanberra
+, MPlayerPlugin, gecko_mediaplayer, ffmpeg, gst_all, xorg, libpulseaudio, libcanberra_gtk2
 , supportsJDK, jrePlugin, icedtea_web
 , trezor-bridge, bluejeans, djview4, adobe-reader
 , google_talk_plugin, fribid, gnome3/*.gnome_shell*/
 , esteidfirefoxplugin
+, vlc_npapi
 }:
 
 ## configurability of the wrapper itself
@@ -45,6 +46,7 @@ let
       ++ lib.optional (cfg.enableBluejeans or false) bluejeans
       ++ lib.optional (cfg.enableAdobeReader or false) adobe-reader
       ++ lib.optional (cfg.enableEsteid or false) esteidfirefoxplugin
+      ++ lib.optional (cfg.enableVLC or false) vlc_npapi
      );
   libs = (if ffmpegSupport then [ ffmpeg ] else with gst_all; [ gstreamer gst-plugins-base ])
          ++ lib.optionals (cfg.enableQuakeLive or false)
@@ -52,7 +54,7 @@ let
          ++ lib.optional (enableAdobeFlash && (cfg.enableAdobeFlashDRM or false)) hal-flash
          ++ lib.optional (config.pulseaudio or false) libpulseaudio;
   gst-plugins = with gst_all; [ gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-ffmpeg ];
-  gtk_modules = [ libcanberra ];
+  gtk_modules = [ libcanberra_gtk2 ];
 
 in
 stdenv.mkDerivation {

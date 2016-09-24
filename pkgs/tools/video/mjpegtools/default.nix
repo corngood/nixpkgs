@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchurl, gtk, libdv, libjpeg, libpng, libX11, pkgconfig, SDL, SDL_gfx
+{ stdenv, lib, fetchurl, gtk2, libdv, libjpeg, libpng, libX11, pkgconfig, SDL, SDL_gfx
 , withMinimal ? false
 }:
 
@@ -15,8 +15,12 @@ stdenv.mkDerivation rec {
     sha256 = "01y4xpfdvd4zgv6fmcjny9mr1gbfd4y2i4adp657ydw6fqyi8kw6";
   };
 
+  hardeningDisable = [ "format" ];
+
   buildInputs = [ libdv libjpeg libpng pkgconfig ]
-              ++ lib.optional (!withMinimal) [ gtk libX11 SDL SDL_gfx ];
+              ++ lib.optional (!withMinimal) [ gtk2 libX11 SDL SDL_gfx ];
+
+  NIX_CFLAGS_COMPILE = lib.optional (!withMinimal) "-I${SDL.dev}/include/SDL";
 
   postPatch = ''
     sed -i -e '/ARCHFLAGS=/s:=.*:=:' configure

@@ -1,6 +1,6 @@
 {fetchurl, stdenv, dpkg, makeWrapper,
  alsaLib, cups, curl, dbus, expat, fontconfig, freetype, glib, gst_all_1, harfbuzz, libcap,
- libpulseaudio, mesa, nspr, nss, libudev, wayland, xorg, zlib, ...
+ libpulseaudio, mesa, nspr, nss, systemd, wayland, xorg, zlib, ...
 }:
 
 assert stdenv.system == "x86_64-linux";
@@ -39,7 +39,7 @@ stdenv.mkDerivation rec {
       nspr
       nss
       stdenv.cc.cc
-      libudev
+      systemd
       wayland
       zlib
 
@@ -80,7 +80,7 @@ stdenv.mkDerivation rec {
     wrapProgram $out/opt/viber/Viber \
       --set QT_PLUGIN_PATH "$out/opt/viber/plugins" \
       --set QT_XKB_CONFIG_ROOT "${xorg.xkeyboardconfig}/share/X11/xkb" \
-      --set QTCOMPOSE "${xorg.libX11}/share/X11/locale"
+      --set QTCOMPOSE "${xorg.libX11.out}/share/X11/locale"
     ln -s $out/opt/viber/Viber $out/bin/viber
 
     mv $out/usr/share $out/share

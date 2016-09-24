@@ -1,5 +1,5 @@
 { stdenv, fetchurl, intltool, gettext, makeWrapper
-, parted, gtk, glib, libuuid, pkgconfig, gtkmm, libxml2, hicolor_icon_theme
+, parted, glib, libuuid, pkgconfig, gtkmm2, libxml2, hicolor_icon_theme
 , gpart, hdparm, procps, utillinux
 }:
 
@@ -13,14 +13,14 @@ stdenv.mkDerivation rec {
 
   configureFlags = [ "--disable-doc" ];
 
-  buildInputs = [ parted gtk glib libuuid gtkmm libxml2 hicolor_icon_theme ];
+  buildInputs = [ parted glib libuuid gtkmm2 libxml2 hicolor_icon_theme ];
   nativeBuildInputs = [ intltool gettext makeWrapper pkgconfig ];
 
   postInstall = ''
     wrapProgram $out/sbin/gparted \
       --prefix PATH : "${procps}/bin"
     wrapProgram $out/sbin/gpartedbin \
-      --prefix PATH : "${gpart}/bin:${hdparm}/bin:${utillinux}/bin"
+      --prefix PATH : "${stdenv.lib.makeBinPath [ gpart hdparm utillinux ]}"
   '';
 
   meta = with stdenv.lib; {

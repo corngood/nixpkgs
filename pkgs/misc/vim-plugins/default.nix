@@ -1,7 +1,7 @@
 # TODO check that no license information gets lost
-{ fetchurl, bash, stdenv, python, go, cmake, vim, vimUtils, perl, ruby, unzip
-, which, fetchgit, fetchFromGitHub, fetchhg, fetchzip, llvmPackages, zip
-, vim_configurable, vimPlugins, xkb_switch, git, rustracerd, fzf
+{ fetchurl, stdenv, python, go, cmake, vim, vimUtils, perl, ruby, unzip
+, which, fetchgit, llvmPackages
+, xkb_switch, rustracerd, fzf
 , Cocoa ? null
 }:
 
@@ -13,7 +13,8 @@ in
 
 # TL;DR
 # Add your plugin to ./vim-plugin-names
-# Generate via `vim-plugin-names-to-nix`
+# Regenerate via `nix-build -Q -A vimPlugins.pluginnames2nix; ./result/bin/vim-plugin-names-to-nix`
+# Copy the generated expression(s) into this file.
 # If plugin is complicated then make changes to ./vim2nix/additional-nix-code
 
 # This attrs contains two sections:
@@ -79,7 +80,9 @@ rec {
   neosnippet          = neosnippet-vim;
   nerdcommenter       = The_NERD_Commenter;
   nerdtree            = The_NERD_tree;
+  polyglot            = vim-polyglot;
   quickrun            = vim-quickrun;
+  repeat              = vim-repeat;
   signature           = vim-signature;
   stylish-haskell     = vim-stylish-haskell;
   stylishHaskell      = stylish-haskell; # backwards compat, added 2014-10-18
@@ -91,6 +94,7 @@ rec {
   tmux-navigator      = vim-tmux-navigator;
   tmuxNavigator       = tmux-navigator; # backwards compat, added 2014-10-18
   tslime              = tslime-vim;
+  unite               = unite-vim;
   vimproc             = vimproc-vim;
   vimshell            = vimshell-vim;
   watchdogs           = vim-watchdogs;
@@ -100,7 +104,7 @@ rec {
 
   fzfWrapper = buildVimPluginFrom2Nix {
     name = fzf.name;
-    src = "${fzf}/share/go/src/github.com/junegunn/fzf";
+    src = fzf.src;
     dependencies = [];
   };
 
@@ -496,6 +500,17 @@ rec {
 
   };
 
+  acp = buildVimPluginFrom2Nix { # created by nix#NixDerivation
+    name = "acp-2013-02-05";
+    src = fetchgit {
+      url = "git://github.com/eikenb/acp";
+      rev = "5c627cec37d0d3b1670cb250d84e176e8b0c644e";
+      sha256 = "0h7s4nvxin7m2caka7g1hhlxj1bbiwsvw8s2lqwlh7nq43v23ghg";
+    };
+    dependencies = [];
+
+  };
+
   elm-vim = buildVimPluginFrom2Nix { # created by nix#NixDerivation
     name = "elm-vim-2016-07-25";
     src = fetchgit {
@@ -816,11 +831,11 @@ rec {
   };
 
   vimtex = buildVimPluginFrom2Nix { # created by nix#NixDerivation
-    name = "vimtex-2016-07-26";
+    name = "vimtex-2016-08-19";
     src = fetchgit {
       url = "git://github.com/lervag/vimtex";
-      rev = "35fae13d17a08a7688a385644879f073a0fc8809";
-      sha256 = "0czj44ivvhh26w69w6grv26sq4b2rbcphsgs5hjga8wdnw63yxmd";
+      rev = "5bc5b14ae213deeafd2b6d8702ac11cefd4c0e8b";
+      sha256 = "0gqjxwjln82ar8dnv0dpmkhmycznxk2r0g06sddaq12y4r6bw5s9";
     };
     dependencies = [];
 
@@ -832,6 +847,17 @@ rec {
       url = "git://github.com/lokaltog/vim-easymotion";
       rev = "5c6f3cd9a713491e6b32752a05c45198aa91540a";
       sha256 = "0nr50c6hsg43bc86gkiram5whkggjpszffl8xkqxdmlspz9h96v3";
+    };
+    dependencies = [];
+
+  };
+
+  rainbow = buildVimPluginFrom2Nix { # created by nix#NixDerivation
+    name = "rainbow-2016-08-08";
+    src = fetchgit {
+      url = "git://github.com/luochen1990/rainbow";
+      rev = "eeb35ccece20f2648b44580c484c6e57eec3c92b";
+      sha256 = "0s1ygjm5czzj1idrw4f13gg60zljznb6bs7fps4i3wl2mbmw5641";
     };
     dependencies = [];
 
@@ -880,6 +906,17 @@ rec {
       url = "git://github.com/mpickering/hlint-refactor-vim";
       rev = "fffb044ecef854a82c5c2efda252e09044ba03e0";
       sha256 = "0z8d31arfy9aidg1dwj5msnnx799d9r7njkgh51z695w6ayxn6p8";
+    };
+    dependencies = [];
+
+  };
+
+  vim-indent-guides = buildVimPluginFrom2Nix { # created by nix#NixDerivation
+    name = "vim-indent-guides-2016-04-17";
+    src = fetchgit {
+      url = "git://github.com/nathanaelkane/vim-indent-guides";
+      rev = "018298ead9d3aa9cd3b4ae222f81022a33978b09";
+      sha256 = "0zyrs9r3vza2kqhqir6qpkygy6yljpn877bvycspv89ljzczmwrs";
     };
     dependencies = [];
 
@@ -1134,6 +1171,17 @@ rec {
 
   };
 
+  vim-repeat = buildVimPluginFrom2Nix { # created by nix#NixDerivation
+    name = "vim-repeat-2015-05-09";
+    src = fetchgit {
+      url = "git://github.com/tpope/vim-repeat";
+      rev = "7a6675f092842c8f81e71d5345bd7cdbf3759415";
+      sha256 = "0p8g5y3vyl1765lj1r8jpc06l465f9bagivq6k8ndajbg049brl7";
+    };
+    dependencies = [];
+
+  };
+
   hasksyn = buildVimPluginFrom2Nix { # created by nix#NixDerivation
     name = "hasksyn-2014-09-03";
     src = fetchgit {
@@ -1157,11 +1205,11 @@ rec {
   };
 
   youcompleteme = buildVimPluginFrom2Nix { # created by nix#NixDerivation
-    name = "youcompleteme-2016-07-23";
+    name = "youcompleteme-2016-09-01";
     src = fetchgit {
       url = "git://github.com/valloric/youcompleteme";
-      rev = "9968a43f7ec058298667c2c56ca86cfbbf1dac51";
-      sha256 = "17fxlflzggzx0mzsbmgvhp7dmkrx760w2pkais2vkafk3xdr1yr7";
+      rev = "e332cdb2a0c8599dead1d362b87bb9fb79c9a955";
+      sha256 = "0lqmdbv2z3rhm6a9c62rhfl3i30mvpg2f7k0cjan7jvrln9588k9";
     };
     dependencies = [];
     buildInputs = [

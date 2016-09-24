@@ -31,7 +31,7 @@ stdenv.mkDerivation {
   name = "qtbase-${srcs.qtbase.version}";
   inherit (srcs.qtbase) src version;
 
-  outputs = [ "dev" "out" ];
+  outputs = [ "out" "dev" ];
 
   patches =
     copyPathsToStore (lib.readPathsFromFile ./. ./series)
@@ -107,7 +107,7 @@ stdenv.mkDerivation {
     -rpath
     -optimized-qmake
     -strip
-    -reduce-relocations
+    -no-reduce-relocations
     -system-proxies
     -pkg-config
 

@@ -47,6 +47,7 @@ let
     kcolorchooser = callPackage ./kcolorchooser.nix {};
     kdegraphics-thumbnailers = callPackage ./kdegraphics-thumbnailers.nix {};
     kdenetwork-filesharing = callPackage ./kdenetwork-filesharing.nix {};
+    kdf = callPackage ./kdf.nix {};
     kgpg = callPackage ./kgpg.nix { inherit (pkgs.kde4) kdepimlibs; };
     khelpcenter = callPackage ./khelpcenter.nix {};
     kio-extras = callPackage ./kio-extras.nix {};
@@ -56,6 +57,7 @@ let
     libkexiv2 = callPackage ./libkexiv2.nix {};
     libkipi = callPackage ./libkipi.nix {};
     libkomparediff2 = callPackage ./libkomparediff2.nix {};
+    marble = callPackage ./marble.nix {};
     okular = callPackage ./okular.nix {};
     print-manager = callPackage ./print-manager.nix {};
     spectacle = callPackage ./spectacle.nix {};

@@ -6,13 +6,11 @@
 assert stdenv.isLinux;
 
 let
-
-  bnumber = with stdenv.lib; build: last (splitString "-" build);
   mkIdeaProduct = callPackage ./common.nix { };
 
-  buildClion = { name, version, build, src, license, description, wmClass }:
+  buildClion = { name, version, src, license, description, wmClass }:
     (mkIdeaProduct rec {
-      inherit name version build src wmClass jdk;
+      inherit name version src wmClass jdk;
       product = "CLion";
       meta = with stdenv.lib; {
         homepage = "https://www.jetbrains.com/clion/";
@@ -26,9 +24,9 @@ let
       };
     });
 
-  buildIdea = { name, version, build, src, license, description, wmClass }:
+  buildIdea = { name, version, src, license, description, wmClass }:
     (mkIdeaProduct rec {
-      inherit name version build src wmClass jdk;
+      inherit name version src wmClass jdk;
       product = "IDEA";
       meta = with stdenv.lib; {
         homepage = "https://www.jetbrains.com/idea/";
@@ -43,9 +41,9 @@ let
       };
     });
 
-  buildRubyMine = { name, version, build, src, license, description, wmClass }:
+  buildRubyMine = { name, version, src, license, description, wmClass }:
     (mkIdeaProduct rec {
-      inherit name version build src wmClass jdk;
+      inherit name version src wmClass jdk;
       product = "RubyMine";
       meta = with stdenv.lib; {
         homepage = "https://www.jetbrains.com/ruby/";
@@ -56,9 +54,9 @@ let
       };
     });
 
-  buildPhpStorm = { name, version, build, src, license, description, wmClass }:
+  buildPhpStorm = { name, version, src, license, description, wmClass }:
     (mkIdeaProduct {
-      inherit name version build src wmClass jdk;
+      inherit name version src wmClass jdk;
       product = "PhpStorm";
       meta = with stdenv.lib; {
         homepage = "https://www.jetbrains.com/phpstorm/";
@@ -73,9 +71,9 @@ let
       };
     });
 
-  buildWebStorm = { name, version, build, src, license, description, wmClass }:
+  buildWebStorm = { name, version, src, license, description, wmClass }:
     (mkIdeaProduct {
-      inherit name version build src wmClass jdk;
+      inherit name version src wmClass jdk;
       product = "WebStorm";
       meta = with stdenv.lib; {
         homepage = "https://www.jetbrains.com/webstorm/";
@@ -90,9 +88,9 @@ let
       };
     });
 
-  buildPycharm = { name, version, build, src, license, description, wmClass }:
+  buildPycharm = { name, version, src, license, description, wmClass }:
     (mkIdeaProduct rec {
-      inherit name version build src wmClass jdk;
+      inherit name version src wmClass jdk;
       product = "PyCharm";
       meta = with stdenv.lib; {
         homepage = "https://www.jetbrains.com/pycharm/";
@@ -120,11 +118,21 @@ let
 in
 
 {
-
   clion = buildClion rec {
     name = "clion-${version}";
+    version = "2016.2.2";
+    description  = "C/C++ IDE. New. Intelligent. Cross-platform";
+    license = stdenv.lib.licenses.unfree;
+    src = fetchurl {
+      url = "https://download.jetbrains.com/cpp/CLion-${version}.tar.gz";
+      sha256 = "06aq3lfccki9203gjvibzj3gn9d82pc6s5z0m3fnf049zxk58ndi";
+    };
+    wmClass = "jetbrains-clion";
+  };
+
+  clion1 = buildClion rec {
+    name = "clion-${version}";
     version = "1.2.5";
-    build = "CL-143.2370.46";
     description  = "C/C++ IDE. New. Intelligent. Cross-platform";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
@@ -137,7 +145,6 @@ in
   idea14-community = buildIdea rec {
     name = "idea-community-${version}";
     version = "14.1.7";
-    build = "IC-141.3058.30";
     description = "Integrated Development Environment (IDE) by Jetbrains, community edition";
     license = stdenv.lib.licenses.asl20;
     src = fetchurl {
@@ -149,13 +156,12 @@ in
 
   idea-community = buildIdea rec {
     name = "idea-community-${version}";
-    version = "2016.2";
-    build = "IC-162.1121";
+    version = "2016.2.4";
     description = "Integrated Development Environment (IDE) by Jetbrains, community edition";
     license = stdenv.lib.licenses.asl20;
     src = fetchurl {
       url = "https://download.jetbrains.com/idea/ideaIC-${version}.tar.gz";
-      sha256 = "164x4l0q31zpc1jh3js1xx9y6afrzsshmnkx1mwhmq8qmvzc4w32";
+      sha256 = "0hk7z402qvkaa6hkhh4wsqxki2bnai5qkd2r0ngvy8kd71svrldz";
     };
     wmClass = "jetbrains-idea-ce";
   };
@@ -163,12 +169,11 @@ in
   idea14-ultimate = buildIdea rec {
     name = "idea-ultimate-${version}";
     version = "14.1.7";
-    build = "IU-141.3058.30";
     description = "Integrated Development Environment (IDE) by Jetbrains, requires paid license";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
       url = "https://download.jetbrains.com/idea/ideaIU-${version}.tar.gz";
-      sha256 = "a2259249f6e7bf14ba17b0af90a18d24d9b4670af60d24f0bb51af2f62500fc2";
+      sha256 = "1hhga1i2zbsipgq283gn19kv9n94inhr1bxh2yx19gz7yr4r49d2";
     };
     wmClass = "jetbrains-idea";
   };
@@ -176,7 +181,6 @@ in
   idea15-ultimate = buildIdea rec {
     name = "idea-ultimate-${version}";
     version = "15.0.6";
-    build = "IU-143.2370.31";
     description = "Integrated Development Environment (IDE) by Jetbrains, requires paid license";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
@@ -188,21 +192,31 @@ in
 
   idea-ultimate = buildIdea rec {
     name = "idea-ultimate-${version}";
-    version = "2016.2";
-    build = "IU-162.1121";
+    version = "2016.2.4";
     description = "Integrated Development Environment (IDE) by Jetbrains, requires paid license";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
       url = "https://download.jetbrains.com/idea/ideaIU-${version}.tar.gz";
-      sha256 = "10hiqh6ccmai2cnc5p72vqjcz9kzmmcpn0hy5v514h4mq6vs4zk4";
+      sha256 = "165nchdnbyp85r2w0riv87j77lb7r492dkwrvm8q7qjnlfgznh7r";
     };
     wmClass = "jetbrains-idea";
   };
 
   ruby-mine = buildRubyMine rec {
     name = "ruby-mine-${version}";
+    version = "2016.2.2";
+    description = "The Most Intelligent Ruby and Rails IDE";
+    license = stdenv.lib.licenses.unfree;
+    src = fetchurl {
+      url = "https://download.jetbrains.com/ruby/RubyMine-${version}.tar.gz";
+      sha256 = "1ck4axjbrvq2n1j2rvf9a2f7dqvalg2b8sqy9n9qkzdn04szaqsl";
+    };
+    wmClass = "jetbrains-rubymine";
+  };
+
+  ruby-mine7 = buildRubyMine rec {
+    name = "ruby-mine-${version}";
     version = "7.1.5";
-    build = "RM-141.3058.29";
     description = "The Most Intelligent Ruby and Rails IDE";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
@@ -212,36 +226,57 @@ in
     wmClass = "jetbrains-rubymine";
   };
 
+  ruby-mine8 = buildRubyMine rec {
+    name = "ruby-mine-${version}";
+    version = "8.0.4";
+    description = "The Most Intelligent Ruby and Rails IDE";
+    license = stdenv.lib.licenses.unfree;
+    src = fetchurl {
+      url = "https://download.jetbrains.com/ruby/RubyMine-${version}.tar.gz";
+      sha256 = "0hipxib7377232w1jbf8h98bmh0djkllsrq3lq0w3fdxqglma43a";
+    };
+    wmClass = "jetbrains-rubymine";
+  };
+
   pycharm-community = buildPycharm rec {
     name = "pycharm-community-${version}";
-    version = "2016.1.3";
-    build = "PC-145.971.25";
+    version = "2016.2.2";
     description = "PyCharm Community Edition";
     license = stdenv.lib.licenses.asl20;
     src = fetchurl {
       url = "https://download.jetbrains.com/python/${name}.tar.gz";
-      sha256 = "1ks7crrfnhzkdxban2hh2pnr986vqwmac5zybmb1ighcyamhdi4q";
+      sha256 = "1v6vy4xh0n8wdjc25clxg57z7ria11x1zdba4j1hjs2z6l80kxbb";
     };
     wmClass = "jetbrains-pycharm-ce";
   };
 
   pycharm-professional = buildPycharm rec {
     name = "pycharm-professional-${version}";
-    version = "2016.1.3";
-    build = "PY-145.971.25";
+    version = "2016.2.2";
     description = "PyCharm Professional Edition";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
       url = "https://download.jetbrains.com/python/${name}.tar.gz";
-      sha256 = "1rn0i5qbvfjbl4v571ngmyslispibcq5ab0fb7xjl38vr1y417f2";
+      sha256 = "08x2x6lhr9100lmw1dq8rkz4mlyj4avcj2hpbd5qqybx9j4g6g44";
     };
     wmClass = "jetbrains-pycharm";
   };
 
   phpstorm = buildPhpStorm rec {
     name = "phpstorm-${version}";
+    version = "2016.2.1";
+    description = "Professional IDE for Web and PHP developers";
+    license = stdenv.lib.licenses.unfree;
+    src = fetchurl {
+      url = "https://download.jetbrains.com/webide/PhpStorm-${version}.tar.gz";
+      sha256 = "0vgr0ds6z0y8qw2v55nr3pi5zb5x0n6pxm13hcp44iradns5kmbp";
+    };
+    wmClass = "jetbrains-phpstorm";
+  };
+
+  phpstorm10 = buildPhpStorm rec {
+    name = "phpstorm-${version}";
     version = "10.0.4";
-    build = "PS-143.2370.33";
     description = "Professional IDE for Web and PHP developers";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
@@ -253,8 +288,19 @@ in
 
   webstorm = buildWebStorm rec {
     name = "webstorm-${version}";
+    version = "2016.2.2";
+    description = "Professional IDE for Web and JavaScript development";
+    license = stdenv.lib.licenses.unfree;
+    src = fetchurl {
+      url = "https://download.jetbrains.com/webstorm/WebStorm-${version}.tar.gz";
+      sha256 = "0n2fvhjasklshyfcbwwn6wahzld8x65bid08245awdqv33p87bq6";
+    };
+    wmClass = "jetbrains-webstorm";
+  };
+
+  webstorm10 = buildWebStorm rec {
+    name = "webstorm-${version}";
     version = "10.0.5";
-    build = "WS-141.3058.35";
     description = "Professional IDE for Web and JavaScript development";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
@@ -264,4 +310,15 @@ in
     wmClass = "jetbrains-webstorm";
   };
 
+  webstorm11 = buildWebStorm rec {
+    name = "webstorm-${version}";
+    version = "11.0.4";
+    description = "Professional IDE for Web and JavaScript development";
+    license = stdenv.lib.licenses.unfree;
+    src = fetchurl {
+      url = "https://download.jetbrains.com/webstorm/WebStorm-${version}.tar.gz";
+      sha256 = "17agyqdyz6naxyx6p0y240ar93gja0ypw01nm2qmfzvh7ch03r24";
+    };
+    wmClass = "jetbrains-webstorm";
+  };
 }
