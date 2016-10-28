@@ -28,9 +28,9 @@ let
 
 in stdenv.mkDerivation rec {
 
-  version = "16.30";
+  version = "16.40";
   pname = "amdgpu-pro";
-  build = "16.30.3-315407";
+  build = "16.40-348864";
 
   libCompatDir = "/run/lib/${libArch}";
 
@@ -38,16 +38,9 @@ in stdenv.mkDerivation rec {
 
   src = fetchurl {
     url =
-    "https://www2.ati.com/drivers/linux/amdgpu-pro_${build}.tar.xz";
-    sha256 = "97d6fb64617cf2cefe780e5fb83b29d8ee4e3e7886b71fe3d92b0113847b2354";
-    curlOpts = "--referer http://support.amd.com/en-us/kb-articles/Pages/AMDGPU-PRO-Beta-Driver-for-Vulkan-Release-Notes.aspx";
-  };
-
-  vulkanOverlay = fetchFromGitHub {
-    owner = "Lucretia";
-    repo = "vulkan-overlay";
-    rev = "70558192e7ac16103e1ec6100c1bebd6f162c818";
-    sha256 = "1ycl55m3wc72q0a6pkyhhzji7llliw8076aiynr60jyv6cnmcgdz";
+    "https://www2.ati.com/drivers/linux/ubuntu/amdgpu-pro-${build}.tar.xz";
+    sha256 = "1c06lx07irmlpmbmgb3qcgpzj6q6rimszrbbdrgz8kqnfpcv3mjr";
+    curlOpts = "--referer http://support.amd.com/en-us/kb-articles/Pages/AMD-Radeon-GPU-PRO-Linux-Beta-Driver%e2%80%93Release-Notes.aspx";
   };
 
   hardeningDisable = [ "pic" "format" ];
@@ -63,14 +56,25 @@ in stdenv.mkDerivation rec {
   '';
 
   modulePatches = [
-    ./patches/0001-Add-vga-switcheroo-handler-flag-for-4.8.patch
-    ./patches/0002-Remove-dependency-on-System.map.patch
-    ./patches/0003-disable-dal-by-default.patch
+    ./patches/0001-Find-correct-System.map.patch
+    ./patches/0002-Fix-kernel-module-install-location.patch
+    ./patches/0003-Add-Gentoo-as-build-option.patch
+    ./patches/0004-Remove-extra-parameter-from-ttm_bo_reserve-for-4.7.0.patch
+    ./patches/0005-Remove-first-param-from-drm_gem_object_lookup.patch
+    ./patches/0006-Remove-vblank_disable_allowed-assignment.patch
+    ./patches/0007-Fix-__drm_atomic_helper_connector_destroy_state-call.patch
+    ./patches/0008-Change-seq_printf-format-for-64-bit-context.patch
+    ./patches/0009-Fix-vblank-calls.patch
+    ./patches/0010-Fix-crtc_gamma-functions-for-4.8.0.patch
+    ./patches/0011-Fix-drm_atomic_helper_swap_state-for-4.8.0.patch
+    ./patches/0012-Add-extra-flag-to-ttm_bo_move_ttm-for-4.8.0-rc2.patch
+    ./patches/0013-Remove-dependency-on-System.map.patch
+    ./patches/0014-disable-dal-by-default.patch
   ];
 
   patchPhase = optionalString (!libsOnly) ''
     pushd usr/src/amdgpu-pro-${build}
-    for patch in $vulkanOverlay/sys-kernel/amdgpu-pro-dkms/files/${build}/*.patch $modulePatches
+    for patch in $modulePatches
     do
       echo $patch
       patch -f -p1 < $patch || true
@@ -96,31 +100,43 @@ in stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out
-    cp -r usr/bin $out/bin
-    cp -r usr/share $out/share
+
     cp -r etc $out/etc
-    mv $out/etc/vulkan $out/share
-    cp -r usr/include $out/include
-    cp -r usr/lib/${libArch} $out/lib
-    mv $out/lib/amdgpu-pro/* $out/lib/
-    rmdir $out/lib/amdgpu-pro
+    cp -r lib $out/lib
+
+    pushd usr
+    cp -r lib/${libArch}/* $out/lib
   '' + optionalString (!libsOnly) ''
-    if [ -d $out/lib/xorg ]; then
-      rm $out/lib/xorg
-      mv $out/lib/1.18 $out/lib/xorg
-      rm -r $out/lib/1.*
-    fi
-    cp -r lib/firmware $out/lib/firmware
+    cp -r src/amdgpu-pro-${build}/firmware $out/lib/firmware
+  '' + ''
+    cp -r share $out/share
+    popd
+
+    pushd opt/amdgpu-pro
+  '' + optionalString (!stdenv.is64bit) ''
+    cp -r bin $out/bin
+  '' + ''
+    cp -r include $out/include
+    cp -r lib/${libArch}/* $out/lib
+  '' + optionalString (!libsOnly) ''
+    mv lib/xorg $out/lib/xorg
+  '' + ''
+    popd
+
+  '' + optionalString (!libsOnly) ''
     mkdir -p $out/lib/modules/${kernel.modDirVersion}/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.xz
     cp usr/src/amdgpu-pro-${build}/amd/amdgpu/amdgpu.ko.xz $out/lib/modules/${kernel.modDirVersion}/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.xz
   '' + ''
+    mv $out/etc/vulkan $out/share
     interpreter="$(cat $NIX_CC/nix-support/dynamic-linker)"
     libPath="$out/lib:$out/lib/gbm:$depLibPath"
     echo patching with $interpreter $libPath
-    for prog in "$out"/bin/*; do
+  '' + optionalString (!stdenv.is64bit) ''
+    for prog in clinfo modetest vbltest kms-universal-planes kms-steal-crtc modeprint amdgpu_test kmstest proptest; do
       echo patching program $prog
-      patchelf --interpreter "$interpreter" --set-rpath "$libPath" "$prog"
+      patchelf --interpreter "$interpreter" --set-rpath "$libPath" "$out/bin/$prog"
     done
+  '' + ''
     for lib in `find "$out/lib/" -name '*.so*'`; do
       echo patching library $lib
       patchelf --set-rpath "$libPath" "$lib"
