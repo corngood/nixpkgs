@@ -51,8 +51,9 @@ stdenv.mkDerivation rec {
 
   patchFlags = "-p0";
 
-  patches = upstreamPatches
-      ++ optional stdenv.isCygwin ./cygwin-bash-4.3.33-1.src.patch;
+  patches = upstreamPatches;
+
+  postPatch = optionalString stdenv.isCygwin "patch -p2 < ${./cygwin-bash-4.4.11-2.src.patch}";
 
   crossAttrs = {
     configureFlags = baseConfigureFlags +
@@ -79,9 +80,16 @@ stdenv.mkDerivation rec {
   # build `version.h'.
   enableParallelBuilding = false;
 
+  makeFlags = optional stdenv.isCygwin [
+    "LOCAL_LDFLAGS=-Wl,--export-all,--out-implib,libbash.dll.a"
+    "SHOBJ_LIBS=-lbash"
+  ];
+
   postInstall = ''
     ln -s bash "$out/bin/sh"
     rm $out/lib/bash/Makefile.inc
+  '' + optionalString stdenv.isCygwin ''
+    cp libbash.dll.a "$dev/lib"
   '';
 
   postFixup = if interactive
