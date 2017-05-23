@@ -43,7 +43,7 @@ in stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  doCheck = !stdenv.isDarwin;
+  doCheck = !(stdenv.isDarwin || stdenv.isCygwin);
 
   crossAttrs = lib.optionalAttrs (stdenv.cross.libc == "msvcrt") {
     # creating the DLL is broken ATM
