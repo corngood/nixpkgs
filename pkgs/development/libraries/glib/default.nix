@@ -9,7 +9,7 @@
 
 with stdenv.lib;
 
-assert stdenv.isFreeBSD || stdenv.isDarwin || stdenv.cc.isGNU;
+assert stdenv.isFreeBSD || stdenv.isDarwin || stdenv.cc.isGNU || stdenv.isCygwin;
 assert stdenv.isLinux -> utillinuxMinimal != null;
 
 # TODO:
