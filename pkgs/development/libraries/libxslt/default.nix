@@ -41,6 +41,8 @@ stdenv.mkDerivation rec {
     moveToOutput lib/python2.7 "$py"
   '';
 
+  makeFlags = optionalString stdenv.isCygwin "LDFLAGS=-no-undefined";
+
   passthru = {
     inherit pythonSupport;
   };
