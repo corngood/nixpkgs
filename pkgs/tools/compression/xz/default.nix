@@ -10,7 +10,8 @@ stdenv.mkDerivation rec {
 
   outputs = [ "bin" "dev" "out" "man" "doc" ];
 
-  doCheck = true;
+  # test executables currently run against the system liblzma on cygwin
+  doCheck = !stdenv.isCygwin;
 
   # In stdenv-linux, prevent a dependency on bootstrap-tools.
   preConfigure = "unset CONFIG_SHELL";
