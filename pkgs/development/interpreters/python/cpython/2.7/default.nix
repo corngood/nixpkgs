@@ -190,6 +190,8 @@ in stdenv.mkDerivation {
         find $out -name "*.py" | $out/bin/python -m compileall -q -f -x "lib2to3" -i -
         find $out -name "*.py" | $out/bin/python -O -m compileall -q -f -x "lib2to3" -i -
         find $out -name "*.py" | $out/bin/python -OO -m compileall -q -f -x "lib2to3" -i -
+      '' + optionalString stdenv.isCygwin ''
+        cp libpython2.7.dll.a $out/lib
       '';
 
     passthru = let
