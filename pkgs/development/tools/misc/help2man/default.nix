@@ -16,7 +16,8 @@ stdenv.mkDerivation rec {
 
   postInstall =
     '' wrapProgram "$out/bin/help2man" \
-         --prefix PERL5LIB : "$(echo ${LocaleGettext}/lib/perl*/site_perl)"
+         --prefix PERL5LIB : "$(echo ${LocaleGettext}/lib/perl*/site_perl)" \
+         ${stdenv.lib.optionalString stdenv.isCygwin "--prefix PATH : ${gettext}/bin"}
     '';
 
 
