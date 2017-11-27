@@ -1,0 +1,85 @@
+From 94b48582fa2d12b851649690cf8be37a70ce661f Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Sun, 26 Nov 2017 14:58:40 -0400
+Subject: [PATCH] disable internal rrdtool
+
+---
+ Build.PL             | 37 +------------------------------------
+ lib/Alien/RRDtool.pm |  2 +-
+ 2 files changed, 2 insertions(+), 37 deletions(-)
+
+diff --git a/Build.PL b/Build.PL
+index b8380f0..5f38c74 100644
+--- a/Build.PL
++++ b/Build.PL
+@@ -2,7 +2,6 @@
+ use strict;
+ use warnings;
+ 
+-use inc::MyBuilder;
+ use Module::Build::Compat;
+ use File::Path qw(rmtree);
+ use IO::Handle;
+@@ -11,33 +10,8 @@ use LWP::Simple;
+ 
+ STDOUT->autoflush(1);
+ 
+-my $name    = 'rrdtool';
+-my $rrdtool = "http://oss.oetiker.ch/rrdtool/pub/${name}.tar.gz";
+-
+-if (!grep { $_ eq '--no-upgrade' } @ARGV) {
+-    print "# donwloading $rrdtool\n";
+-    print "# => ", scalar mirror($rrdtool, "$name.tar.gz"), "\n";
+-}
+-
+-print "# unpacking $name.tar.gz\n";
+-system("tar", "xzf",  "$name.tar.gz");
+-rmtree($name);
+-
+-my $version = do {
+-    my @dirs = <rrdtool-*>;
+-    @dirs == 1 or die "XXX: too many rrdtool-*/: @dirs";
+-    ( $dirs[0] =~ m/ (\d+ (?: \. \d+)+ ) /xms )[0];
+-};
+-print "# rrdtool version $version\n";
+-symlink "$name-$version" => $name;
+-
+-if (-e (my $patch = "patch/v$version.patch")) {
+-    print "# applying $patch\n";
+-    system("cd '$name' && patch -p1 < '../$patch'");
+-}
+-
+ print "# witing Makefile\n";
+-my $builder = inc::MyBuilder->new(
++my $builder = Module::Build->new(
+     module_name => 'Alien::RRDtool',
+     dist_author => 'Fuji, Goro (gfx) <gfuji(at)cpan.org>',
+     license     => 'perl',
+@@ -62,8 +36,6 @@ my $builder = inc::MyBuilder->new(
+         'Test::Requires' => 0.06,
+     },
+ 
+-    share_dir => 'alien',
+-
+     needs_compiler => 1,
+ 
+     dist_meta => 1, # to make `cpanm .` happy
+@@ -76,18 +48,11 @@ my $builder = inc::MyBuilder->new(
+     },
+ 
+     add_to_cleanup => [
+-        $name,
+-        "$name-$version",
+         'Makefile',
+         'blib',
+     ],
+ );
+ 
+-$builder->notes( rrdtool    => $rrdtool );
+-$builder->notes( name       => $name    );
+-$builder->notes( version    => $version );
+-$builder->notes( installdir => 'alien' );
+-
+ $builder->create_build_script();
+ 
+ # write Makefile for an easy interface to the build script

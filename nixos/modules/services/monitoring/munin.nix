@@ -23,6 +23,7 @@ let
       htmldir   /var/www/munin
       logdir    /var/log/munin
       rundir    /var/run/munin
+      tmpldir   ${pkgs.munin}/
 
       ${cronCfg.extraGlobalConfig}
 
@@ -177,13 +178,13 @@ in
 
         mkdir -p /etc/munin/plugins
         rm -rf /etc/munin/plugins/*
-        ${pkgs.munin}/bin/munin-node-configure --suggest --shell --families contrib,auto,manual --config ${nodeConf} --libdir=${pkgs.munin}/lib/plugins --servicedir=/etc/munin/plugins --sconfdir=${pluginConfDir} 2>/dev/null | ${pkgs.bash}/bin/bash
+        ${pkgs.munin}/bin/munin-node-configure --suggest --shell --families contrib,auto,manual --config ${nodeConf} --libdir=${pkgs.munin}/share/plugins --servicedir=/etc/munin/plugins --sconfdir=${pluginConfDir} 2>/dev/null | ${pkgs.bash}/bin/bash
 
         # NOTE: we disable disktstats because plugin seems to fail and it hangs html generation (100% CPU + memory leak)
         rm /etc/munin/plugins/diskstats || true
       '';
       serviceConfig = {
-        ExecStart = "${pkgs.munin}/sbin/munin-node --config ${nodeConf} --servicedir /etc/munin/plugins/ --sconfdir=${pluginConfDir}";
+        ExecStart = "${pkgs.munin}/bin/munin-node --config ${nodeConf} --servicedir /etc/munin/plugins/ --sconfdir=${pluginConfDir}";
       };
     };
 
@@ -203,9 +204,23 @@ in
       unitConfig.Documentation = "man:munin-cron(8)";
 
       serviceConfig = {
-        Type = "oneshot";
         User = "munin";
+        Type = "oneshot";
         ExecStart = "${pkgs.munin}/bin/munin-cron --config ${muninConf}";
+      };
+    };
+
+    systemd.services.munin-httpd = {
+      description = "Munin HTTPD daemon";
+
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" "fs.target" ];
+
+      environment.MUNIN_DBURL = "/var/lib/munin/datafile.sqlite";
+
+      serviceConfig = {
+        User = "munin";
+        ExecStart = "${pkgs.munin}/bin/munin-httpd --config ${muninConf}";
       };
     };
 

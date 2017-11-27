@@ -1,27 +1,27 @@
-commit d94c29b7397362857b81d8c877a989fdb28490d8
-Author: Kjetil Orbekk <kjetil.orbekk@gmail.com>
-Date:   Tue Nov 21 15:37:42 2017 -0500
+commit ace1a2576036a76999684de2d2da7b4d4e87ed32
+Author: David McFarland <corngood@gmail.com>
+Date:   Sat Nov 25 20:31:56 2017 -0400
 
-    Keep environment variables instead of overwriting them.
+    p2
 
-diff --git a/common/lib/Munin/Common/Defaults.pm b/common/lib/Munin/Common/Defaults.pm
-index 131f52c0..bbf42697 100644
---- a/common/lib/Munin/Common/Defaults.pm
-+++ b/common/lib/Munin/Common/Defaults.pm
-@@ -71,7 +71,7 @@ sub export_to_environment {
+diff --git a/lib/Munin/Common/Defaults.pm.PL b/lib/Munin/Common/Defaults.pm.PL
+index 13eb5fdf..6a16d391 100644
+--- a/lib/Munin/Common/Defaults.pm.PL
++++ b/lib/Munin/Common/Defaults.pm.PL
+@@ -92,7 +92,7 @@ sub export_to_environment {
  
-     my %defaults = %{$class->get_defaults()};
-     while (my ($k, $v) = each %defaults) {
+     my %defaults = %{ $class->get_defaults() };
+     while ( my ( $k, $v ) = each %defaults ) {
 -        $ENV{$k} = $v;
 +        $ENV{$k} = $ENV{$k} || $v;
      }
  
-     return
-diff --git a/node/lib/Munin/Node/Service.pm b/node/lib/Munin/Node/Service.pm
-index 1b4f6114..be58bd77 100644
---- a/node/lib/Munin/Node/Service.pm
-+++ b/node/lib/Munin/Node/Service.pm
-@@ -122,7 +122,7 @@ sub export_service_environment {
+     return;
+diff --git a/lib/Munin/Node/Service.pm b/lib/Munin/Node/Service.pm
+index fbb773ee..eecc22d7 100644
+--- a/lib/Munin/Node/Service.pm
++++ b/lib/Munin/Node/Service.pm
+@@ -121,7 +121,7 @@ sub export_service_environment {
      # We append the USER to the MUNIN_PLUGSTATE, to avoid CVE-2012-3512
      my $uid = $self->_resolve_uid($service);
      my $user = getpwuid($uid);

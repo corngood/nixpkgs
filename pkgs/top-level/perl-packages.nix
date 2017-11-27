@@ -96,6 +96,27 @@ let self = _self // overrides; _self = with self; {
     };
   };
 
+  AlienRRDtool = buildPerlModule rec {
+    name = "Alien-RRDtool-0.05";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/G/GF/GFUJI/${name}.tar.gz";
+      sha256 = "0gm3vbdvfa1wp8j7k24vh7pibjdx8g7mv060s6j5c6apv2x75xrc";
+    };
+
+    postPatch = ''
+      sed -i 's|dist_dir(.*|"${pkgs.rrdtool}";|' -i lib/Alien/RRDtool.pm;
+    '';
+
+    nativeBuildInputs = [ pkgs.pkgconfig ];
+
+    buildInputs = [ Filechdir FileShareDir FileWhich TestRequires LWP
+      pkgs.rrdtool ];
+
+    patches = [
+      ../development/perl-modules/Alien-RRDtool-disable-internal-rrdtool.patch
+    ];
+  };
+
   AlienTidyp = buildPerlModule rec {
     name = "Alien-Tidyp-${version}";
     version = "1.4.7";
@@ -6689,6 +6710,15 @@ let self = _self // overrides; _self = with self; {
     propagatedBuildInputs = [ CGI ];
   };
 
+  HTMLTemplatePro = buildPerlPackage rec {
+    name = "HTML-Template-Pro-0.9510";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/V/VI/VIY/${name}.tar.gz";
+      sha256 = "11la3z0ajvm6mv1hjywwf7mj3ihdnx2xbkag2jfl7l80jvz7gjv7";
+    };
+    propagatedBuildInputs = [ JSON ];
+  };
+
   HTMLTidy = buildPerlPackage rec {
     name = "HTML-Tidy-1.56";
     src = fetchurl {
@@ -6960,6 +6990,15 @@ let self = _self // overrides; _self = with self; {
     meta = {
       license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
     };
+  };
+
+  HTTPServerSimpleCGIPreFork = buildPerlPackage rec {
+    name = "HTTP-Server-Simple-CGI-PreFork-6";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/C/CA/CAVAC/${name}.tar.gz";
+      sha256 = "16b768b3az7zvxmcbahwcy799s1g5rpc9rbjnc3wh4f4wwmg6cl6";
+    };
+    propagatedBuildInputs = [ HTTPServerSimple ];
   };
 
   HTTPServerSimpleMason = buildPerlPackage {
@@ -8246,11 +8285,12 @@ let self = _self // overrides; _self = with self; {
   };
 
   LWPUserAgent = buildPerlPackage {
-    name = "LWP-UserAgent-6.05";
+    name = "LWP-UserAgent-6.29";
     src = fetchurl {
-      url = mirror://cpan/authors/id/G/GA/GAAS/libwww-perl-6.05.tar.gz;
-      sha256 = "08wgwyz7748pv5cyngxia0xl6nragfnhrp4p9s78xhgfyygpj9bv";
+      url = mirror://cpan/authors/id/O/OA/OALDERS/libwww-perl-6.29.tar.gz;
+      sha256 = "0qk61qnfqv0s3isj41pcj2cw63dk29mi315m6rj0wbcxk6bjcvsc";
     };
+    buildInputs = [ TryTiny TestRequiresInternet TestFatal ];
     propagatedBuildInputs = [ EncodeLocale FileListing HTMLParser HTTPCookies HTTPDaemon HTTPDate HTTPNegotiate HTTPMessage LWPMediaTypes NetHTTP URI WWWRobotRules ];
     meta = {
       description = "The World-Wide Web library for Perl";
@@ -10741,6 +10781,16 @@ let self = _self // overrides; _self = with self; {
       maintainers = with maintainers; [ nckx ];
       license = stdenv.lib.licenses.lgpl21Plus;
     };
+  };
+
+  ParallelForkManager = buildPerlPackage rec {
+    name = "Parallel-ForkManager-1.19";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/Y/YA/YANICK/${name}.tar.gz";
+      sha256 = "0wm4wp6p3ah5z212jl12728z68nmxmfr0f03z1jpvdzffnc2xppi";
+    };
+    buildInputs = [ TestWarn ];
+    # propagatedBuildInputs = [ ClassAccessorLite ListMoreUtils ProcWait3 ScopeGuard SignalMask ];
   };
 
   ParallelPrefork = buildPerlPackage {
@@ -14003,6 +14053,14 @@ let self = _self // overrides; _self = with self; {
     };
   };
 
+  TestRequiresInternet = buildPerlPackage rec {
+    name = "Test-RequiresInternet-0.05";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/M/MA/MALLEN/${name}.tar.gz";
+      sha256 = "0gl33vpj9bb78pzyijp884b66sbw6jkh1ci0xki8rmf03hmb79xv";
+    };
+  };
+
   TestRoo = buildPerlPackage rec {
     name = "Test-Roo-1.004";
     src = fetchurl {
@@ -15837,6 +15895,15 @@ let self = _self // overrides; _self = with self; {
       sha256 = "1jvqfi0jm8wh80rd5h9c3k72car8l7x1jywj8rck8w6rm1mlxldy";
     };
     propagatedBuildInputs = [XMLRegExp XMLParser LWP libxml_perl];
+  };
+
+  XMLDumper = buildPerlPackage rec {
+    name = "XML-Dumper-0.81";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/M/MI/MIKEWONG/${name}.tar.gz";
+      sha256 = "1q7q0fs4dvfx3pq89pb2ynx89nrvwx7xsiswxfx624kf4fshw5zl";
+    };
+    buildInputs = [ XMLParser ];
   };
 
   XMLFilterBufferText = buildPerlPackage {
