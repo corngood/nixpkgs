@@ -9,6 +9,7 @@
 , scpSupport ? zlibSupport && !stdenv.isSunOS && !stdenv.isCygwin, libssh2 ? null
 , gssSupport ? with stdenv.hostPlatform; (
     !isWindows &&
+    !isCygwin &&
     # disable gss becuase of: undefined reference to `k5_bcmp'
     # a very sad story re static: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=439039
     !isStatic &&
