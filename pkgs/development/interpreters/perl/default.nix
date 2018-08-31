@@ -48,7 +48,13 @@ let
           url = "https://github.com/arsv/perl-cross/commit/3c318ae6572f8b36cb077c8b49c851e2f5fe181e.patch";
           sha256 = "0cmcy8bams3c68f6xadl52z2w378wcpdjzi3qi4pcyvcfs011l6g";
         })
-      ];
+      ]
+      ++ optional (stdenv.isCygwin) (
+        # Fix cygwin: https://rt.perl.org/Public/Bug/Display.html?id=133152
+        fetchurl {
+          url = "https://rt.perl.org/Public/Ticket/Attachment/1551326/821562/0001-perl-133152-nostdio.h-is-broken-don-t-use-it.patch";
+          sha256 = "1pr5fij5b9nwlrdrwxc91phyl56pajnzhfk5fba8a2r1bmqjjdhl";
+        });
 
     # This is not done for native builds because pwd may need to come from
     # bootstrap tools when building bootstrap perl.
