@@ -27,8 +27,9 @@ stdenv.mkDerivation rec {
     cat > $out/bin/help2man <<EOF
     #! $SHELL -e
     export PERL5LIB=\''${PERL5LIB:+:}${perlPackages.LocaleGettext}/${perlPackages.perl.libPrefix}
-    ${stdenv.lib.optionalString stdenv.hostPlatform.isCygwin
-        ''export PATH=\''${PATH:+:}${gettext}/bin''}
+  '' + stdenv.lib.optionalString stdenv.hostPlatform.isCygwin ''
+      export PATH=$PATH:${gettext}/bin
+  '' + ''
     exec -a \$0 $out/bin/.help2man-wrapped "\$@"
     EOF
     chmod +x $out/bin/help2man
