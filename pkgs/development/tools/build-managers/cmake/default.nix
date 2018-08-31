@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
 
     # Derived from https://github.com/libuv/libuv/commit/1a5d4f08238dd532c3718e210078de1186a5920d
     ./libuv-application-services.patch
-  ] ++ lib.optional stdenv.isCygwin ./3.2.2-cygwin.patch;
+  ];
 
   outputs = [ "out" ];
   setOutputFlags = false;
@@ -56,10 +56,12 @@ stdenv.mkDerivation rec {
 
   preConfigure = ''
     fixCmakeFiles .
+  '' + lib.optionalString (stdenv.cc.libc != null) ''
     substituteInPlace Modules/Platform/UnixPaths.cmake \
       --subst-var-by libc_bin ${lib.getBin stdenv.cc.libc} \
       --subst-var-by libc_dev ${lib.getDev stdenv.cc.libc} \
       --subst-var-by libc_lib ${lib.getLib stdenv.cc.libc}
+  '' + ''
     substituteInPlace Modules/FindCxxTest.cmake \
       --replace "$""{PYTHON_EXECUTABLE}" ${stdenv.shell}
     # BUILD_CC and BUILD_CXX are used to bootstrap cmake
@@ -80,9 +82,9 @@ stdenv.mkDerivation rec {
     # package being built.
     "-DCMAKE_CXX_COMPILER=${stdenv.cc.targetPrefix}c++"
     "-DCMAKE_C_COMPILER=${stdenv.cc.targetPrefix}cc"
-    "-DCMAKE_AR=${lib.getBin stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}ar"
-    "-DCMAKE_RANLIB=${lib.getBin stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}ranlib"
-    "-DCMAKE_STRIP=${lib.getBin stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}strip"
+    "-DCMAKE_AR=/bin/${stdenv.cc.targetPrefix}ar"
+    "-DCMAKE_RANLIB=/bin/${stdenv.cc.targetPrefix}ranlib"
+    "-DCMAKE_STRIP=/bin/${stdenv.cc.targetPrefix}strip"
   ]
     # Avoid depending on frameworks.
     ++ lib.optional (!useNcurses) "-DBUILD_CursesDialog=OFF";
