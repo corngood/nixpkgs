@@ -16,7 +16,10 @@ stdenv.mkDerivation rec {
   # Process Requires.private properly, see
   # http://bugs.freedesktop.org/show_bug.cgi?id=4738.
   patches = optional (!vanilla) ./requires-private.patch
-    ++ optional stdenv.isCygwin ./2.36.3-not-win32.patch;
+    ++ optional stdenv.isCygwin [
+      ./2.36.3-not-win32.patch
+      ./fix-m4-glib_DEFUN-redefinition-on-cygwin.patch
+    ];
 
   # These three tests fail due to a (desired) behavior change from our ./requires-private.patch
   postPatch = ''
