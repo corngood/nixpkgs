@@ -33,6 +33,9 @@ stdenv.mkDerivation rec {
   # and the wonderful bazel BUILD file is already there (yay case-insensitivity?)
   prePatch = "rm BUILD";
 
+  # is this a general problem with cmake on cygwin?
+  cmakeFlags = stdenv.lib.optional stdenv.isCygwin "-DCMAKE_AR=/bin/gcc-ar";
+
   # Don't bother with "man" output for now,
   # it currently only makes the manpages hard to use.
   postInstall = ''
