@@ -17,7 +17,10 @@ stdenv.mkDerivation rec {
   # http://bugs.freedesktop.org/show_bug.cgi?id=4738, migrated to
   # https://gitlab.freedesktop.org/pkg-config/pkg-config/issues/28
   patches = optional (!vanilla) ./requires-private.patch
-    ++ optional stdenv.isCygwin ./2.36.3-not-win32.patch;
+    ++ optional stdenv.isCygwin [
+      ./2.36.3-not-win32.patch
+      ./fix-m4-glib_DEFUN-redefinition-on-cygwin.patch
+    ];
 
   # These three tests fail due to a (desired) behavior change from our ./requires-private.patch
   postPatch = if vanilla then null else ''
