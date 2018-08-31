@@ -55,7 +55,13 @@ let
         })
       ++ optional stdenv.isSunOS ./ld-shared.patch
       ++ optionals stdenv.isDarwin [ ./cpp-precomp.patch ./sw_vers.patch ]
-      ++ optional crossCompiling ./MakeMaker-cross.patch;
+      ++ optional crossCompiling ./MakeMaker-cross.patch
+      ++ optional (stdenv.isCygwin) (
+        # Fix cygwin: https://rt.perl.org/Public/Bug/Display.html?id=133152
+        fetchurl {
+          url = "https://rt.perl.org/Public/Ticket/Attachment/1551326/821562/0001-perl-133152-nostdio.h-is-broken-don-t-use-it.patch";
+          sha256 = "1pr5fij5b9nwlrdrwxc91phyl56pajnzhfk5fba8a2r1bmqjjdhl";
+        });
 
     postPatch = ''
       pwd="$(type -P pwd)"
