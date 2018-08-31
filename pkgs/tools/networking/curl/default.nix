@@ -7,7 +7,7 @@
 , gnutlsSupport ? false, gnutls ? null
 , wolfsslSupport ? false, wolfssl ? null
 , scpSupport ? zlibSupport && !stdenv.isSunOS && !stdenv.isCygwin, libssh2 ? null
-, gssSupport ? !stdenv.hostPlatform.isWindows, libkrb5 ? null
+, gssSupport ? !(stdenv.hostPlatform.isWindows || stdenv.hostPlatform.isCygwin), libkrb5 ? null
 , c-aresSupport ? false, c-ares ? null
 , brotliSupport ? false, brotli ? null
 }:
