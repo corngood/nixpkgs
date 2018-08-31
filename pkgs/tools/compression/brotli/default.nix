@@ -15,7 +15,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake ];
 
-  cmakeFlags = [];
+  # is this a general problem with cmake on cygwin?
+  cmakeFlags = stdenv.lib.optional stdenv.isCygwin "-DCMAKE_AR=/bin/gcc-ar";
 
   outputs = [ "out" "dev" "lib" ];
 
