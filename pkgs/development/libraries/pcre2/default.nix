@@ -1,4 +1,4 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, hostPlatform }:
 
 stdenv.mkDerivation rec {
   pname = "pcre2";
@@ -16,6 +16,14 @@ stdenv.mkDerivation rec {
   outputs = [ "bin" "dev" "out" "doc" "man" "devdoc" ];
 
   doCheck = false; # fails 1 out of 3 tests, looks like a bug
+
+  postPatch = stdenv.lib.optional hostPlatform.isCygwin ''
+      substituteInPlace src/pcre2grep.c \
+        --replace _spawnvp spawnvp \
+        --replace _fileno fileno \
+        --replace _setmode setmode \
+        --replace _O_BINARY O_BINARY
+  '';
 
   postFixup = ''
     moveToOutput bin/pcre2-config "$dev"
