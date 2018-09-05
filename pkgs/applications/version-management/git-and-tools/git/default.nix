@@ -247,7 +247,7 @@ stdenv.mkDerivation {
   ## InstallCheck
 
   doCheck = false;
-  doInstallCheck = true;
+  doInstallCheck = !stdenv.hostPlatform.isCygwin;
 
   installCheckTarget = "test";
 
