@@ -17,12 +17,20 @@ stdenv.mkDerivation rec {
   # Disable dbmfetch03.at test because it depends on unlink()
   # failing on a link in a chmod -w directory, which cygwin
   # apparently allows.
+  # the gdbmtool tests are currently broken on cygwin.
+  # after building, this command will fail:
+  # $ PATH=./tests:./src:$PATH gdbmtool
+  # if you rename the tests/gdbmtool dir, it works
   postPatch = lib.optionalString stdenv.buildPlatform.isCygwin ''
       substituteInPlace tests/Makefile.in --replace \
         '_LDADD = ../src/libgdbm.la ../compat/libgdbm_compat.la' \
         '_LDADD = ../compat/libgdbm_compat.la ../src/libgdbm.la'
-      substituteInPlace tests/testsuite.at --replace \
-        'm4_include([dbmfetch03.at])' ""
+      substituteInPlace tests/testsuite.at \
+         --replace 'm4_include([dbmfetch03.at])' "" \
+         --replace 'm4_include([gdbmtool00.at])' "" \
+         --replace 'm4_include([gdbmtool01.at])' "" \
+         --replace 'm4_include([gdbmtool02.at])' "" \
+         --replace 'm4_include([gdbmtool03.at])' ""
   '';
 
   enableParallelBuilding = true;
