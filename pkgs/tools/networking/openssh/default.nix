@@ -9,7 +9,7 @@
 , autoreconfHook
 , etcDir ? null
 , hpnSupport ? false
-, withKerberos ? true
+, withKerberos ? !stdenv.hostPlatform.isCygwin
 , withGssapiPatches ? false
 , kerberos
 , libfido2
@@ -88,7 +88,9 @@ stdenv.mkDerivation rec {
     ++ optional withFIDO "--with-security-key-builtin=yes"
     ++ optional withKerberos (assert kerberos != null; "--with-kerberos5=${kerberos}")
     ++ optional stdenv.isDarwin "--disable-libutil"
-    ++ optional (!linkOpenssl) "--without-openssl";
+    ++ optional (!linkOpenssl) "--without-openssl"
+    # https://sourceware.org/ml/cygwin/2018-06/msg00273.html
+    ++ optional (stdenv.hostPlatform.isCygwin) "--without-hardening";
 
   buildFlags = [ "SSH_KEYSIGN=ssh-keysign" ];
 
