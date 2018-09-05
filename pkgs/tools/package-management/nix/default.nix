@@ -48,7 +48,7 @@ common =
         [ curl openssl sqlite xz bzip2 nlohmann_json
           brotli boost editline
         ]
-        ++ lib.optional (stdenv.isLinux || stdenv.isDarwin) libsodium
+        ++ lib.optional (stdenv.isLinux || stdenv.isDarwin || stdenv.isCygwin) libsodium
         ++ lib.optionals is24 [ libarchive gmock ]
         ++ lib.optional withLibseccomp libseccomp
         ++ lib.optional withAWS
