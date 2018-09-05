@@ -29,10 +29,10 @@ stdenv.mkDerivation (rec {
     sha256 = "1zg9m79x1i2nifj4kb0waf9x3i5h6ydkypkjnbsb9rnwis8rqypz";
   };
 
-  patches = optional stdenv.hostPlatform.isCygwin ./coreutils-8.23-4.cygwin.patch
+  patches =
          # Fix failing test with musl. See https://lists.gnu.org/r/coreutils/2019-05/msg00031.html
          # To be removed in coreutils-8.32.
-         ++ optional stdenv.hostPlatform.isMusl ./avoid-false-positive-in-date-debug-test.patch
+         optional stdenv.hostPlatform.isMusl ./avoid-false-positive-in-date-debug-test.patch
          # Fix compilation in musl-cross environments. To be removed in coreutils-8.32.
          ++ optional stdenv.hostPlatform.isMusl ./coreutils-8.31-musl-cross.patch
          # Fix compilation in android-cross environments. To be removed in coreutils-8.32.
@@ -78,7 +78,6 @@ stdenv.mkDerivation (rec {
   outputs = [ "out" "info" ];
 
   nativeBuildInputs = [ perl xz.bin ]
-    ++ optionals stdenv.hostPlatform.isCygwin [ autoreconfHook texinfo ]   # due to patch
     ++ optionals stdenv.hostPlatform.isMusl [ autoreconfHook bison ];   # due to patch
   configureFlags = [ "--with-packager=https://NixOS.org" ]
     ++ optional (singleBinary != false)
