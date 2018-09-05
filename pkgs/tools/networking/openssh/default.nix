@@ -1,7 +1,7 @@
-{ stdenv, fetchurl, fetchpatch, zlib, openssl, libedit, pkgconfig, pam, autoreconfHook
+{ stdenv, hostPlatform, fetchurl, fetchpatch, zlib, openssl, libedit, pkgconfig, pam, autoreconfHook
 , etcDir ? null
 , hpnSupport ? false
-, withKerberos ? true
+, withKerberos ? !hostPlatform.isCygwin
 , withGssapiPatches ? false
 , kerberos
 , linkOpenssl? true
@@ -87,7 +87,9 @@ stdenv.mkDerivation rec {
   ] ++ optional (etcDir != null) "--sysconfdir=${etcDir}"
     ++ optional withKerberos (assert kerberos != null; "--with-kerberos5=${kerberos}")
     ++ optional stdenv.isDarwin "--disable-libutil"
-    ++ optional (!linkOpenssl) "--without-openssl";
+    ++ optional (!linkOpenssl) "--without-openssl"
+    # https://sourceware.org/ml/cygwin/2018-06/msg00273.html
+    ++ optional (hostPlatform.isCygwin) "--without-hardening";
 
   enableParallelBuilding = true;
 
