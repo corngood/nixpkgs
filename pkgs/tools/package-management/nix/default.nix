@@ -40,7 +40,7 @@ common =
         ++ lib.optionals fromGit [ autoreconfHook autoconf-archive bison flex libxml2 libxslt docbook5 docbook_xsl_ns jq ];
 
       buildInputs = [ curl openssl sqlite xz bzip2 ]
-        ++ lib.optional (stdenv.isLinux || stdenv.isDarwin) libsodium
+        ++ lib.optional (stdenv.isLinux || stdenv.isDarwin || stdenv.isCygwin) libsodium
         ++ lib.optionals is20 [ brotli boost editline ]
         ++ lib.optional withLibseccomp libseccomp
         ++ lib.optional (withAWS && is20)
