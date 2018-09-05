@@ -21,6 +21,14 @@ stdenv.mkDerivation rec {
 
   outputs = [ "bin" "dev" "out" "doc" "man" "devdoc" ];
 
+  postPatch = stdenv.lib.optional stdenv.hostPlatform.isCygwin ''
+      substituteInPlace src/pcre2grep.c \
+        --replace _spawnvp spawnvp \
+        --replace _fileno fileno \
+        --replace _setmode setmode \
+        --replace _O_BINARY O_BINARY
+  '';
+
   postFixup = ''
     moveToOutput bin/pcre2-config "$dev"
   '';
