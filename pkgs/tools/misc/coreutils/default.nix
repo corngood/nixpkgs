@@ -33,7 +33,7 @@ stdenv.mkDerivation (rec {
     ./fix-chmod-exit-code.patch
     # Workaround for https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51433
     ./disable-seek-hole.patch
-  ] ++ optional stdenv.hostPlatform.isCygwin ./coreutils-8.23-4.cygwin.patch;
+  ];
 
   postPatch = ''
     # The test tends to fail on btrfs,f2fs and maybe other unusual filesystems.
@@ -85,8 +85,7 @@ stdenv.mkDerivation (rec {
 
   outputs = [ "out" "info" ];
 
-  nativeBuildInputs = [ perl xz.bin autoreconfHook ] # autoreconfHook is due to patch, normally only needed for cygwin
-    ++ optionals stdenv.hostPlatform.isCygwin [ texinfo ];  # due to patch
+  nativeBuildInputs = [ perl xz.bin autoreconfHook ]; # autoreconfHook is due to patch, normally only needed for cygwin
   configureFlags = [ "--with-packager=https://NixOS.org" ]
     ++ optional (singleBinary != false)
       ("--enable-single-binary" + optionalString (isString singleBinary) "=${singleBinary}")
