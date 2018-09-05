@@ -22,14 +22,17 @@ stdenv.mkDerivation rec {
     "--with-tcl=${tcl}/lib"
     "--with-tclinclude=${tcl}/include"
     "--exec-prefix=\${out}"
-  ];
+  ]
+    # it seems to have an old version of config.guess
+    ++ stdenv.lib.optional stdenv.buildPlatform.isCygwin "--build=x86_64-unknown-cygwin";
 
   postInstall = ''
     for i in $out/bin/*; do
       wrapProgram $i \
         --prefix PATH : "${tcl}/bin" \
         --prefix TCLLIBPATH ' ' $out/lib/* \
-        ${stdenv.lib.optionalString stdenv.isDarwin "--prefix DYLD_LIBRARY_PATH : $out/lib/expect${version}"}
+        ${stdenv.lib.optionalString stdenv.isDarwin "--prefix DYLD_LIBRARY_PATH : $out/lib/expect${version}"} \
+        ${stdenv.lib.optionalString stdenv.hostPlatform.isCygwin "--prefix PATH : $out/lib/expect${version}"}
     done
   '';
 
