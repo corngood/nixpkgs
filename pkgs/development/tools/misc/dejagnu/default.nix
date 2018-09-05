@@ -1,4 +1,4 @@
-{ fetchurl, stdenv, expect, makeWrapper }:
+{ fetchurl, buildPlatform, stdenv, expect, makeWrapper }:
 
 stdenv.mkDerivation rec {
   name = "dejagnu-1.6.2";
@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ expect makeWrapper ];
 
-  doCheck = true;
+  doCheck = !buildPlatform.isCygwin;
 
   # Note: The test-suite *requires* /dev/pts among the `build-chroot-dirs' of
   # the build daemon when building in a chroot.  See
