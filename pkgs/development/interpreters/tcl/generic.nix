@@ -1,4 +1,4 @@
-{ stdenv
+{ stdenv, hostPlatform
 
 # Version specific stuff
 , release, version, src
@@ -14,6 +14,9 @@ stdenv.mkDerivation {
   outputs = [ "out" "man" ];
 
   setOutputFlags = false;
+
+  patches =
+    stdenv.lib.optional hostPlatform.isCygwin ./disable-winextensions.patch;
 
   preConfigure = ''
     cd unix
