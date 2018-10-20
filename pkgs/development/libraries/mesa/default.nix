@@ -67,7 +67,7 @@ let
 in
 
 let
-  version = "18.2.2";
+  version = "18.2.3";
   branch  = head (splitString "." version);
 in
 
@@ -81,7 +81,7 @@ let self = stdenv.mkDerivation {
       "ftp://ftp.freedesktop.org/pub/mesa/older-versions/${branch}.x/${version}/mesa-${version}.tar.xz"
       "https://mesa.freedesktop.org/archive/mesa-${version}.tar.xz"
     ];
-    sha256 = "1i3ky3d210vi3f5hlr9la1kspdyv093npndxsbzdklw95aqq5fn3";
+    sha256 = "0krhfq1wqxa2ydh5xsb3z4wams975rjj5bw1xsqyrg8sgv0q7gz2";
   };
 
   prePatch = "patchShebangs .";
@@ -92,7 +92,6 @@ let self = stdenv.mkDerivation {
   patches = [
     ./symlink-drivers.patch
     ./missing-includes.patch # dev_t needs sys/stat.h, time_t needs time.h, etc.-- fixes build w/musl
-    ./disk_cache-include-dri-driver-path-in-cache-key.patch
   ] ++ lib.optional stdenv.isDarwin ./darwin-clock-gettime.patch;
 
   outputs = [ "out" "dev" "drivers" ]
