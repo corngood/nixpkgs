@@ -161,7 +161,7 @@ in
     inherit config overlays;
     stdenv = makeStdenv {
       inherit (prevStage.stdenv) cc fetchurl;
-      extraPath = [ prevStage.xz ];
+      extraPath = [ prevStage.bootxz ];
       overrides = self: super: { inherit (prevStage) xz; };
     };
   })

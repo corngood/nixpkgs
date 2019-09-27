@@ -282,14 +282,14 @@ in
 
   fetchhg = callPackage ../build-support/fetchhg { };
 
-  # `fetchurl' downloads a file from the network.
-  fetchurl = makeOverridable (import ../build-support/fetchurl) {
-    inherit lib stdenvNoCC;
-    curl = buildPackages.curl.override (old: rec {
+    bootCurl = buildPackages.curl.override (old: rec {
       # break dependency cycles
       fetchurl = stdenv.fetchurlBoot;
       zlib = buildPackages.zlib.override { fetchurl = stdenv.fetchurlBoot; };
-      pkgconfig = buildPackages.pkgconfig.override { fetchurl = stdenv.fetchurlBoot; };
+      pkgconfig = buildPackages.pkgconfig.override {
+        fetchurl = stdenv.fetchurlBoot;
+        libiconv = buildPackages.libiconv.override { fetchurl = stdenv.fetchurlBoot; };
+      };
       perl = buildPackages.perl.override { fetchurl = stdenv.fetchurlBoot; };
       openssl = buildPackages.openssl.override {
         fetchurl = stdenv.fetchurlBoot;
@@ -328,7 +328,12 @@ in
         libev = buildPackages.libev.override { fetchurl = stdenv.fetchurlBoot; };
       };
     });
-  };
+
+  # `fetchurl' downloads a file from the network.
+  fetchurl = makeOverridable (import ../build-support/fetchurl {
+    inherit lib stdenvNoCC;
+    curl = bootCurl;
+  });
 
   fetchRepoProject = callPackage ../build-support/fetchrepoproject { };
 
@@ -4645,6 +4650,8 @@ in
   lzip = callPackage ../tools/compression/lzip { };
 
   luxcorerender = callPackage ../tools/graphics/luxcorerender { };
+
+  bootxz = buildPackages.xz.override { fetchurl = stdenv.fetchurlBoot; };
 
   xz = callPackage ../tools/compression/xz { };
   lzma = xz; # TODO: move to aliases.nix
