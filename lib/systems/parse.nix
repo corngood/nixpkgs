@@ -452,7 +452,9 @@ rec {
 
   tripleFromSystem = { cpu, vendor, kernel, abi, ... } @ sys: assert isSystem sys; let
     optAbi = lib.optionalString (abi != abis.unknown) "-${abi.name}";
-  in "${cpu.name}-${vendor.name}-${kernel.name}${optAbi}";
+  in
+    if abi == abis.cygnus then "${cpu.name}-${vendor.name}-cygwin"
+    else "${cpu.name}-${vendor.name}-${kernel.name}${optAbi}";
 
   ################################################################################
 
