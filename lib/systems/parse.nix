@@ -483,7 +483,9 @@ rec {
                           gnuNetBSDDefaultExecFormat cpu != kernel.execFormat)
         kernel.execFormat.name;
     optAbi = lib.optionalString (abi != abis.unknown) "-${abi.name}";
-  in "${cpu.name}-${vendor.name}-${kernel.name}${optExecFormat}${optAbi}";
+  in
+    if abi == abis.cygnus then "${cpu.name}-${vendor.name}-cygwin"
+    else "${cpu.name}-${vendor.name}-${kernel.name}${optExecFormat}${optAbi}";
 
   ################################################################################
 
