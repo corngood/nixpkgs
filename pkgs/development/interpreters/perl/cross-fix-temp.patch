@@ -1,0 +1,34 @@
+diff --git a/cnf/stub/File/Temp.pm b/cnf/stub/File/Temp.pm
+index feb38fe..7d1f56f 100644
+--- a/cnf/stub/File/Temp.pm
++++ b/cnf/stub/File/Temp.pm
+@@ -6,16 +6,24 @@ sub tempfile
+ 	my %opts = @_;
+ 	my $i;
+ 	my $tmp;
+-	local *FH;
+-	
++
+ 	return unless defined $patt;
+ 	for($i = 0; $i < 10; $i++) {
+-		($tmp = $patt) =~ s{X+}{rand()}e;
+-		next unless sysopen(FH, $tmp, 01 | 0100 | 0200);	# O_WRONLY | O_CREAT | O_EXCL
+-		return wantarray ? (\*FH, $tmp) : \*FH;
++		($tmp = $patt) =~ s{X+$}{int(rand(10000000000000))}e;
++		$tmp .= "$opts{SUFFIX}";
++		next unless sysopen(my $fh, $tmp, 01 | 0100 | 0200); # O_WRONLY | O_CREAT | O_EXCL
++		return wantarray ? ($fh, $tmp) : $fh;
+ 	}
+ 
+ 	return;
+ }
+ 
++sub mktemp
++{
++	my $patt = shift;
++  my ($fh, $tmp) = tempfile($patt);
++  close $fh;
++  return $tmp;
++}
++
+ 1;

@@ -1,9 +1,9 @@
 { stdenv, fetchurl, pcre, pkgconfig, libsepol
-, enablePython ? true, swig ? null, python ? null
+, enablePython ? true, swig ? null, python ? null, buildPython ? null
 , fts
 }:
 
-assert enablePython -> swig != null && python != null;
+assert enablePython -> swig != null && python != null && buildPython != null;
 
 with stdenv.lib;
 
@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
     sha256 = "14r69mgmz7najf9wbizvp68q56mqx4yjbkxjlbcqg5a47s3wik0v";
   };
 
-  nativeBuildInputs = [ pkgconfig ] ++ optionals enablePython [ swig python ];
+  nativeBuildInputs = [ pkgconfig ] ++ optionals enablePython [ swig buildPython ];
   buildInputs = [ libsepol pcre fts ] ++ optionals enablePython [ python ];
 
   # drop fortify here since package uses it by default, leading to compile error:

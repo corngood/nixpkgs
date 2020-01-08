@@ -20439,10 +20439,9 @@ let
     SKIP_SAX_INSTALL = 1;
     buildInputs = [ pkgs.libxml2 ];
     propagatedBuildInputs = [ XMLSAX ];
-
-    # https://rt.cpan.org/Public/Bug/Display.html?id=122958
-    preCheck = ''
-      rm t/32xpc_variables.t
+    XMLPREFIX = pkgs.libxml2.dev;
+    postPatch = stdenv.lib.optionalString (stdenv.buildPlatform != stdenv.hostPlatform) ''
+      substituteInPlace inc/Devel/CheckLib.pm --replace ' && system($absexefile) != 0;' ' && 0;'
     '';
   };
 
@@ -20581,9 +20580,11 @@ let
       sha256 = "0am13vnv8qsjafr5ljakwnkhlwpk15sga02z8mxsg9is0j3w61j5";
     };
     propagatedBuildInputs = [ XMLNamespaceSupport XMLSAXBase ];
-    postInstall = ''
-      perl -MXML::SAX -e "XML::SAX->add_parser(q(XML::SAX::PurePerl))->save_parsers()"
-      '';
+    # miniperl can't be used here without IO, so use full perl
+    postPatch = stdenv.lib.optionalString (stdenv.buildPlatform != stdenv.hostPlatform) ''
+      substituteInPlace Makefile.PL --replace '\$(PERL)' '${buildPerl}/bin/perl'
+      cat Makefile.PL
+    '';
   };
 
   XMLSAXBase = buildPerlPackage {

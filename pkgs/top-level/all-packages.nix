@@ -16623,6 +16623,7 @@ in
 
   libselinux = callPackage ../os-specific/linux/libselinux {
     python = python3;
+    buildPython = buildPackages.python3;
   };
 
   libsemanage = callPackage ../os-specific/linux/libsemanage {

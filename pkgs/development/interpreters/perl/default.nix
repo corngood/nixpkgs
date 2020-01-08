@@ -192,6 +192,9 @@ let
 
     postUnpack = ''
       unpackFile ${perl-cross-src}
+      pushd perl-cross-${crossVersion}
+      patch -p1 < ${./cross-fix-temp.patch}
+      popd
       cp -R perl-cross-${crossVersion}/* perl-${version}/
     '';
 

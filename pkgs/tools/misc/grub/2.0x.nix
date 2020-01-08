@@ -5,6 +5,7 @@
 , efiSupport ? false
 , zfsSupport ? true
 , xenSupport ? false
+, buildPackages
 }:
 
 with stdenv.lib;
@@ -53,8 +54,9 @@ stdenv.mkDerivation rec {
     ./fix-bash-completion.patch
   ];
 
-  nativeBuildInputs = [ bison flex python pkgconfig autoconf automake ];
-  buildInputs = [ ncurses libusb freetype gettext lvm2 fuse libtool ]
+  depsBuildBuild = [ buildPackages.stdenv.cc ];
+  nativeBuildInputs = [ bison flex python pkgconfig autoconf automake gettext ];
+  buildInputs = [ ncurses libusb freetype lvm2 fuse libtool ]
     ++ optional doCheck qemu
     ++ optional zfsSupport zfs;
 
