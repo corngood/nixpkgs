@@ -26,6 +26,7 @@ stdenv.mkDerivation rec {
     sha256 = "1y1gs232x7hsbccjga9nbkf4bbi5wxazlkg00qd2v1nz86sfy4cd";
   };
 
+  enableParallelBuilding = true;
   dontPatchELF = true;
 
   nativeBuildInputs = [ pkg-config autoreconfHook perl gperf bison flex ];
