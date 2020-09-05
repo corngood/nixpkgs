@@ -8,6 +8,7 @@ fixupOutputHooks+=(_linkDLLs)
 # The links are relative, so relocating whole /nix/store won't break them.
 _linkDLLs() {
 (
+    set -e
     if [ ! -d "$prefix/bin" ]; then exit; fi
     cd "$prefix/bin"
 
@@ -25,7 +26,7 @@ _linkDLLs() {
     linkCount=0
     # Iterate over any DLL that we depend on.
     local dll
-    for dll in $($OBJDUMP -p *.{exe,dll} | sed -n 's/.*DLL Name: \(.*\)/\1/p' | sort -u); do
+    for dll in $(objdump -p *.{exe,dll} | sed -n 's/.*DLL Name: \(.*\)/\1/p' | sort -u); do
         if [ -e "./$dll" ]; then continue; fi
         # Locate the DLL - it should be an *executable* file on $DLLPATH.
         local dllPath="$(PATH="$DLLPATH" type -P "$dll")"
@@ -42,4 +43,3 @@ _linkDLLs() {
     echo "Created $linkCount DLL link(s) in $prefix/bin"
 )
 }
-
