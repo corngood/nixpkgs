@@ -81,7 +81,9 @@ stdenv.mkDerivation (rec {
     ''
   ])) + (optionalString stdenv.isAarch64 ''
     sed '2i print "Skipping tail assert test"; exit 77' -i ./tests/tail-2/assert.sh
-  '');
+  '') + optionalString stdenv.hostPlatform.isCygwin ''
+    sed -i -e "s/DOUBLE minus_zero/static \\0/" lib/strtod.c
+  '';
 
   outputs = [ "out" "info" ];
 
