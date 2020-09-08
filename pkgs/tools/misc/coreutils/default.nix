@@ -73,7 +73,10 @@ stdenv.mkDerivation (rec {
       echo "int main() { return 77; }" > gnulib-tests/test-parse-datetime.c
       echo "int main() { return 77; }" > gnulib-tests/test-getlogin.c
     ''
-  ]);
+  ]) + optionalString stdenv.hostPlatform.isCygwin ''
+    sed -i -e "s/DOUBLE minus_zero/static \\0/" lib/strtod.c
+  '';
+
 
   outputs = [ "out" "info" ];
 
