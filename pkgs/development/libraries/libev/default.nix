@@ -19,6 +19,10 @@ stdenv.mkDerivation rec {
 
   configureFlags = lib.optional (static) "LDFLAGS=-static";
 
+  postPatch = stdenv.lib.optionalString stdenv.hostPlatform.isCygwin ''
+    sed -i -e "s/libev_la_LDFLAGS =.*/\\0 -no-undefined/" Makefile.in
+  '';
+
   meta = {
     description = "A high-performance event loop/event model with lots of features";
     maintainers = [ lib.maintainers.raskin ];
