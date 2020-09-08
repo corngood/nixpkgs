@@ -1,6 +1,8 @@
 
 fixupOutputHooks+=(_linkDLLs)
 
+declare -a cygPaths
+
 # For every *.{exe,dll} in $output/bin/ we try to find all (potential)
 # transitive dependencies and symlink those DLLs into $output/bin
 # so they are found on invocation.
@@ -19,7 +21,10 @@ _linkDLLs() {
     for outName in $outputs; do
         addToSearchPath DLLPATH "${!outName}/bin"
     done
-    DLLPATH="$DLLPATH:$PATH"
+    local path
+    for path in "${cygPaths[@]}"; do
+        addToSearchPath DLLPATH "$path"
+    done
 
     echo DLLPATH="'$DLLPATH'"
 
@@ -43,3 +48,9 @@ _linkDLLs() {
     echo "Created $linkCount DLL link(s) in $prefix/bin"
 )
 }
+
+addPkgToCygPaths() {
+    cygPaths+=("$1/bin")
+}
+
+addEnvHooks "$targetOffset" addPkgToCygPaths
