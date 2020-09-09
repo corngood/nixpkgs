@@ -427,7 +427,7 @@ stdenv.mkDerivation {
 
     # TODO: categorize these and figure out a better place for them
     + optionalString hostPlatform.isCygwin ''
-      hardening_unsupported_flags+=" pic"
+      hardening_unsupported_flags+=" stackprotector pic"
     '' + optionalString targetPlatform.isMinGW ''
       hardening_unsupported_flags+=" stackprotector"
     '' + optionalString targetPlatform.isAvr ''
