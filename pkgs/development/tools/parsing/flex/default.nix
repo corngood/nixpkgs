@@ -42,7 +42,9 @@ stdenv.mkDerivation rec {
     sed -i Makefile -e 's/-no-undefined//;'
   '';
 
-  dontDisableStatic = stdenv.buildPlatform != stdenv.hostPlatform;
+  dontDisableStatic =
+    stdenv.buildPlatform != stdenv.hostPlatform
+    || stdenv.hostPlatform.isCygwin;
 
   meta = with lib; {
     homepage = "https://github.com/westes/flex";
