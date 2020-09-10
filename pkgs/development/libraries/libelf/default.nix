@@ -31,7 +31,9 @@ stdenv.mkDerivation rec {
     ++ lib.optional (stdenv.hostPlatform != stdenv.buildPlatform) "mr_cv_target_elf=yes"
        # Libelf's custom NLS macros fail to determine the catalog file extension
        # on Darwin, so disable NLS for now.
-    ++ lib.optional stdenv.hostPlatform.isDarwin "--disable-nls";
+    ++ lib.optional stdenv.hostPlatform.isDarwin "--disable-nls"
+       # libelf has an old version of config.guess which doesn't work on cygwin
+    ++ lib.optional stdenv.hostPlatform.isCygwin "--host=${stdenv.hostPlatform.config}";
 
   nativeBuildInputs =
     if stdenv.hostPlatform.isNetBSD then [ netbsd.gencat ] else [ gettext ]
