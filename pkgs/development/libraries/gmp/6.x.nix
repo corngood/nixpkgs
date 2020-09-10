@@ -38,6 +38,8 @@ let self = stdenv.mkDerivation rec {
   ] ++ optional (cxx && stdenv.isDarwin) "CPPFLAGS=-fexceptions"
     ++ optional (stdenv.isDarwin && stdenv.is64bit) "ABI=64"
     ++ optional (with stdenv.hostPlatform; (useAndroidPrebuilt || useiOSPrebuilt) && !isx86) "--disable-assembly"
+    # this is needed in addition to --disable-static to build shared libs
+    ++ optional stdenv.hostPlatform.isCygwin "--enable-shared"
     ;
 
   doCheck = true; # not cross;
