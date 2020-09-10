@@ -45,6 +45,8 @@ let self = stdenv.mkDerivation rec {
     # to build a .dll on windows, we need --disable-static + --enable-shared
     # see https://gmplib.org/manual/Notes-for-Particular-Systems.html
     ++ optional (!withStatic && stdenv.hostPlatform.isWindows) "--disable-static --enable-shared"
+    # this is needed in addition to --disable-static to build shared libs
+    ++ optional stdenv.hostPlatform.isCygwin "--enable-shared"
     ;
 
   doCheck = true; # not cross;
