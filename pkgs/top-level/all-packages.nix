@@ -8713,7 +8713,7 @@ in
         # copy-pasted
         inherit noSysDirs;
         # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-        profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+        profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
         isl = if !stdenv.isDarwin then isl_0_17 else null;
 
         # just for stage static
@@ -8732,7 +8732,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isSunOS && !isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isSunOS && !isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     libcCross = if stdenv.targetPlatform != stdenv.buildPlatform then libcCross else null;
     threadsCross = if stdenv.targetPlatform != stdenv.buildPlatform then threadsCross else null;
@@ -8746,7 +8746,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     libcCross = if stdenv.targetPlatform != stdenv.buildPlatform then libcCross else null;
     threadsCross = if stdenv.targetPlatform != stdenv.buildPlatform then threadsCross else null;
@@ -8760,7 +8760,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     libcCross = if stdenv.targetPlatform != stdenv.buildPlatform then libcCross else null;
     threadsCross = if stdenv.targetPlatform != stdenv.buildPlatform then threadsCross else null;
@@ -8776,7 +8776,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     libcCross = if stdenv.targetPlatform != stdenv.buildPlatform then libcCross else null;
     threadsCross = if stdenv.targetPlatform != stdenv.buildPlatform then threadsCross else null;
@@ -8788,7 +8788,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     libcCross = if stdenv.targetPlatform != stdenv.buildPlatform then libcCross else null;
     threadsCross = if stdenv.targetPlatform != stdenv.buildPlatform then threadsCross else null;
@@ -8800,7 +8800,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     enableLTO = !stdenv.isi686;
 
@@ -8814,7 +8814,7 @@ in
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
-    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
+    profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64)) && !isCygwin;
 
     enableLTO = !stdenv.isi686;
 
@@ -18555,6 +18555,7 @@ in
 
   vndr = callPackage ../development/tools/vndr { };
 
+  cygwin = callPackages ../os-specific/cygwin {};
   windows = callPackages ../os-specific/windows {};
 
   wirelesstools = callPackage ../os-specific/linux/wireless-tools { };

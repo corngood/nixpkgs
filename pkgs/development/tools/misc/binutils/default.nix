@@ -79,7 +79,8 @@ stdenv.mkDerivation {
     ./0001-x86-Add-a-GNU_PROPERTY_X86_ISA_1_USED-note-if-needed.patch
     ./0001-x86-Properly-merge-GNU_PROPERTY_X86_ISA_1_USED.patch
     ./0001-x86-Properly-add-X86_ISA_1_NEEDED-property.patch
-  ] ++ lib.optional stdenv.targetPlatform.isiOS ./support-ios.patch;
+  ] ++ lib.optional stdenv.targetPlatform.isiOS ./support-ios.patch
+  ++ lib.optional stdenv.hostPlatform.isCygwin ./exclude-libiberty-bfd.patch;
 
   outputs = [ "out" "info" "man" ];
 
@@ -144,7 +145,10 @@ stdenv.mkDerivation {
   '';
 
   # else fails with "./sanity.sh: line 36: $out/bin/size: not found"
-  doInstallCheck = stdenv.buildPlatform == stdenv.hostPlatform && stdenv.hostPlatform == stdenv.targetPlatform;
+  doInstallCheck =
+    stdenv.buildPlatform == stdenv.hostPlatform && stdenv.hostPlatform == stdenv.targetPlatform
+    # cygwin fixup breaks installcheck
+    && !stdenv.hostPlatform.isCygwin;
 
   enableParallelBuilding = true;
 

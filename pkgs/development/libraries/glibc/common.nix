@@ -173,7 +173,7 @@ stdenv.mkDerivation ({
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ bison python3Minimal ];
-  buildInputs = [ linuxHeaders ] ++ lib.optionals withGd [ gd libpng ];
+  buildInputs = lib.optional withLinuxHeaders linuxHeaders ++ lib.optionals withGd [ gd libpng ];
 
   # Needed to install share/zoneinfo/zone.tab.  Set to impure /bin/sh to
   # prevent a retained dependency on the bootstrap tools in the stdenv-linux
@@ -242,7 +242,9 @@ stdenv.mkDerivation ({
     license = lib.licenses.lgpl2Plus;
 
     maintainers = [ lib.maintainers.eelco ];
-    platforms = lib.platforms.linux;
+    platforms =
+      lib.platforms.linux ++
+      lib.platforms.cygwin;
   } // meta;
 }
 
