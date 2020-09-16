@@ -105,7 +105,7 @@ assert nativeLibc == bintools.nativeLibc;
 assert nativePrefix == bintools.nativePrefix;
 
 stdenv.mkDerivation {
-  pname = targetPrefix
+  ${if cc == null then "name" else "pname"} = targetPrefix
     + (if name != "" then name else "${ccName}-wrapper");
   version = if cc == null then null else ccVersion;
 
