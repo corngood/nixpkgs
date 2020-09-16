@@ -362,6 +362,7 @@ in
       pkgconfig = buildPackages.pkgconfig.override (old: {
         pkg-config = old.pkg-config.override {
           fetchurl = stdenv.fetchurlBoot;
+          libiconv = buildPackages.libiconv.override { fetchurl = stdenv.fetchurlBoot; };
         };
       });
       perl = buildPackages.perl.override { fetchurl = stdenv.fetchurlBoot; };
