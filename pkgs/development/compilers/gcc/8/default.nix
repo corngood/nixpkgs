@@ -13,7 +13,10 @@
 , isl ? null # optional, for the Graphite optimization framework.
 , zlib ? null
 , enableMultilib ? false
-, enablePlugin ? stdenv.hostPlatform == stdenv.buildPlatform # Whether to support user-supplied plug-ins
+, enablePlugin ?
+  stdenv.hostPlatform == stdenv.buildPlatform # Whether to support user-supplied plug-ins
+  && !stdenv.hostPlatform.isCygwin
+, enableLTO ? true # !stdenv.hostPlatform.isCygwin
 , name ? "gcc"
 , libcCross ? null
 , crossStageStatic ? false
@@ -160,8 +163,8 @@ stdenv.mkDerivation ({
 
   postPatch = ''
     configureScripts=$(find . -name configure)
-    for configureScript in $configureScripts; do
-      patchShebangs $configureScript
+    for script in $configureScripts; do
+      patchShebangs $script
     done
   '' + (
     if targetPlatform != hostPlatform || stdenv.cc.libc != null then
@@ -242,12 +245,12 @@ stdenv.mkDerivation ({
       "--with-mpc=${libmpc}"
     ] ++
     optional (libelf != null) "--with-libelf=${libelf}" ++
-    optional (!(crossMingw && crossStageStatic))
+    optional (!(crossMingw && crossStageStatic) && stdenv.cc.libc != null)
       "--with-native-system-header-dir=${getDev stdenv.cc.libc}/include" ++
 
     # Basic configuration
     [
-      "--enable-lto"
+      (enableFeature enableLTO "lto")
       "--disable-libstdcxx-pch"
       "--without-included-gettext"
       "--with-system-zlib"
@@ -377,7 +380,8 @@ stdenv.mkDerivation ({
       stdenv.lib.platforms.linux ++
       stdenv.lib.platforms.freebsd ++
       stdenv.lib.platforms.illumos ++
-      stdenv.lib.platforms.darwin;
+      stdenv.lib.platforms.darwin ++
+      stdenv.lib.platforms.cygwin;
 
     # See #40038
     broken = stdenv.isDarwin;

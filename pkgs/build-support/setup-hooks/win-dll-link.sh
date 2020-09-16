@@ -11,8 +11,10 @@ declare -a cygPaths
 _linkDLLs() {
 (
     set -e
-    if [ ! -d "$prefix/bin" ]; then exit; fi
-    cd "$prefix/bin"
+    shopt -s globstar nullglob
+
+    [ ! -e "$prefix" ] && return
+    cd "$prefix"
 
     # Compose path list where DLLs should be located:
     #   prefix $PATH by currently-built outputs
@@ -26,27 +28,32 @@ _linkDLLs() {
         addToSearchPath DLLPATH "$path"
     done
 
-    echo DLLPATH="'$DLLPATH'"
-
-    linkCount=0
+    local linkCount=0
     # Iterate over any DLL that we depend on.
-    local dll
-    for dll in $(find \( -name \*.exe -o -name \*.dll \) -maxdepth 1 -print0 | xargs -r0 objdump -p | sed -n 's/.*DLL Name: \(.*\)/\1/p' | sort -u); do
-        echo dll=$dll
-        if [ -e "./$dll" ]; then continue; fi
-        # Locate the DLL - it should be an *executable* file on $DLLPATH.
-        local dllPath="$(PATH="$DLLPATH" type -P "$dll")"
-        if [ -z "$dllPath" ]; then continue; fi
-        # That DLL might have its own (transitive) dependencies,
-        # so add also all DLLs from its directory to be sure.
-        local dllPath2
-        for dllPath2 in "$dllPath" "$(dirname $(readlink "$dllPath" || echo "$dllPath"))"/*.dll; do
-            if [ -e ./"$(basename "$dllPath2")" ]; then continue; fi
-            CYGWIN+=\ winsymlinks:nativestrict ln -sr "$dllPath2" .
-            linkCount=$(($linkCount+1))
-        done
+    local target
+    for target in {bin,libexec}/**/*.{exe,dll}; do
+        echo executable: $target
+        local dir=$(dirname "$target")
+        local dll
+        while read dll; do
+            echo '  dll:' "$dll"
+            if [ -e "$dir/$dll" ]; then continue; fi
+            # Locate the DLL - it should be an *executable* file on $DLLPATH.
+            local dllPath="$(PATH="$DLLPATH" type -P "$dll")"
+            if [ -z "$dllPath" ]; then continue; fi
+            # That DLL might have its own (transitive) dependencies,
+            # so add also all DLLs from its directory to be sure.
+            local dllPath2
+            for dllPath2 in "$dllPath" "$(dirname $(readlink "$dllPath" || echo "$dllPath"))"/*.dll; do
+                if [ -e "$dir/$(basename "$dllPath2")" ]; then continue; fi
+                CYGWIN+=\ winsymlinks:nativestrict ln -sr "$dllPath2" "$dir"
+                echo '  link:' "$dllPath2"
+                linkCount=$(($linkCount+1))
+            done
+        done < <(objdump -p "$target" \
+                     | sed -n 's/.*DLL Name: \(.*\)/\1/p' \
+                     | sort -u)
     done
-    echo "Created $linkCount DLL link(s) in $prefix/bin"
 )
 }
 

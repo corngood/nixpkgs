@@ -1,0 +1,13 @@
+diff --git a/bfd/Makefile.in b/bfd/Makefile.in
+index cc27ef0a..3010216e 100644
+--- a/bfd/Makefile.in
++++ b/bfd/Makefile.in
+@@ -462,7 +462,7 @@ CSEARCH = -I. -I$(srcdir) -I$(INCDIR)
+ SUBDIRS = doc po
+ bfddocdir = doc
+ libbfd_la_LDFLAGS = $(am__append_1) -release `cat libtool-soversion` \
+-	@SHARED_LDFLAGS@ $(am__empty)
++	@SHARED_LDFLAGS@ $(am__empty) -Wl,-exclude-libs -Wl,libiberty.a
+ @INSTALL_LIBBFD_TRUE@bfdlib_LTLIBRARIES = libbfd.la
+ @INSTALL_LIBBFD_FALSE@bfdinclude_HEADERS = $(am__append_2)
+ @INSTALL_LIBBFD_TRUE@bfdinclude_HEADERS = $(BFD_H) \

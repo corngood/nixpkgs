@@ -13,7 +13,10 @@
 , isl ? null # optional, for the Graphite optimization framework.
 , zlib ? null
 , enableMultilib ? false
-, enablePlugin ? stdenv.hostPlatform == stdenv.buildPlatform # Whether to support user-supplied plug-ins
+, enablePlugin ?
+  stdenv.hostPlatform == stdenv.buildPlatform # Whether to support user-supplied plug-ins
+  && !stdenv.hostPlatform.isCygwin
+, enableLTO ? true # !stdenv.hostPlatform.isCygwin
 , name ? "gcc"
 , libcCross ? null
 , crossStageStatic ? false
@@ -155,13 +158,17 @@ stdenv.mkDerivation ({
 
     substituteInPlace libgfortran/configure \
       --replace "-install_name \\\$rpath/\\\$soname" "-install_name $lib/lib/\\\$soname"
+  '' + stdenv.lib.optionalString hostPlatform.isCygwin ''
+    substituteInPlace gcc/config/i386/cygwin.h\
+      --replace "../include/w32api%s -idirafter ../../include/w32api%s" "${stdenv.cc.w32api-headers}/include/w32api"
+    echo '#define STANDARD_STARTFILE_PREFIX_1 "${stdenv.cc.libc}/lib/"' >> gcc/config/i386/cygwin.h
   '';
 
   postPatch = ''
-    configureScripts=$(find . -name configure)
+    (configureScripts=$(find . -name configure)
     for configureScript in $configureScripts; do
       patchShebangs $configureScript
-    done
+    done)
   '' + (
     if targetPlatform != hostPlatform || stdenv.cc.libc != null then
       # On NixOS, use the right path to the dynamic linker instead of
@@ -241,12 +248,12 @@ stdenv.mkDerivation ({
       "--with-mpc=${libmpc}"
     ] ++
     optional (libelf != null) "--with-libelf=${libelf}" ++
-    optional (!(crossMingw && crossStageStatic))
+    optional (!(crossMingw && crossStageStatic) && stdenv.cc.libc != null)
       "--with-native-system-header-dir=${getDev stdenv.cc.libc}/include" ++
 
     # Basic configuration
     [
-      "--enable-lto"
+      (enableFeature enableLTO "lto")
       "--disable-libstdcxx-pch"
       "--without-included-gettext"
       "--with-system-zlib"
@@ -376,7 +383,8 @@ stdenv.mkDerivation ({
       stdenv.lib.platforms.linux ++
       stdenv.lib.platforms.freebsd ++
       stdenv.lib.platforms.illumos ++
-      stdenv.lib.platforms.darwin;
+      stdenv.lib.platforms.darwin ++
+      stdenv.lib.platforms.cygwin;
   };
 }
 
