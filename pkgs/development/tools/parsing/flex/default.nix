@@ -28,6 +28,7 @@ stdenv.mkDerivation rec {
     substituteInPlace doc/Makefile.am --replace 'flex.1: $(top_srcdir)/configure.ac' 'flex.1: '
   '';
 
+
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ autoreconfHook help2man ];
   buildInputs = [ bison ];
