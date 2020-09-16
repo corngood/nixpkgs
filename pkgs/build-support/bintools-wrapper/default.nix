@@ -94,7 +94,7 @@ let
 in
 
 stdenv.mkDerivation {
-  pname = targetPrefix
+  ${if bintools == null then "name" else "pname"} = targetPrefix
     + (if name != "" then name else "${bintoolsName}-wrapper");
   version = if bintools == null then null else bintoolsVersion;
 
