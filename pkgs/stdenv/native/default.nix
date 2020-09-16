@@ -161,7 +161,7 @@ in
     inherit config overlays;
     stdenv = makeStdenv {
       inherit (prevStage.stdenv) cc fetchurl;
-      extraPath = [ prevStage.xz ];
+      extraPath = [ (prevStage.xz.override { fetchurl = prevStage.stdenv.fetchurl; }) ];
       overrides = self: super: { inherit (prevStage) xz; };
       extraNativeBuildInputs = if localSystem.isLinux then [ prevStage.patchelf ] else [];
     };
