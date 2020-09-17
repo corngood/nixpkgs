@@ -28,6 +28,8 @@ let
   # the GNU C compiler, and so on.
   stagesLinux = import ./linux args;
 
+  stagesCygwin = import ./cygwin (args // { bootStages = stagesNative; });
+
   inherit (import ./darwin args) stagesDarwin;
 
   stagesCross = import ./cross args;
@@ -59,7 +61,7 @@ in
     x86_64-darwin = stagesDarwin;
     aarch64-darwin = stagesDarwin;
     x86_64-solaris = stagesNix;
-    i686-cygwin = stagesNative;
-    x86_64-cygwin = stagesNative;
+    i686-cygwin = stagesCygwin;
+    x86_64-cygwin = stagesCygwin;
     x86_64-freebsd = stagesFreeBSD;
   }.${localSystem.system} or stagesNative

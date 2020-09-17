@@ -6,7 +6,9 @@ in
 , fetchFromGitHub, fetchurl, zlib, autoreconfHook, gettext
 # Enabling all targets increases output size to a multiple.
 , withAllTargets ? false, libbfd, libopcodes
-, enableShared ? !stdenv.hostPlatform.isStatic
+, enableShared ?
+  !stdenv.hostPlatform.isStatic
+  && !stdenv.hostPlatform.isCygwin
 , noSysDirs
 , gold ? execFormatIsELF stdenv.targetPlatform
 , bison ? null
@@ -181,7 +183,10 @@ stdenv.mkDerivation {
   '';
 
   # else fails with "./sanity.sh: line 36: $out/bin/size: not found"
-  doInstallCheck = stdenv.buildPlatform == stdenv.hostPlatform && stdenv.hostPlatform == stdenv.targetPlatform;
+  doInstallCheck =
+    stdenv.buildPlatform == stdenv.hostPlatform && stdenv.hostPlatform == stdenv.targetPlatform
+    # cygwin fixup breaks installcheck
+    && !stdenv.hostPlatform.isCygwin;
 
   enableParallelBuilding = true;
 

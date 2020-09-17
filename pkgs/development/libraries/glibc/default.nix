@@ -1,5 +1,5 @@
 { lib, stdenv, callPackage
-, withLinuxHeaders ? true
+, withLinuxHeaders ? stdenv.hostPlatform.isLinux
 , profilingLibraries ? false
 , withGd ? false
 , buildPackages
@@ -69,7 +69,7 @@ callPackage ./common.nix { inherit stdenv; } {
     # Building from a proper gcc staying in the path where it was installed,
     # libgcc_s will not be at {gcc}/lib, and gcc's libgcc will be found without
     # any special hack.
-    preInstall = ''
+    preInstall = lib.optionalString (stdenv.cc.cc != null) ''
       if [ -f ${stdenv.cc.cc}/lib/libgcc_s.so.1 ]; then
           mkdir -p $out/lib
           cp ${stdenv.cc.cc}/lib/libgcc_s.so.1 $out/lib/libgcc_s.so.1

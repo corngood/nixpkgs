@@ -50,6 +50,14 @@ stdenv.mkDerivation rec {
   patches = upstreamPatches
     ++ [ ./pgrp-pipe-5.1.patch ];
 
+  # pipe size determination doesn't work properly in cross, or on cygwin
+  # TODO: report upstream
+  postPatch = lib.optional
+    (stdenv.targetPlatform.isCygwin ||
+     stdenv.hostPlatform != stdenv.buildPlatform) ''
+     echo "" > builtins/psize.sh
+  '';
+
   configureFlags = [
     (if interactive then "--with-installed-readline" else "--disable-readline")
   ] ++ optionals (stdenv.hostPlatform != stdenv.buildPlatform) [

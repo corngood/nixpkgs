@@ -5,6 +5,9 @@
 lib.makeScope newScope (self: with self; {
 
   cygwinSetup = callPackage ./cygwin-setup { };
+  cygwinSetupBin = callPackage ./cygwin-setup/bin.nix { };
+  cygwinRepo = callPackage ./cygwin-setup/repo.nix { };
+  cygwinEnv = callPackage ./cygwin-setup/env.nix { };
 
   jom = callPackage ./jom { };
 

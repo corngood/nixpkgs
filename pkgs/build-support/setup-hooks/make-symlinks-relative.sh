@@ -21,8 +21,9 @@ _makeSymlinksRelative() {
             echo "the symlink $f is broken, it points to $symlinkTarget (which is missing)"
         fi
 
-        echo "rewriting symlink $f to be relative to $prefix"
-        ln -snrf "$symlinkTarget" "$f"
+        symlinkTarget=$(realpath -s --relative-to="$(dirname "$f")" "$symlinkTarget")
+        echo "rewriting symlink $f to be relative to $prefix, target $symlinkTarget"
+        ln -snf "$symlinkTarget" "$f"
 
     done < <(find $prefix -type l -print0)
 }

@@ -151,18 +151,6 @@ common =
 
       enableParallelBuilding = true;
 
-      # buildenv gets run with an empty PATH, so we'll link in the required system
-      # and nix libs
-      # TODO: remove this after win-dll-link is fixed
-      preFixup = lib.optional stdenv.hostPlatform.isCygwin ''
-        export CYGWIN+=\ winsymlinks:nativestrict
-        for x in $out/bin/*.dll; do ln -s $x $out/libexec/nix/; done
-        for x in cygwin1 cyggcc_s-seh-1 cygstdc++-6 cygz
-        do
-          ln -s /usr/bin/$x.dll $out/libexec/nix/
-        done
-      '';
-
       meta = with lib; {
         description = "Powerful package manager that makes package management reliable and reproducible";
         longDescription = ''

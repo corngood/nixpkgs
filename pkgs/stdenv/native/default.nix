@@ -64,11 +64,12 @@ let
 
     shopt -s expand_aliases
     export lt_cv_deplibs_check_method=pass_all
+    export gl_cv_have_weak=no
+    export gl_cv_ld_autoimport=no
   '';
 
   extraNativeBuildInputsCygwin = [
     ../cygwin/all-buildinputs-as-runtimedep.sh
-    ../cygwin/wrap-exes-to-find-dlls.sh
   ] ++ (if system == "i686-cygwin" then [
     ../cygwin/rebase-i686.sh
   ] else if system == "x86_64-cygwin" then [

@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchcvs, autoconf, automake, libtool, flex, bison, pkg-config
+{ lib, stdenv, fetchgit, autoconf, automake, libtool, flex, bison, pkg-config
 , zlib, bzip2, xz, libgcrypt
 }:
 
@@ -6,13 +6,12 @@ with lib;
 
 stdenv.mkDerivation rec {
   pname = "cygwin-setup";
-  version = "20131101";
+  version = "2.905";
 
-  src = fetchcvs {
-    cvsRoot = ":pserver:anoncvs@cygwin.com:/cvs/cygwin-apps";
-    module = "setup";
-    date = version;
-    sha256 = "024wxaaxkf7p1i78bh5xrsqmfz7ss2amigbfl2r5w9h87zqn9aq3";
+  src = fetchgit {
+    url = "git://cygwin.com/git/cygwin-setup.git";
+    rev = "release_${version}"
+    sha256 = "0240xaaxkf7p1i78bh5xrsqmfz7ss2amigbfl2r5w9h87zqn9aq3";
   };
 
   nativeBuildInputs = [ autoconf automake libtool flex bison pkg-config ];
