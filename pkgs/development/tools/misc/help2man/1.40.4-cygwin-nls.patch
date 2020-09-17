@@ -9,32 +9,32 @@ pass-throughs for the other functions which we're not overriding,
 otherwise Locale::gettext won't load (not to mention the program
 that we're trying to help2man).
 
---- help2man-1.46.5/Makefile.in	2014-10-09 13:03:01.000000000 +0200
-+++ help2man-1.46.5/Makefile.in	2015-05-12 14:46:52.995521900 +0200
-@@ -76,7 +76,8 @@
-        fi
-
- install_preload: install_dirs preload
+--- help2man-1.47.16/Makefile.in	2014-10-09 13:03:01.000000000 +0200
++++ help2man-1.47.16/Makefile.in	2015-05-12 14:46:52.995521900 +0200
+@@ -76,7 +76,8 @@ install_base:
+ 
+ install_preload: preload
+ 	$(MKINSTALLDIRS) $(DESTDIR)$(pkglibdir)
 -	$(INSTALL_PROGRAM) $(preload).so $(DESTDIR)$(pkglibdir)
 +	$(INSTALL_PROGRAM) lib/cygintl-9.dll $(DESTDIR)$(pkglibdir)
 +	ln -sf cygintl-9.dll $(DESTDIR)$(pkglibdir)/$(preload).so
-
- install_l10n: install_dirs msg_l10n man_l10n info_l10n
-        set -e; \
-@@ -144,7 +146,9 @@
-
+ 
+ install_l10n: msg_l10n man_l10n info_l10n
+ 	set -e; \
+@@ -145,7 +146,9 @@ $(target).h2m: $(srcdir)/$(target).h2m.PL
+ 
  preload: $(preload).so
  $(preload).so: $(srcdir)/$(preload).c
 -	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ -fPIC -shared $? $(LIBS)
 +	mkdir -p lib
 +	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o lib/cygintl-9.dll -shared $? $(LIBS)
 +	ln -sf lib/cygintl-9.dll $@
-
+ 
  man: $(target).1
  $(target).1: $(srcdir)/$(target).PL $(srcdir)/$(target).h2m.PL
---- help2man-1.46.5/bindtextdomain.c	2009-11-13 00:01:34.000000000 -0600
-+++ help2man-1.46.5/bindtextdomain.c	2011-12-29 00:24:33.608078600 -0600
-@@ -27,12 +27,34 @@ static char *(*r_textdomain)(char const
+--- help2man-1.47.16/bindtextdomain.c	2009-11-13 00:01:34.000000000 -0600
++++ help2man-1.47.16/bindtextdomain.c	2011-12-29 00:24:33.608078600 -0600
+@@ -36,12 +36,34 @@ static char *(*r_textdomain)(char const *) = 0;
  static char *(*r_bindtextdomain)(char const *, char const *) = 0;
  static char *(*r_bind_textdomain_codeset)(char const *, char const *) = 0;
  
@@ -69,7 +69,7 @@ that we're trying to help2man).
      if (!(e_textdomain = getenv("TEXTDOMAIN")))
  	die("TEXTDOMAIN not set");
  
-@@ -48,9 +70,19 @@ void setup()
+@@ -57,9 +79,19 @@ void setup()
      if (!(r_bind_textdomain_codeset = dlsym(RTLD_NEXT,
      					    "bind_textdomain_codeset")))
  	die("can't find symbol \"bind_textdomain_codeset\"");
@@ -90,7 +90,7 @@ that we're trying to help2man).
  {
      char *r;
      setup();
-@@ -61,7 +93,7 @@ char *textdomain(char const *domainname)
+@@ -70,7 +102,7 @@ char *textdomain(char const *domainname)
      return r;
  }
  
@@ -99,7 +99,7 @@ that we're trying to help2man).
  {
      char const *dir = dirname;
      setup();
-@@ -71,7 +103,7 @@ char *bindtextdomain(char const *domainn
+@@ -80,7 +112,7 @@ char *bindtextdomain(char const *domainname, char const *dirname)
      return r_bindtextdomain(domainname, dir);
  }
  
@@ -108,7 +108,7 @@ that we're trying to help2man).
  {
      char *r;
      setup();
-@@ -81,3 +113,54 @@ char *bind_textdomain_codeset(char const
+@@ -90,3 +122,54 @@ char *bind_textdomain_codeset(char const *domainname, char const *codeset)
  
      return r;
  }
