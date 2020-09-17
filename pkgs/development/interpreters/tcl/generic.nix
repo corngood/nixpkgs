@@ -16,7 +16,7 @@ let
       setOutputFlags = false;
 
       patches =
-        stdenv.lib.optional stdenv.hostPlatform.isCygwin ./disable-winextensions.patch;
+        lib.optional stdenv.hostPlatform.isCygwin ./disable-winextensions.patch;
 
       preConfigure = ''
         cd unix

@@ -540,32 +540,68 @@ with pkgs;
 
   fetchNextcloudApp = callPackage ../build-support/fetchnextcloudapp {};
 
-  # `fetchurl' downloads a file from the network.
-  fetchurl = if stdenv.buildPlatform != stdenv.hostPlatform
-    then buildPackages.fetchurl # No need to do special overrides twice,
-    else makeOverridable (import ../build-support/fetchurl) {
-      inherit lib stdenvNoCC buildPackages;
-      inherit cacert;
-      curl = buildPackages.curlMinimal.override (old: rec {
+      curlboot = buildPackages.curlMinimal.override (old: rec {
         # break dependency cycles
         fetchurl = stdenv.fetchurlBoot;
         zlib = buildPackages.zlib.override { fetchurl = stdenv.fetchurlBoot; };
         pkg-config = buildPackages.pkg-config.override (old: {
           pkg-config = old.pkg-config.override {
             fetchurl = stdenv.fetchurlBoot;
+            libiconv = buildPackages.libiconv.override { fetchurl = stdenv.fetchurlBoot; };
           };
         });
-        perl = buildPackages.perl.override { fetchurl = stdenv.fetchurlBoot; };
+        perl = buildPackages.perl.override {
+          fetchurl = stdenv.fetchurlBoot;
+        };
         openssl = buildPackages.openssl.override {
           fetchurl = stdenv.fetchurlBoot;
-          buildPackages = {
-            coreutils = buildPackages.coreutils.override {
+          buildPackages = rec {
+            coreutils = buildPackages.coreutils.override rec {
               fetchurl = stdenv.fetchurlBoot;
               inherit perl;
               xz = buildPackages.xz.override { fetchurl = stdenv.fetchurlBoot; };
               gmp = null;
               aclSupport = false;
               attrSupport = false;
+              autoreconfHook = buildPackages.autoreconfHook.override rec {
+                automake = buildPackages.automake.override {
+                  fetchurl = stdenv.fetchurlBoot;
+                  inherit perl autoconf;
+                };
+                autoconf = buildPackages.autoconf.override {
+                  fetchurl = stdenv.fetchurlBoot;
+                  m4 = buildPackages.m4.override { fetchurl = stdenv.fetchurlBoot; };
+                  inherit perl;
+                };
+                gettext = buildPackages.gettext.override {
+                  fetchurl = stdenv.fetchurlBoot;
+                  libiconv = buildPackages.libiconv.override { fetchurl = stdenv.fetchurlBoot; };
+                  inherit xz;
+                };
+                libtool = buildPackages.libtool.override {
+                  fetchurl = stdenv.fetchurlBoot;
+                  inherit perl autoconf automake;
+                  m4 = buildPackages.m4.override { fetchurl = stdenv.fetchurlBoot; };
+                  help2man = buildPackages.help2man.override rec {
+                    fetchurl = stdenv.fetchurlBoot;
+                    inherit gettext;
+                    perlPackages = (callPackages ../development/interpreters/perl rec {
+                      fetchurl = stdenv.fetchurlBoot;
+                      pkgs = { perl534 = perl; };
+                      buildPackages = { perl534 = perl; };
+                      callPackage = newScope {
+                        fetchurl = stdenv.fetchurlBoot;
+                        gettext = builtins.trace "foo" gettext;
+                        pkgs = {
+                          inherit newScope gettext buildPackages;
+                          perl534 = perl;
+                          fetchurl = stdenv.fetchurlBoot;
+                        };
+                      };
+                    }).perl534.pkgs;
+                  };
+                };
+              };
             };
             inherit perl;
           };
@@ -595,6 +631,13 @@ with pkgs;
           libev = buildPackages.libev.override { fetchurl = stdenv.fetchurlBoot; };
         };
       });
+  # `fetchurl' downloads a file from the network.
+  fetchurl = if stdenv.buildPlatform != stdenv.hostPlatform
+    then buildPackages.fetchurl # No need to do special overrides twice,
+    else makeOverridable (import ../build-support/fetchurl) {
+      inherit lib stdenvNoCC buildPackages;
+      inherit cacert;
+      curl = curlboot;
     };
 
   fetchRepoProject = callPackage ../build-support/fetchrepoproject { };

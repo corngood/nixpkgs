@@ -47,7 +47,7 @@ stdenv.mkDerivation rec {
     xz.bin
   ];
   # HACK, see #10874 (and 14664)
-  buildInputs = lib.optional (!stdenv.isLinux && !stdenv.hostPlatform.isCygwin) libiconv;
+  buildInputs = lib.optional (!stdenv.isLinux) libiconv;
 
   setupHooks = [
     ../../../build-support/setup-hooks/role.bash

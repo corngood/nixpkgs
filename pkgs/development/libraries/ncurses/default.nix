@@ -141,6 +141,8 @@ stdenv.mkDerivation rec {
     moveToOutput "bin/captoinfo" "$out"
     moveToOutput "bin/infotocap" "$out"
     moveToOutput "bin/infocmp" "$out"
+  '' + lib.optionalString stdenv.hostPlatform.isCygwin ''
+    moveToOutput "bin/cyg*.dll" "$out"
   '';
 
   preFixup = lib.optionalString (!stdenv.hostPlatform.isCygwin && !enableStatic) ''

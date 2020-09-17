@@ -1,16 +1,16 @@
---- a/glib/configure.ac	2013-08-04 20:21:20.808722600 -0500
-+++ b/glib/configure.ac	2013-08-04 18:30:21.852852200 -0500
-@@ -1880,7 +1880,7 @@ dnl ************************************
- 
- AC_MSG_CHECKING(for platform-dependent source)
+--- a/glib/configure
++++ b/glib/configure
+@@ -24850,7 +24850,7 @@ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for platform-dependent source" >&5
+ $as_echo_n "checking for platform-dependent source... " >&6; }
  case "$host" in
 -  *-*-cygwin*|*-*-mingw*)
 +  *-*-mingw*)
      PLATFORMDEP=gwin32.lo
      ;;
    *)
-@@ -2594,9 +2594,6 @@ dnl *** Win32 API libs ***
- dnl **********************
+@@ -26126,9 +26126,6 @@ $as_echo "$broken_poll" >&6; }
+ 
  
  case $host in
 -  *-*-cygwin*)

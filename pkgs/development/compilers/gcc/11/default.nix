@@ -24,6 +24,7 @@
 , gnatboot ? null
 , enableMultilib ? false
 , enablePlugin ? stdenv.hostPlatform == stdenv.buildPlatform # Whether to support user-supplied plug-ins
+  && !stdenv.hostPlatform.isCygwin
 , name ? "gcc"
 , libcCross ? null
 , threadsCross ? null # for MinGW
@@ -78,7 +79,12 @@ let majorVersion = "11";
       })
 
       # Obtain latest patch with ../update-mcfgthread-patches.sh
-      ++ optional (!crossStageStatic && targetPlatform.isMinGW) ./Added-mcf-thread-model-support-from-mcfgthread.patch;
+      ++ optional (!crossStageStatic && targetPlatform.isMinGW) ./Added-mcf-thread-model-support-from-mcfgthread.patch
+      # fix https://gcc.gnu.org/bugzilla/show_bug.cgi?id=103603
+      ++ optional targetPlatform.isCygwin (fetchurl {
+        url = "https://gcc.gnu.org/pipermail/gcc-patches/attachments/20211207/2cd18eed/attachment.bin";
+        sha256 = "sha256-WB+/ZA+F0y6aekMd35ihdjrtC7AZr2yG1WJpzVGEhmA=";
+      });
 
     /* Cross-gcc settings (build == host != target) */
     crossMingw = targetPlatform != hostPlatform && targetPlatform.libc == "msvcrt";
@@ -125,8 +131,11 @@ stdenv.mkDerivation ({
 
     substituteInPlace libgfortran/configure \
       --replace "-install_name \\\$rpath/\\\$soname" "-install_name ''${!outputLib}/lib/\\\$soname"
-  ''
-  + (
+  '' + lib.optionalString hostPlatform.isCygwin ''
+    substituteInPlace gcc/config/i386/cygwin.h\
+      --replace "../include/w32api%s -idirafter ../../include/w32api%s" "${stdenv.cc.w32api-headers}/include/w32api"
+    echo '#define STANDARD_STARTFILE_PREFIX_1 "${stdenv.cc.libc}/lib/"' >> gcc/config/i386/cygwin.h
+  '' + (
     if targetPlatform != hostPlatform || stdenv.cc.libc != null then
       # On NixOS, use the right path to the dynamic linker instead of
       # `/lib/ld*.so'.

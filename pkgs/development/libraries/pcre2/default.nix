@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
 
   outputs = [ "bin" "dev" "out" "doc" "man" "devdoc" ];
 
-  postPatch = stdenv.lib.optional stdenv.hostPlatform.isCygwin ''
+  postPatch = lib.optional stdenv.hostPlatform.isCygwin ''
       substituteInPlace src/pcre2grep.c \
         --replace _spawnvp spawnvp \
         --replace _fileno fileno \

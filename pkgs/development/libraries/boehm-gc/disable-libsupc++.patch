@@ -1,0 +1,31 @@
+diff --git a/configure b/configure
+index 0b3df85..f3337c3 100755
+--- a/configure
++++ b/configure
+@@ -16912,26 +16912,6 @@ else
+ fi
+ 
+ 
+-if test "$GCC" = yes; then
+-  if test "${enable_cplusplus}" = yes; then
+-    case "$host" in
+-      *-*-cygwin* | *-*-mingw*)
+-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether libsupc++ required" >&5
+-$as_echo_n "checking whether libsupc++ required... " >&6; }
+-        SUPC="`$CXX -print-file-name=libsupc++.a 2>/dev/null`"
+-        if test -n "$SUPC" -a "$SUPC" != "libsupc++.a"; then
+-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+-$as_echo "yes" >&6; }
+-          CXXLIBS="-lsupc++"
+-        else
+-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+-        fi
+-        ;;
+-    esac
+-  fi
+-fi
+-
+ 
+ 
+ 

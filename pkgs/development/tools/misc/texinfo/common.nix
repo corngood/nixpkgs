@@ -39,7 +39,7 @@ stdenv.mkDerivation {
 
   buildInputs = [ xz.bin ]
     ++ optionals stdenv.isSunOS [ libiconv gawk ]
-    ++ optionals stdenv.isDarwin [ gettext ]
+    ++ optionals (stdenv.isDarwin || stdenv.isCygwin) [ gettext ]
     ++ optional interactive ncurses;
 
   configureFlags = [ "PERL=${buildPackages.perl}/bin/perl" ]
