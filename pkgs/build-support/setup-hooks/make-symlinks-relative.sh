@@ -12,6 +12,7 @@ _makeSymlinksRelative() {
 
     while IFS= read -r -d $'\0' f; do
         symlinkTarget=$(readlink "$f")
+        echo "found symlink $f -> $symlinkTarget"
         if [[ "$symlinkTarget"/ != "$prefix"/* ]]; then
             # skip this symlink as it doesn't point to $prefix
             continue
