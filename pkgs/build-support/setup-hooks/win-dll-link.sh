@@ -1,3 +1,4 @@
+export CYGWIN+=\ winsymlinks:native
 
 fixupOutputHooks+=(_linkDLLs)
 
@@ -46,7 +47,7 @@ _linkDLLs() {
             local dllPath2
             for dllPath2 in "$dllPath" "$(dirname "$dllPath")"/*.dll; do
                 if [ -e "$dir/$(basename "$dllPath2")" ]; then continue; fi
-                CYGWIN+=\ winsymlinks:nativestrict ln -s "$dllPath2" "$dir"
+                CYGWIN+=\ winsymlinks:nativestrict ln -sr "$dllPath2" "$dir"
                 echo '  link:' "$dllPath2"
                 linkCount=$(($linkCount+1))
             done

@@ -15,7 +15,7 @@ stdenv.mkDerivation {
     cp -r usr/* $out
     rm bin/cygwin1.dll
     cp -r bin lib $out
-    CYGWIN=winsymlinks:nativestrict ln -s /usr/bin/cygwin1.dll $out/bin
+    CYGWIN+=\ winsymlinks:nativestrict ln -s /usr/bin/cygwin1.dll $out/bin
   '';
 
   dontFixup = true;
