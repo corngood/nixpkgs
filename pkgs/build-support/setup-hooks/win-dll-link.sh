@@ -1,8 +1,32 @@
-export CYGWIN+=\ winsymlinks:native
-
-fixupOutputHooks+=(_linkDLLs)
+postFixupHooks+=(_linkDLLs)
 
 declare -a cygPaths
+
+_dllDeps() {
+    objdump -p "$1" \
+        | sed -n 's/.*DLL Name: \(.*\)/\1/p' \
+        | sort -u
+}
+
+_linkDeps() {
+    local target="$1" dir="$2"
+    echo 'target:' "$target"
+    local dll
+    while read dll; do
+        echo '  dll:' "$dll"
+        if [ -e "$dir/$dll" ]; then continue; fi
+        # Locate the DLL - it should be an *executable* file on $DLLPATH.
+        local dllPath="$(PATH="$DLLPATH" type -P "$dll")"
+        if [ -z "$dllPath" ]; then continue; fi
+        dllPath="$(readlink -f "$dllPath")"
+        echo '    linking to:' "$dllPath"
+        CYGWIN+=\ winsymlinks:nativestrict ln -s "$dllPath" "$dir"
+        linkCount=$(($linkCount+1))
+        # That DLL might have its own (transitive) dependencies,
+        # so add also all DLLs from its directory to be sure.
+        _linkDeps "$dllPath" "$dir"
+    done < <(_dllDeps "$target")
+}
 
 # For every *.{exe,dll} in $output/bin/ we try to find all (potential)
 # transitive dependencies and symlink those DLLs into $output/bin
@@ -14,9 +38,6 @@ _linkDLLs() {
     set -e
     shopt -s globstar nullglob
 
-    [ ! -e "$prefix" ] && return
-    cd "$prefix"
-
     # Compose path list where DLLs should be located:
     #   prefix $PATH by currently-built outputs
     local DLLPATH=""
@@ -24,42 +45,19 @@ _linkDLLs() {
     for outName in $outputs; do
         addToSearchPath DLLPATH "${!outName}/bin"
     done
-    local path
-    for path in "${cygPaths[@]}"; do
-        addToSearchPath DLLPATH "$path"
-    done
+    DLLPATH+=":$PATH"
 
-    local linkCount=0
-    # Iterate over any DLL that we depend on.
-    local target
-    for target in {bin,libexec}/**/*.{exe,dll}; do
-        echo executable: $target
-        local dir=$(dirname "$target")
-        local dll
-        while read dll; do
-            echo '  dll:' "$dll"
-            if [ -e "$dir/$dll" ]; then continue; fi
-            # Locate the DLL - it should be an *executable* file on $DLLPATH.
-            local dllPath="$(PATH="$DLLPATH" type -P "$dll")"
-            if [ -z "$dllPath" ]; then continue; fi
-            # That DLL might have its own (transitive) dependencies,
-            # so add also all DLLs from its directory to be sure.
-            local dllPath2
-            for dllPath2 in "$dllPath" "$(dirname "$dllPath")"/*.dll; do
-                if [ -e "$dir/$(basename "$dllPath2")" ]; then continue; fi
-                CYGWIN+=\ winsymlinks:nativestrict ln -s "$dllPath2" "$dir"
-                echo '  link:' "$dllPath2"
-                linkCount=$(($linkCount+1))
-            done
-        done < <(objdump -p "$target" \
-                     | sed -n 's/.*DLL Name: \(.*\)/\1/p' \
-                     | sort -u)
+    for outName in $outputs; do
+        local prefix=${!outName}
+        [ ! -e "$prefix" ] && return
+        cd "$prefix"
+
+        local linkCount=0
+        # Iterate over any DLL that we depend on.
+        local target
+        for target in {bin,libexec}/**/*.{exe,dll}; do
+            _linkDeps "$target" "$(dirname "$target")"
+        done
     done
 )
 }
-
-addPkgToCygPaths() {
-    cygPaths+=("$1/bin")
-}
-
-addEnvHooks "$targetOffset" addPkgToCygPaths
