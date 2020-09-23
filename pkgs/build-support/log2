@@ -1,0 +1,2 @@
+error: --- SysError --- nix-build
+getting status of '/c/Users/davidm/src/nixpkgs/pkgs/build-support/default.nix': No such file or directory

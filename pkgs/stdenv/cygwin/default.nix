@@ -41,7 +41,6 @@ bootStages ++ [
             mkdir -p $out/bin
             CYGWIN+=\ winsymlinks:nativestrict ln -s /usr/bin/cygwin1.dll $out/bin
           '';
-          dontRewriteSymlinks = true;
         })
       ];
       initialPath = import ../common-path.nix { pkgs = prevStage; } ++ [ "/usr" ];
