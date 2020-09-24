@@ -9,22 +9,25 @@ _dllDeps() {
 }
 
 _linkDeps() {
-    local target="$1" dir="$2"
+    local target="$1" dir="$2" prefix="$3"
     echo 'target:' "$target"
     local dll
     while read dll; do
         echo '  dll:' "$dll"
         if [ -e "$dir/$dll" ]; then continue; fi
         # Locate the DLL - it should be an *executable* file on $DLLPATH.
-        local dllPath="$(PATH="$DLLPATH" type -P "$dll")"
+        local dllPath="$(PATH="$(dirname "$target"):$DLLPATH" type -P "$dll")"
         if [ -z "$dllPath" ]; then continue; fi
         dllPath="$(readlink -f "$dllPath")"
+        if [[ "$symlinkTarget"/ == "$prefix"/* ]]; then
+            dllPath="$(realpath -s --relative-to="$dir" "$dllPath")"
+        fi
         echo '    linking to:' "$dllPath"
         CYGWIN+=\ winsymlinks:nativestrict ln -s "$dllPath" "$dir"
         linkCount=$(($linkCount+1))
         # That DLL might have its own (transitive) dependencies,
         # so add also all DLLs from its directory to be sure.
-        _linkDeps "$dllPath" "$dir"
+        _linkDeps "$dllPath" "$dir" "$prefix"
     done < <(_dllDeps "$target")
 }
 
@@ -56,7 +59,7 @@ _linkDLLs() {
         # Iterate over any DLL that we depend on.
         local target
         for target in {bin,libexec}/**/*.{exe,dll}; do
-            _linkDeps "$target" "$(dirname "$target")"
+            _linkDeps "$target" "$(dirname "$target")" "$prefix"
         done
     done
 )
