@@ -4,27 +4,21 @@
 , ...
 }:
 
-bootStages ++ [
-
-  # This stage still has dependencies on /usr/bin: cygwin1.dll, and any
-  # libraries found by configuration (e.g. -lintl)
-  # Therefore, /usr is still in initialPath, and the native shell is still used.
-  (prevStage: {
+let
+  stageFun = prevStage: {
     inherit config overlays;
     stdenv = with prevStage; import ../generic {
-      inherit (stdenv)
-        fetchurlBoot
-        shell
-        ;
       inherit
         config
         buildPlatform
         hostPlatform
         targetPlatform
         ;
+      fetchurlBoot = fetchurl;
+      shell = bash + "/bin/bash";
       preHook = ''
         shopt -s expand_aliases
-        export Lt_cv_deplibs_check_method=pass_all
+        export lt_cv_deplibs_check_method=pass_all
       '';
       extraNativeBuildInputs = [
         ../cygwin/all-buildinputs-as-runtimedep.sh
@@ -43,7 +37,7 @@ bootStages ++ [
           '';
         })
       ];
-      initialPath = import ../common-path.nix { pkgs = prevStage; } ++ [ "/usr" ];
+      initialPath = import ../common-path.nix { pkgs = prevStage; };
       cc = import ../../build-support/cc-wrapper {
         nativeTools = false;
         nativeLibc = false;
@@ -60,10 +54,7 @@ bootStages ++ [
           profiledCompiler = false;
           libcCross = null;
           isl = isl_0_17;
-        } // { hardeningUnsupportedFlags = [ "fortify"]; };
-        extraBuildCommands = ''
-          echo 'PATH=$PATH:/usr/bin' >> $out/nix-support/utils.bash
-        '';
+        } // { hardeningUnsupportedFlags = [ "fortify" ]; };
         bintools = import ../../build-support/bintools-wrapper {
           name = "bintools";
           nativeTools = false;
@@ -72,13 +63,21 @@ bootStages ++ [
           bintools = binutils-unwrapped;
           extraBuildCommands = ''
             echo "-L${cygwin.packages.w32api-runtime}/lib/w32api" > $out/nix-support/libc-ldflags
-            echo 'PATH=$PATH:/usr/bin' >> $out/nix-support/utils.bash
           '';
           inherit stdenvNoCC coreutils gnugrep;
         };
         inherit stdenvNoCC coreutils gnugrep;
       };
     };
-  })
+  };
+
+in bootStages ++ [
+
+  # The previous stage still has dependencies on /usr/bin: cygwin1.dll, and any
+  # libraries found by configuration (e.g. -lintl)
+  (prevStage: stageFun prevStage)
+
+  # This one should be free of dependencies on /usr
+  # (prevStage: stageFun prevStage)
 
 ]

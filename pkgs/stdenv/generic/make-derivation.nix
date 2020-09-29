@@ -133,6 +133,7 @@ in rec {
           (map (drv: drv.__spliced.buildBuild or drv) depsBuildBuild)
           (map (drv: drv.nativeDrv or drv) nativeBuildInputs
              ++ lib.optional separateDebugInfo' ../../build-support/setup-hooks/separate-debug-info.sh
+             ++ lib.optional stdenv.hostPlatform.isCygwin ../../build-support/setup-hooks/move-cygwin-dlls.sh
              ++ lib.optional stdenv.hostPlatform.isWindows ../../build-support/setup-hooks/win-dll-link.sh
              ++ lib.optionals doCheck checkInputs
              ++ lib.optionals doInstallCheck' installCheckInputs)
