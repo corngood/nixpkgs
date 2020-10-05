@@ -11,7 +11,7 @@ stdenv.mkDerivation {
 
   outputHashAlgo = "sha256";
   outputHashMode = "recursive";
-  outputHash = "QB1NGNAz7BVmq9wF5vtBQnRS9NA6eV/zj/am/NibM48=";
+  outputHash = "qedUEQy/KeaeDBA6BBGqfLnip3uduEglJZ9sYLZOejQ=";
 
   installPhase = ''
     cygwin-setup -qBnD -l "$(cygpath -wa repo)" -R "$(cygpath -wa root)" -C base

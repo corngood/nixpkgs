@@ -2,14 +2,14 @@
 , fetchurl
 # Note: If `{ static = false; shared = false; }`, upstream's default is used
 #       (which is building both static and shared as of zlib 1.2.11).
-, shared ? true
+, shared ? !stdenv.hostPlatform.isCygwin
 , static ? true
 # If true, a separate .static ouput is created and the .a is moved there.
 # In this case `pkg-config` auto detection does not currently work if the
 # .static output is given as `buildInputs` to another package (#66461), because
 # the `.pc` file lists only the main output's lib dir.
 # If false, and if `{ static = true; }`, the .a stays in the main output.
-, splitStaticOutput ? static
+, splitStaticOutput ? !stdenv.hostPlatform.isCygwin && static
 }:
 
 # Note: this package is used for bootstrapping fetchurl, and thus

@@ -19,7 +19,6 @@ stdenv.mkDerivation rec {
   patches = optional (!vanilla) ./requires-private.patch
     ++ optional stdenv.isCygwin [
       ./2.36.3-not-win32.patch
-      ./fix-m4-glib_DEFUN-redefinition-on-cygwin.patch
     ];
 
   # These three tests fail due to a (desired) behavior change from our ./requires-private.patch

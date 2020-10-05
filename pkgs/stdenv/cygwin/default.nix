@@ -33,7 +33,7 @@ let
           dontUnpack = true;
           installPhase = ''
             mkdir -p $out/bin
-            CYGWIN+=\ winsymlinks:nativestrict ln -s /usr/bin/cygwin1.dll $out/bin
+            CYGWIN+=\ winsymlinks:nativestrict ln -s /usr/bin/{cygwin1.dll,gencat.exe} $out/bin
           '';
         })
       ];
@@ -54,7 +54,8 @@ let
           profiledCompiler = false;
           libcCross = null;
           isl = isl_0_17;
-        } // { hardeningUnsupportedFlags = [ "fortify" ]; };
+        # } // { hardeningUnsupportedFlags = [ "fortify" ]; };
+        };
         bintools = import ../../build-support/bintools-wrapper {
           name = "bintools";
           nativeTools = false;

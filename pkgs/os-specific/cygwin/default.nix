@@ -3,7 +3,8 @@
   callPackage = newScope self;
 
   arch = "x86_64";
-  mirror = "http://cygwin.mirror.constant.com";
+  # mirror = "http://cygwin.mirror.constant.com";
+  mirror = "http://mirror.cpsc.ucalgary.ca/mirror/cygwin.com";
 
   mkPackage = { name, version, install, source ? null }:
     stdenv.mkDerivation rec {

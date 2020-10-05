@@ -32,7 +32,8 @@ stdenv.mkDerivation rec {
        # on Darwin, so disable NLS for now.
     ++ stdenv.lib.optional stdenv.hostPlatform.isDarwin "--disable-nls"
        # libelf has an old version of config.guess which doesn't work on cygwin
-    ++ stdenv.lib.optional stdenv.hostPlatform.isCygwin "--host=${stdenv.hostPlatform.config}";
+    ++ stdenv.lib.optional stdenv.hostPlatform.isCygwin "--host=${stdenv.hostPlatform.config}"
+    ;
 
   nativeBuildInputs = [ gettext ]
        # Need to regenerate configure script with newer version in order to pass

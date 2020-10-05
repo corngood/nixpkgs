@@ -73,7 +73,7 @@ let
       "--enable-libssp"
       "--disable-nls"
       # To keep ABI compatibility with upstream mingw-w64
-      "--enable-fully-dynamic-string"      
+      "--enable-fully-dynamic-string"
     ] ++ lib.optionals (crossMingw && targetPlatform.isx86_32) [
       # See Note [Windows Exception Handling]
       "--enable-sjlj-exceptions"
@@ -182,15 +182,16 @@ let
       # On Illumos/Solaris GNU as is preferred
       "--with-gnu-as" "--without-gnu-ld"
     ]
+    ++ lib.optional targetPlatform.isCygwin "--disable-libssp"
     ++ lib.optionals (targetPlatform == hostPlatform && targetPlatform.libc == "musl") [
       "--disable-libsanitizer"
       "--disable-symvers"
       "libat_cv_have_ifunc=no"
       "--disable-gnu-indirect-function"
-    ] 
+    ]
     ++ lib.optionals langJit [
       "--enable-host-shared"
-    ] 
+    ]
     ++ lib.optionals (langD) [
       "--with-target-system-zlib=yes"
     ]
