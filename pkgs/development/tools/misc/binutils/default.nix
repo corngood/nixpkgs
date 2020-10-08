@@ -2,7 +2,9 @@
 , fetchFromGitHub, fetchurl, zlib, autoreconfHook, gettext
 # Enabling all targets increases output size to a multiple.
 , withAllTargets ? false, libbfd, libopcodes
-, enableShared ? true
+# ld is broken on cygwin because it links libiberty into both ld and bfd,
+# causing duplicate global state, e.g. `current_demangling_style`
+, enableShared ? !stdenv.hostPlatform.isCygwin
 , noSysDirs
 , gold ? !stdenv.buildPlatform.isDarwin || stdenv.hostPlatform == stdenv.targetPlatform
 , bison ? null
@@ -79,8 +81,7 @@ stdenv.mkDerivation {
     ./0001-x86-Add-a-GNU_PROPERTY_X86_ISA_1_USED-note-if-needed.patch
     ./0001-x86-Properly-merge-GNU_PROPERTY_X86_ISA_1_USED.patch
     ./0001-x86-Properly-add-X86_ISA_1_NEEDED-property.patch
-  ] ++ lib.optional stdenv.targetPlatform.isiOS ./support-ios.patch
-  ++ lib.optional stdenv.hostPlatform.isCygwin ./exclude-libiberty-bfd.patch;
+  ] ++ lib.optional stdenv.targetPlatform.isiOS ./support-ios.patch;
 
   outputs = [ "out" "info" "man" ];
 

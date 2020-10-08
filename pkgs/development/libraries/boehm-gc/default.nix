@@ -25,7 +25,8 @@ stdenv.mkDerivation rec {
   patches = # https://github.com/ivmai/bdwgc/pull/208
     lib.optional stdenv.hostPlatform.isRiscV ./riscv.patch
     # boehm-gc whitelists GCC threading models
-    ++ lib.optional stdenv.hostPlatform.isMinGW ./mcfgthread.patch;
+    ++ lib.optional stdenv.hostPlatform.isMinGW ./mcfgthread.patch
+    ++ lib.optional stdenv.hostPlatform.isCygwin ./disable-libsupc++.patch;
 
   configureFlags =
     [ "--enable-cplusplus" "--with-libatomic-ops=none" ]
