@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
       url = "https://github.com/troglobit/editline/commit/ceee039cfc819c8e09eebbfca192091b0cf8df75.patch";
       sha256 = "149fmfva05ghzwkd0bq1sahdbkys3qyyky28ssqb5jq7q9hw3ddm";
     })
-  ];
+  ] ++ stdenv.lib.optional stdenv.targetPlatform.isCygwin ./no-undefined.patch;
 
   nativeBuildInputs = [ autoreconfHook ];
 
