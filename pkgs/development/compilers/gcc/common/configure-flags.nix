@@ -182,7 +182,11 @@ let
       # On Illumos/Solaris GNU as is preferred
       "--with-gnu-as" "--without-gnu-ld"
     ]
-    ++ lib.optional targetPlatform.isCygwin "--disable-libssp"
+    ++ lib.optionals targetPlatform.isCygwin [
+      "--enable-threads=posix"
+      "--disable-libssp" # TODO: can we turn this on if we build newlib?
+      "--enable-__cxa_atexit"
+    ]
     ++ lib.optionals (targetPlatform == hostPlatform && targetPlatform.libc == "musl") [
       "--disable-libsanitizer"
       "--disable-symvers"

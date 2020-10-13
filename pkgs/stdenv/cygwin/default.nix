@@ -79,6 +79,6 @@ in bootStages ++ [
   (prevStage: stageFun prevStage)
 
   # This one should be free of dependencies on /usr
-  (prevStage: stageFun prevStage)
+  # (prevStage: stageFun prevStage)
 
 ]
