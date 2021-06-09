@@ -44,10 +44,17 @@ in rec {
 
   unstable = fetchurl rec {
     # NOTE: Don't forget to change the SHA256 for staging as well.
-    version = "6.3";
+    version = "6.9";
     url = "https://dl.winehq.org/wine/source/6.x/wine-${version}.tar.xz";
-    sha256 = "sha256-aCp3wf0S9WNHyiCA2F/hfe8bZV0yQdlFgvh1kdnQzDs=";
-    inherit (stable) mono gecko32 gecko64;
+    sha256 = "sha256-GFVOYB3vhqmiAXKwhcZoMpFPwh511VX25U/4nn6uW/4=";
+    inherit (stable) gecko32 gecko64;
+
+    ## see http://wiki.winehq.org/Mono
+    mono = fetchurl rec {
+      version = "6.1.1";
+      url = "https://dl.winehq.org/wine/wine-mono/${version}/wine-mono-${version}-x86.msi";
+      sha256 = "sha256-rDsUvq/eNLhIIofllwABE9wGqRXzLJ/QbHfrgZB544s=";
+    };
 
     patches = [
       # Also look for root certificates at $NIX_SSL_CERT_FILE
@@ -58,19 +65,23 @@ in rec {
   staging = fetchFromGitHub rec {
     # https://github.com/wine-staging/wine-staging/releases
     inherit (unstable) version;
-    sha256 = "sha256-Fok0jdGBQtH84PL6LVnuCR7ZVSUIHECqPUI/2lLXs44=";
+    sha256 = "sha256-g0NmiypafOAmKDRoRf4uz5NnhFo6uga0fKYNCF29jbE=";
     owner = "wine-staging";
     repo = "wine-staging";
-    rev = "v${version}";
+    #rev = "v${version}";
+    # FIXME: replace with line above with 6.10 release
+    # Fix https://bugs.winehq.org/show_bug.cgi?id=51172
+    rev = "5bbe3e47a559b3c04bc8791e0b398a271c772af7";
 
-    # Just keep list empty, if current release haven't broken patchsets
-    disabledPatchsets = [ ];
+    # Actually only "d3d11-Deferred_Context" cause problems, two others only dependencies
+    # see FIXME above
+    disabledPatchsets = [ "d3d11-Deferred_Context" "wined3d-CSMT_Main" "nvapi-Stub_DLL" "nvcuvid-CUDA_Video_Support" "nvencodeapi-Video_Encoder" ];
   };
 
   winetricks = fetchFromGitHub rec {
     # https://github.com/Winetricks/winetricks/releases
-    version = "20201206";
-    sha256 = "1xs09v1zr98yvwvdsmzgryc2hbk92mwn54yxx8162l461465razc";
+    version = "20210206";
+    sha256 = "sha256-tnwownY9A05nYlkYaoCQZjeGGHuE+kJYzA7MPE2bXnQ=";
     owner = "Winetricks";
     repo = "winetricks";
     rev = version;

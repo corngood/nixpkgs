@@ -1,5 +1,5 @@
 { config, lib, stdenv, fetchurl, gettext, meson, ninja, pkg-config, perl, python3
-, libiconv, zlib, libffi, pcre, libelf, gnome3, libselinux, bash, gnum4, gtk-doc, docbook_xsl, docbook_xml_dtd_45
+, libiconv, zlib, libffi, pcre, libelf, gnome, libselinux, bash, gnum4, gtk-doc, docbook_xsl, docbook_xml_dtd_45
 # use util-linuxMinimal to avoid circular dependency (util-linux, systemd, glib)
 , util-linuxMinimal ? null
 , buildPackages
@@ -45,15 +45,16 @@ in
 
 stdenv.mkDerivation rec {
   pname = "glib";
-  version = "2.66.4";
+  version = "2.68.2";
 
   src = fetchurl {
     url = "mirror://gnome/sources/glib/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
-    sha256 = "l9+GcOMvn9T3OSsJgOZh3WJQEgFdWDUNoeWOND9K+YQ=";
+    sha256 = "sha256-7Md5ipzANOq9/X8kbm3UYc2/EXX8wumGfMfae3MJ4Ps=";
   };
 
   patches = optionals stdenv.isDarwin [
     ./darwin-compilation.patch
+    ./link-with-coreservices.patch
   ] ++ optionals stdenv.hostPlatform.isMusl [
     ./quark_init_on_demand.patch
     ./gobject_init_on_demand.patch
@@ -97,10 +98,23 @@ stdenv.mkDerivation rec {
     util-linuxMinimal # for libmount
   ] ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
     AppKit Carbon Cocoa CoreFoundation CoreServices Foundation
-  ]);
+  ]) ++ optionals (stdenv.hostPlatform == stdenv.buildPlatform) [
+    # Note: this needs to be both in buildInputs and nativeBuildInputs. The
+    # Meson gtkdoc module uses find_program to look it up (-> build dep), but
+    # glib's own Meson configuration uses the host pkg-config to find its
+    # version (-> host dep). We could technically go and fix this in glib, add
+    # pkg-config to depsBuildBuild, but this would be a futile exercise since
+    # Meson's gtkdoc integration does not support cross compilation[1] anyway
+    # and this derivation disables the docs build when cross compiling.
+    #
+    # [1] https://github.com/mesonbuild/meson/issues/2003
+    gtk-doc
+  ];
+
+  strictDeps = true;
 
   nativeBuildInputs = [
-    meson ninja pkg-config perl python3 gettext gtk-doc docbook_xsl docbook_xml_dtd_45
+    meson ninja pkg-config perl python3 gettext gtk-doc docbook_xsl docbook_xml_dtd_45 libxml2
   ];
 
   propagatedBuildInputs = [ zlib libffi gettext libiconv ];
@@ -119,6 +133,8 @@ stdenv.mkDerivation rec {
     # we're using plain
     "-DG_DISABLE_CAST_CHECKS"
   ];
+
+  hardeningDisable = [ "pie" ];
 
   postPatch = ''
     chmod +x gio/tests/gengiotypefuncs.py
@@ -144,7 +160,7 @@ stdenv.mkDerivation rec {
     cp -r ${buildPackages.glib.devdoc} $devdoc
   '';
 
-  checkInputs = [ tzdata libxml2 desktop-file-utils shared-mime-info ];
+  checkInputs = [ tzdata desktop-file-utils shared-mime-info ];
 
   preCheck = optionalString doCheck ''
     export LD_LIBRARY_PATH="$NIX_BUILD_TOP/${pname}-${version}/glib/.libs''${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH"
@@ -179,14 +195,14 @@ stdenv.mkDerivation rec {
     makeSchemaPath = dir: name: "${dir}/share/gsettings-schemas/${name}/glib-2.0/schemas";
     getSchemaPath = pkg: makeSchemaPath pkg pkg.name;
     inherit flattenInclude;
-    updateScript = gnome3.updateScript { packageName = "glib"; };
+    updateScript = gnome.updateScript { packageName = "glib"; };
   };
 
   meta = with lib; {
     description = "C library of programming buildings blocks";
     homepage    = "https://www.gtk.org/";
     license     = licenses.lgpl21Plus;
-    maintainers = with maintainers; [ lovek323 raskin worldofpeace ];
+    maintainers = teams.gnome.members ++ (with maintainers; [ lovek323 raskin ]);
     platforms   = platforms.unix;
 
     longDescription = ''

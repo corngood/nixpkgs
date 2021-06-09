@@ -17,6 +17,7 @@
 , libv4l
 , x264
 , curl
+, wayland
 , xorg
 , makeWrapper
 , pkg-config
@@ -33,6 +34,8 @@
 , pulseaudioSupport ? config.pulseaudio or stdenv.isLinux
 , libpulseaudio
 , libcef
+, pipewireSupport ? stdenv.isLinux
+, pipewire
 }:
 
 let
@@ -40,13 +43,13 @@ let
 
 in mkDerivation rec {
   pname = "obs-studio";
-  version = "26.1.2";
+  version = "27.0.0";
 
   src = fetchFromGitHub {
     owner = "obsproject";
     repo = "obs-studio";
     rev = version;
-    sha256 = "1plr5a7k5scxlibhbknhhk19ipk8las14dzs7v64zx7rhpj00009";
+    sha256 = "1n71705b9lbdff3svkmgwmbhlhhxvi8ajxqb74lm07v56a5bvi6p";
     fetchSubmodules = true;
   };
 
@@ -67,6 +70,7 @@ in mkDerivation rec {
     qtx11extras
     qtsvg
     speex
+    wayland
     x264
     libvlc
     makeWrapper
@@ -74,7 +78,8 @@ in mkDerivation rec {
   ]
   ++ optionals scriptingSupport [ luajit swig python3 ]
   ++ optional alsaSupport alsaLib
-  ++ optional pulseaudioSupport libpulseaudio;
+  ++ optional pulseaudioSupport libpulseaudio
+  ++ optional pipewireSupport pipewire;
 
   # Copied from the obs-linuxbrowser
   postUnpack = ''

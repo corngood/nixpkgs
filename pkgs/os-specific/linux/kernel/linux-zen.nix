@@ -1,7 +1,7 @@
 { lib, fetchFromGitHub, buildLinux, ... } @ args:
 
 let
-  version = "5.11.1";
+  version = "5.12.9";
   suffix = "zen1";
 in
 
@@ -14,13 +14,13 @@ buildLinux (args // {
     owner = "zen-kernel";
     repo = "zen-kernel";
     rev = "v${version}-${suffix}";
-    sha256 = "10xpb6r1ccqy2lsndf16dksi40z1cgm3wqjp3yjwzhad8zdjlm5d";
+    sha256 = "sha256-Sbe7pY/htLRRx5Qs78BpEzNCSIEsnZMj1+bkAftZdbQ=";
   };
 
   extraMeta = {
-    branch = "5.10/master";
+    branch = "5.12/master";
     maintainers = with lib.maintainers; [ atemu andresilva ];
     description = "Built using the best configuration and kernel sources for desktop, multimedia, and gaming workloads.";
   };
 
-} // (args.argsOverride or {}))
+} // (args.argsOverride or { }))

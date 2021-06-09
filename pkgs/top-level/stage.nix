@@ -158,6 +158,20 @@ let
                               nixpkgsFun { inherit crossSystem; })
                               lib.systems.examples;
 
+    pkgsLLVM = nixpkgsFun {
+      overlays = [
+        (self': super': {
+          pkgsLLVM = super';
+        })
+      ] ++ overlays;
+      # Bootstrap a cross stdenv using the LLVM toolchain.
+      # This is currently not possible when compiling natively,
+      # so we don't need to check hostPlatform != buildPlatform.
+      crossSystem = stdenv.hostPlatform // {
+        useLLVM = true;
+      };
+    };
+
     # All packages built with the Musl libc. This will override the
     # default GNU libc on Linux systems. Non-Linux systems are not
     # supported.
@@ -227,6 +241,8 @@ let
           }.${stdenv.hostPlatform.parsed.abi.name}
             or lib.systems.parse.abis.musl;
         };
+      } // lib.optionalAttrs (stdenv.hostPlatform.system == "powerpc64-linux") {
+        gcc.abi = "elfv2";
       };
     });
   };

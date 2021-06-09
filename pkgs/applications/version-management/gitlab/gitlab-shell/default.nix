@@ -2,19 +2,19 @@
 
 buildGoModule rec {
   pname = "gitlab-shell";
-  version = "13.15.1";
+  version = "13.18.0";
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "gitlab-shell";
     rev = "v${version}";
-    sha256 = "sha256-wDZLcCBbWjG6wIcEj02eqwWVfAYy1TuAo/xvJB8tt+0=";
+    sha256 = "sha256-TPe2quDg/ljI2v1HciDajosSPm4Z/iT2skeveNdrKdo=";
   };
 
   buildInputs = [ ruby ];
 
   patches = [ ./remove-hardcoded-locations.patch ];
 
-  vendorSha256 = "16fa3bka0008x2yazahc6xxcv4fa6yqg74kk64v8lrp7snbvjf4d";
+  vendorSha256 = "sha256-MvWpZ/Z9ieNE0+p975BG302BPzFbCZD3cACXMW5fiTQ=";
 
   postInstall = ''
     cp -r "$NIX_BUILD_TOP/source"/bin/* $out/bin

@@ -11,6 +11,10 @@ self: super: {
 
   ldgallery-compiler = self.callPackage ../../tools/graphics/ldgallery/compiler { };
 
+  # Used by maintainers/scripts/regenerate-hackage-packages.sh, and generated
+  # from the latest master instead of the current version on Hackage.
+  cabal2nix-unstable = self.callPackage ./cabal2nix-unstable.nix { };
+
   # https://github.com/channable/vaultenv/issues/1
   vaultenv = self.callPackage ../tools/haskell/vaultenv { };
 
@@ -28,4 +32,8 @@ self: super: {
   graphql-parser = self.callPackage ../misc/haskell/hasura/graphql-parser {};
   # cabal2nix  --subpath server --maintainer offline --no-check --revision 1.2.1 https://github.com/hasura/graphql-engine.git
   graphql-engine = self.callPackage ../misc/haskell/hasura/graphql-engine {};
+
+  # Unofficial fork until PRs are merged https://github.com/pcapriotti/optparse-applicative/pulls/roberth
+  # cabal2nix --maintainer roberth https://github.com/hercules-ci/optparse-applicative.git > pkgs/development/misc/haskell/hercules-ci-optparse-applicative.nix
+  hercules-ci-optparse-applicative = self.callPackage ../misc/haskell/hercules-ci-optparse-applicative.nix {};
 }

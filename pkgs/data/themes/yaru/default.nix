@@ -1,19 +1,19 @@
 { lib, stdenv, fetchFromGitHub, meson, sassc, pkg-config, glib, ninja,
-  python3, gtk3, gnome3, gtk-engine-murrine, humanity-icon-theme, hicolor-icon-theme }:
+  python3, gtk3, gnome, gtk-engine-murrine, humanity-icon-theme, hicolor-icon-theme }:
 
 stdenv.mkDerivation rec {
   pname = "yaru";
-  version = "20.10.6.1";
+  version = "21.04.1";
 
   src = fetchFromGitHub {
     owner = "ubuntu";
     repo = "yaru";
     rev = version;
-    sha256 = "0kcmxfz2rfav7aj5v1vv335vqzyj0n53lbhwx0g6gxxfi0x3vv6v";
+    sha256 = "0z6k8q9b5xjx6xwirqbsqq5jjxw79ar2d61r7cgipqmbjdsjfgjz";
   };
 
   nativeBuildInputs = [ meson sassc pkg-config glib ninja python3 ];
-  buildInputs = [ gtk3 gnome3.gnome-themes-extra ];
+  buildInputs = [ gtk3 gnome.gnome-themes-extra ];
   propagatedBuildInputs = [ humanity-icon-theme hicolor-icon-theme ];
 
   propagatedUserEnvPkgs = [ gtk-engine-murrine ];

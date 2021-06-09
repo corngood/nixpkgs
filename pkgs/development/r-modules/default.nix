@@ -231,7 +231,7 @@ let
   };
 
   packagesWithNativeBuildInputs = {
-    arrow = [ pkgs.pkgconfig pkgs.arrow-cpp ];
+    arrow = [ pkgs.pkg-config pkgs.arrow-cpp ];
     adimpro = [ pkgs.imagemagick ];
     animation = [ pkgs.which ];
     audio = [ pkgs.portaudio ];
@@ -276,6 +276,7 @@ let
     jqr = [ pkgs.jq.dev ];
     KFKSDS = [ pkgs.gsl_1 ];
     kza = [ pkgs.fftw.dev ];
+    lwgeom = [ pkgs.gdal pkgs.geos pkgs.proj ];
     magick = [ pkgs.imagemagick.dev ];
     ModelMetrics = lib.optional stdenv.isDarwin pkgs.llvmPackages.openmp;
     mvabund = [ pkgs.gsl_1 ];
@@ -310,10 +311,10 @@ let
     RGtk2 = [ pkgs.gtk2.dev ];
     rhdf5 = [ pkgs.zlib ];
     Rhdf5lib = [ pkgs.zlib ];
-    Rhpc = [ pkgs.zlib pkgs.bzip2.dev pkgs.icu pkgs.lzma.dev pkgs.mpi pkgs.pcre.dev ];
-    Rhtslib = [ pkgs.zlib.dev pkgs.automake pkgs.autoconf pkgs.bzip2.dev pkgs.lzma.dev pkgs.curl.dev ];
+    Rhpc = [ pkgs.zlib pkgs.bzip2.dev pkgs.icu pkgs.xz.dev pkgs.mpi pkgs.pcre.dev ];
+    Rhtslib = [ pkgs.zlib.dev pkgs.automake pkgs.autoconf pkgs.bzip2.dev pkgs.xz.dev pkgs.curl.dev ];
     rjags = [ pkgs.jags ];
-    rJava = [ pkgs.zlib pkgs.bzip2.dev pkgs.icu pkgs.lzma.dev pkgs.pcre.dev pkgs.jdk pkgs.libzip ];
+    rJava = [ pkgs.zlib pkgs.bzip2.dev pkgs.icu pkgs.xz.dev pkgs.pcre.dev pkgs.jdk pkgs.libzip ];
     Rlibeemd = [ pkgs.gsl_1 ];
     rmatio = [ pkgs.zlib.dev ];
     Rmpfr = [ pkgs.gmp pkgs.mpfr.dev ];
@@ -334,7 +335,7 @@ let
     RVowpalWabbit = [ pkgs.zlib.dev pkgs.boost ];
     rzmq = [ pkgs.zeromq pkgs.pkg-config ];
     clustermq = [ pkgs.zeromq ];
-    SAVE = [ pkgs.zlib pkgs.bzip2 pkgs.icu pkgs.lzma pkgs.pcre ];
+    SAVE = [ pkgs.zlib pkgs.bzip2 pkgs.icu pkgs.xz pkgs.pcre ];
     sdcTable = [ pkgs.gmp pkgs.glpk ];
     seewave = [ pkgs.fftw.dev pkgs.libsndfile.dev ];
     seqinr = [ pkgs.zlib.dev ];
@@ -374,11 +375,13 @@ let
     affyio = [ pkgs.zlib.dev ];
     VariantAnnotation = [ pkgs.zlib.dev pkgs.curl.dev ];
     snpStats = [ pkgs.zlib.dev ];
+    hdf5r = [ pkgs.hdf5.dev ];
   };
 
   packagesWithBuildInputs = {
     # sort -t '=' -k 2
     gam = lib.optionals stdenv.isDarwin [ pkgs.libiconv ];
+    RcppArmadillo = lib.optionals stdenv.isDarwin [ pkgs.libiconv ];
     quantreg = lib.optionals stdenv.isDarwin [ pkgs.libiconv ];
     rmutil = lib.optionals stdenv.isDarwin [ pkgs.libiconv ];
     robustbase = lib.optionals stdenv.isDarwin [ pkgs.libiconv ];
@@ -405,6 +408,7 @@ let
     gdtools = [ pkgs.pkg-config ];
     jqr = [ pkgs.jq.lib ];
     kza = [ pkgs.pkg-config ];
+    lwgeom = [ pkgs.pkg-config pkgs.proj.dev pkgs.sqlite.dev ];
     magick = [ pkgs.pkg-config ];
     mwaved = [ pkgs.pkg-config ];
     odbc = [ pkgs.pkg-config ];
@@ -939,7 +943,7 @@ let
     });
 
     littler = old.littler.overrideAttrs (attrs: with pkgs; {
-      buildInputs = [ pcre lzma zlib bzip2 icu which ] ++ attrs.buildInputs;
+      buildInputs = [ pcre xz zlib bzip2 icu which ] ++ attrs.buildInputs;
       postInstall = ''
         install -d $out/bin $out/share/man/man1
         ln -s ../library/littler/bin/r $out/bin/r

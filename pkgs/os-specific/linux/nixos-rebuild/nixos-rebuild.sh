@@ -79,7 +79,6 @@ while [ "$#" -gt 0 ]; do
       --fast)
         buildNix=
         fast=1
-        extraBuildFlags+=(--show-trace)
         ;;
       --profile-name|-p)
         if [ -z "$1" ]; then
@@ -105,7 +104,7 @@ while [ "$#" -gt 0 ]; do
         ;;
       --flake)
         flake="$1"
-        flakeFlags=(--experimental-features 'nix-command flakes')
+        flakeFlags=(--extra-experimental-features 'nix-command flakes')
         shift 1
         ;;
       --recreate-lock-file|--no-update-lock-file|--no-write-lock-file|--no-registries|--commit-lock-file)
@@ -214,6 +213,47 @@ nixBuild() {
   fi
 }
 
+nixFlakeBuild() {
+    if [ -z "$buildHost" ]; then
+        nix build "$@" --out-link "${tmpDir}/result"
+        readlink -f "${tmpDir}/result"
+    else
+        local attr="$1"
+        shift 1
+        local evalArgs=()
+        local buildArgs=()
+        while [ "$#" -gt 0 ]; do
+            local i="$1"; shift 1
+            case "$i" in
+              --recreate-lock-file|--no-update-lock-file|--no-write-lock-file|--no-registries|--commit-lock-file)
+                evalArgs+=("$i")
+                ;;
+              --update-input)
+                local j="$1"; shift 1
+                evalArgs+=("$i" "$j")
+                ;;
+              --override-input)
+                local j="$1"; shift 1
+                local k="$1"; shift 1
+                evalArgs+=("$i" "$j" "$k")
+                ;;
+              *)
+                buildArgs+=("$i")
+                ;;
+            esac
+        done
+
+        local drv="$(nix "${flakeFlags[@]}" eval --raw "${attr}.drvPath" "${evalArgs[@]}" "${extraBuildArgs[@]}")"
+        if [ -a "$drv" ]; then
+            NIX_SSHOPTS=$SSHOPTS nix "${flakeFlags[@]}" copy --derivation --to "ssh://$buildHost" "$drv"
+            buildHostCmd nix-store -r "$drv" "${buildArgs[@]}"
+        else
+            echo "nix eval failed"
+            exit 1
+        fi
+    fi
+}
+
 
 if [ -z "$action" ]; then showSyntax; fi
 
@@ -295,7 +335,7 @@ fi
 
 # Resolve the flake.
 if [[ -n $flake ]]; then
-    flake=$(nix "${flakeFlags[@]}" flake info --json "${extraBuildFlags[@]}" "${lockFlags[@]}" -- "$flake" | jq -r .url)
+    flake=$(nix "${flakeFlags[@]}" flake metadata --json "${extraBuildFlags[@]}" "${lockFlags[@]}" -- "$flake" | jq -r .url)
 fi
 
 # Find configuration.nix and open editor instead of building.
@@ -345,6 +385,8 @@ prebuiltNix() {
         echo @nix_x86_64_linux@
     elif [[ "$machine" =~ i.86 ]]; then
         echo @nix_i686_linux@
+    elif [[ "$machine" = aarch64 ]]; then
+        echo @nix_aarch64_linux@
     else
         echo "$0: unsupported platform"
         exit 1
@@ -418,10 +460,7 @@ if [ -z "$rollback" ]; then
         if [[ -z $flake ]]; then
             pathToConfig="$(nixBuild '<nixpkgs/nixos>' --no-out-link -A system "${extraBuildFlags[@]}")"
         else
-            outLink=$tmpDir/result
-            nix "${flakeFlags[@]}" build "$flake#$flakeAttr.config.system.build.toplevel" \
-              "${extraBuildFlags[@]}" "${lockFlags[@]}" --out-link $outLink
-            pathToConfig="$(readlink -f $outLink)"
+            pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.toplevel" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
         copyToTarget "$pathToConfig"
         targetHostCmd nix-env -p "$profile" --set "$pathToConfig"
@@ -429,24 +468,19 @@ if [ -z "$rollback" ]; then
         if [[ -z $flake ]]; then
             pathToConfig="$(nixBuild '<nixpkgs/nixos>' -A system -k "${extraBuildFlags[@]}")"
         else
-            nix "${flakeFlags[@]}" build "$flake#$flakeAttr.config.system.build.toplevel" "${extraBuildFlags[@]}" "${lockFlags[@]}"
-            pathToConfig="$(readlink -f ./result)"
+            pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.toplevel" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
     elif [ "$action" = build-vm ]; then
         if [[ -z $flake ]]; then
             pathToConfig="$(nixBuild '<nixpkgs/nixos>' -A vm -k "${extraBuildFlags[@]}")"
         else
-            nix "${flakeFlags[@]}" build "$flake#$flakeAttr.config.system.build.vm" \
-              "${extraBuildFlags[@]}" "${lockFlags[@]}"
-            pathToConfig="$(readlink -f ./result)"
+            pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.vm" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
     elif [ "$action" = build-vm-with-bootloader ]; then
         if [[ -z $flake ]]; then
             pathToConfig="$(nixBuild '<nixpkgs/nixos>' -A vmWithBootLoader -k "${extraBuildFlags[@]}")"
         else
-            nix "${flakeFlags[@]}" build "$flake#$flakeAttr.config.system.build.vmWithBootLoader" \
-              "${extraBuildFlags[@]}" "${lockFlags[@]}"
-            pathToConfig="$(readlink -f ./result)"
+            pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.vmWithBootLoader" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
     else
         showSyntax

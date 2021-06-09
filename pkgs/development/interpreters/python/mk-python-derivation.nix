@@ -93,6 +93,8 @@
 
 , doCheck ? config.doCheckByDefault or false
 
+, disabledTestPaths ? []
+
 , ... } @ attrs:
 
 
@@ -104,11 +106,14 @@ else
 let
   inherit (python) stdenv;
 
+  name_ = name;
+
   self = toPythonModule (stdenv.mkDerivation ((builtins.removeAttrs attrs [
     "disabled" "checkPhase" "checkInputs" "doCheck" "doInstallCheck" "dontWrapPythonPrograms" "catchConflicts" "format"
+    "disabledTestPaths"
   ]) // {
 
-    name = namePrefix + name;
+    name = namePrefix + name_;
 
     nativeBuildInputs = [
       python
@@ -176,6 +181,8 @@ let
     # If given use the specified checkPhase, otherwise use the setup hook.
     # Longer-term we should get rid of `checkPhase` and use `installCheckPhase`.
     installCheckPhase = attrs.checkPhase;
+  } //  lib.optionalAttrs (disabledTestPaths != []) {
+      disabledTestPaths = lib.escapeShellArgs disabledTestPaths;
   }));
 
   passthru.updateScript = let

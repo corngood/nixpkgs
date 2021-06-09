@@ -9,32 +9,34 @@
 , freetype
 , libxcb
 , python3
+, libiconv
 , AppKit
 , CoreText
 , Security
+, fira-code
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "silicon";
-  version = "0.4.0";
+  version = "0.4.2";
 
   src = fetchFromGitHub {
     owner = "Aloxaf";
     repo = "silicon";
     rev = "v${version}";
-    sha256 = "0cvzkfyljgxhmn456f2rn0vq2bhm1ishr4jg4dnwjjfgmjg3w908";
+    sha256 = "sha256-k+p8AEEL1BBJTmPc58QoIk7EOzu8QKdG00RQ58EN3bg=";
   };
 
-  cargoSha256 = "1aymhbfzcncrbc5n8rf62bdgi95b4bjhw6p716vhca5p6c7wfxcb";
+  cargoSha256 = "sha256-vpegobS7lpRkt/oZePW9WggYeg0JXDte8fQP/bf7oAI=";
 
-  buildInputs = [ llvmPackages.libclang expat freetype ]
+  buildInputs = [ llvmPackages.libclang expat freetype fira-code ]
     ++ lib.optionals stdenv.isLinux [ libxcb ]
-    ++ lib.optionals stdenv.isDarwin [ AppKit CoreText Security ];
+    ++ lib.optionals stdenv.isDarwin [ libiconv AppKit CoreText Security ];
 
   nativeBuildInputs = [ cmake pkg-config ]
     ++ lib.optionals stdenv.isLinux [ python3 ];
 
-  LIBCLANG_PATH = "${llvmPackages.libclang}/lib";
+  LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
   meta = with lib; {
     description = "Create beautiful image of your source code";

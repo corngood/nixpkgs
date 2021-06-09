@@ -5,11 +5,13 @@
 , pythonOlder
 , asdf
 , astropy
+, setuptools-scm
 , astropy-helpers
 , astropy-extension-helpers
 , beautifulsoup4
 , drms
 , glymur
+, h5netcdf
 , hypothesis
 , matplotlib
 , numpy
@@ -29,15 +31,16 @@
 
 buildPythonPackage rec {
   pname = "sunpy";
-  version = "2.0.7";
+  version = "2.1.2";
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "d13ac67c14ea825652dc3e12c4c627e782e8e843e96a1d54440d39dd2ceb6a5c";
+    sha256 = "8bbc440e606a4f3fcbd1441150d81da6f0208adace9dc06f6afd2c9cb7c08908";
   };
 
   nativeBuildInputs = [
+    setuptools-scm
     astropy-extension-helpers
   ];
 
@@ -48,6 +51,7 @@ buildPythonPackage rec {
     pandas
     astropy
     astropy-helpers
+    h5netcdf
     parfive
     sqlalchemy
     scikitimage

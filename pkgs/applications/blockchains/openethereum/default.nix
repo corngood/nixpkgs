@@ -10,26 +10,20 @@
 , darwin
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage.override { stdenv = stdenv; } rec {
   pname = "openethereum";
-  version = "3.1.1";
+  version = "3.2.5";
 
   src = fetchFromGitHub {
     owner = "openethereum";
     repo = "openethereum";
     rev = "v${version}";
-    sha256 = "sha256-RUrJuJF0R0mc7XdLyk915fRWtMfzjp5QE6oeWxHfyEQ=";
+    sha256 = "1g48fkznvr9fs3j9zy2d9pcwnahmyghxg2b9bsn2mxpyczmfqrki";
   };
 
-  cargoSha256 = "sha256-b+winsCzU0sXGDX6nUtWq4JrIyTcJ3uva7RlV5VsXfk=";
+  cargoSha256 = "02nlm5ariv4dr6b3rckzs7hw1xrl83yvhimrzb0g5l0j0sxh1nhc";
 
-  LIBCLANG_PATH = "${llvmPackages.libclang}/lib";
-  nativeBuildInputs = [
-    cmake
-    llvmPackages.clang
-    llvmPackages.libclang
-    pkg-config
-  ];
+  nativeBuildInputs = [ cmake pkg-config ];
 
   buildInputs = [ openssl ]
     ++ lib.optionals stdenv.isLinux [ systemd ]

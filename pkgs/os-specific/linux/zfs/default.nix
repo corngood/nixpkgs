@@ -157,7 +157,7 @@ let
         done
       '';
 
-      outputs = [ "out" ] ++ optionals buildUser [ "lib" "dev" ];
+      outputs = [ "out" ] ++ optionals buildUser [ "dev" ];
 
       passthru = {
         inherit enableMail;
@@ -182,13 +182,9 @@ let
         license = licenses.cddl;
         platforms = platforms.linux;
         maintainers = with maintainers; [ hmenke jcumming jonringer wizeman fpletz globin mic92 ];
-        broken = if
-          buildKernel && (kernelCompatible != null) && !kernelCompatible
-          then builtins.trace ''
-            Linux v${kernel.version} is not yet supported by zfsonlinux v${version}.
-            ${lib.optionalString (!isUnstable) "Try zfsUnstable or set the NixOS option boot.zfs.enableUnstable."}
-          '' true
-          else false;
+        # If your Linux kernel version is not yet supported by zfs, try zfsUnstable.
+        # On NixOS set the option boot.zfs.enableUnstable.
+        broken = buildKernel && (kernelCompatible != null) && !kernelCompatible;
       };
     };
 in {
@@ -200,19 +196,19 @@ in {
     kernelCompatible = kernel.kernelAtLeast "3.10" && kernel.kernelOlder "5.12";
 
     # this package should point to the latest release.
-    version = "2.0.3";
+    version = "2.0.4";
 
-    sha256 = "sha256-bai7SwJNOsrACcrUxZ4339REhbBPOWyYikHzgHfbONs=";
+    sha256 = "sha256-ySTt0K3Lc0Le35XTwjiM5l+nIf9co7wBn+Oma1r8YHo=";
   };
 
   zfsUnstable = common {
     # check the release notes for compatible kernels
-    kernelCompatible = kernel.kernelAtLeast "3.10" && kernel.kernelOlder "5.12";
+    kernelCompatible = kernel.kernelAtLeast "3.10" && kernel.kernelOlder "5.13";
 
     # this package should point to a version / git revision compatible with the latest kernel release
-    version = "2.0.3";
+    version = "2.1.0-rc6";
 
-    sha256 = "sha256-bai7SwJNOsrACcrUxZ4339REhbBPOWyYikHzgHfbONs=";
+    sha256 = "0q3vl9rid6a84pb85v38hnf17vws65jjb4slw8bhm8dq8fna2a86";
 
     isUnstable = true;
   };

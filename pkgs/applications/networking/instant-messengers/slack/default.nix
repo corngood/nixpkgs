@@ -26,6 +26,7 @@
 , libuuid
 , libxcb
 , libxkbcommon
+, libxshmfence
 , mesa
 , nspr
 , nss
@@ -41,11 +42,11 @@ let
 
   pname = "slack";
 
-  x86_64-darwin-version = "4.13.0";
-  x86_64-darwin-sha256 = "1f155fgbdmqxy7324lxj3ysx1p332rzpwy06iac90rm6irf5v57f";
+  x86_64-darwin-version = "4.16.0";
+  x86_64-darwin-sha256 = "078f49sgazfa99vn0yyacfya3jl2vhqz7kgxh0qp56b66pnzwbxz";
 
-  x86_64-linux-version = "4.13.0";
-  x86_64-linux-sha256 = "1hqvynkhbkfwxvfgjqv91x5k7qlzayjr5mmf8rz0ncp4j4d3x9mq";
+  x86_64-linux-version = "4.16.0";
+  x86_64-linux-sha256 = "0dj5k7r044mibis0zymh6wryhbw2fzsch30nddfrnn6ij89hhirv";
 
   version = {
     x86_64-darwin = x86_64-darwin-version;
@@ -117,6 +118,7 @@ let
       xorg.libXi
       xorg.libXrandr
       xorg.libXrender
+      xorg.libxshmfence
       xorg.libXtst
       xorg.libxkbfile
     ] + ":${stdenv.cc.cc.lib}/lib64";

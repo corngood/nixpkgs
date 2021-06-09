@@ -18,7 +18,7 @@ let
   #       It will rebuild itself using the version of this package (NSS) and if
   #       an update is required do the required changes to the expression.
   #       Example: nix-shell ./maintainers/scripts/update.nix --argstr package cacert
-  version = "3.60";
+  version = "3.64";
   underscoreVersion = builtins.replaceStrings ["."] ["_"] version;
 
 in stdenv.mkDerivation rec {
@@ -27,7 +27,7 @@ in stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "mirror://mozilla/security/nss/releases/NSS_${underscoreVersion}_RTM/src/${pname}-${version}.tar.gz";
-    sha256 = "0ggyj3ax3kal65sl1vl4nfhx2s08blg4dg8iwlxcax5qb9bxbaw4";
+    sha256 = "09hivz4qf3dw7m21lshw34l0yncinwn4ax5w3rpkm71f2wkm85yk";
   };
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];

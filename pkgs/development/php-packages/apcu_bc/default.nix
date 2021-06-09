@@ -1,4 +1,4 @@
-{ buildPecl, lib, pcre', php }:
+{ buildPecl, lib, pcre2, php }:
 
 buildPecl {
   pname = "apcu_bc";
@@ -8,11 +8,12 @@ buildPecl {
 
   peclDeps = [ php.extensions.apcu ];
 
-  buildInputs = [ pcre' ];
+  buildInputs = [ pcre2 ];
 
   postInstall = ''
     mv $out/lib/php/extensions/apc.so $out/lib/php/extensions/apcu_bc.so
   '';
 
   meta.maintainers = lib.teams.php.members;
+  meta.broken = lib.versionAtLeast php.version "8";
 }

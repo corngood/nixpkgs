@@ -9,14 +9,14 @@
 # * Update `version`+`hash` and rebuild.
 
 mkYarnPackage rec {
-  name = "grafana-image-renderer-unstable";
-  version = "2020-12-01";
+  name = "grafana-image-renderer";
+  version = "2.1.0";
 
   src = fetchFromGitHub {
     owner = "grafana";
     repo = "grafana-image-renderer";
-    rev = "ce1f81438e5f69c7fd7c73ce08bab624c4c92e25";
-    sha256 = "sha256-1Ke1KLLNZ1dkLH0BWB60r2c45RBbndd0eepjc0nlHVk=";
+    rev = "v${version}";
+    sha256 = "sha256-loWLbeu8h0fhMcUzmeYVSw4x6R0GVfqwb/vHwCNT/fM=";
   };
 
   buildPhase = ''

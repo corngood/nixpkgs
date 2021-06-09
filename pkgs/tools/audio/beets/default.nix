@@ -21,6 +21,7 @@
 , enableKodiupdate       ? true
 , enableLastfm           ? true
 , enableLoadext          ? true
+, enableLyrics           ? true
 , enableMpd              ? true
 , enablePlaylist         ? true
 , enableReplaygain       ? true
@@ -59,6 +60,7 @@ let
     lastgenre = enableLastfm;
     lastimport = enableLastfm;
     loadext = enableLoadext;
+    lyrics = enableLyrics;
     mpdstats = enableMpd;
     mpdupdate = enableMpd;
     playlist = enablePlaylist;
@@ -71,9 +73,9 @@ let
   };
 
   pluginsWithoutDeps = [
-    "bench" "bpd" "bpm" "bucket" "cue" "duplicates" "edit" "embedart"
+    "bareasc" "bench" "bpd" "bpm" "bucket" "duplicates" "edit" "embedart"
     "export" "filefilter" "fish" "freedesktop" "fromfilename" "ftintitle" "fuzzy"
-    "hook" "ihate" "importadded" "importfeeds" "info" "inline" "ipfs" "lyrics"
+    "hook" "ihate" "importadded" "importfeeds" "info" "inline" "ipfs"
     "mbcollection" "mbsubmit" "mbsync" "metasync" "missing" "parentwork" "permissions" "play"
     "plexupdate" "random" "rewrite" "scrub" "smartplaylist" "spotify" "the"
     "types" "unimported" "zero"
@@ -103,13 +105,13 @@ in pythonPackages.buildPythonApplication rec {
   # unstable does not require bs1770gain[2].
   # [1]: https://discourse.beets.io/t/forming-a-beets-core-team/639
   # [2]: https://github.com/NixOS/nixpkgs/pull/90504
-  version = "unstable-2021-03-08";
+  version = "unstable-2021-05-13";
 
   src = fetchFromGitHub {
     owner = "beetbox";
     repo = "beets";
-    rev = "debd382837ef1d30574c2234710d536bb299f979";
-    sha256 = "sha256-I6ejW3f72fdzWoz7g4n8pDYz2NiHGrorLegUQhQOSiI=";
+    rev = "1faa41f8c558d3f4415e5e48cf4513d50b466d34";
+    sha256 = "sha256-P0bV7WNqCYe9+3lqnFmAoRlb2asdsBUjzRMc24RngpU=";
   };
 
   propagatedBuildInputs = [
@@ -130,6 +132,8 @@ in pythonPackages.buildPythonApplication rec {
   ] ++ lib.optional enableAbsubmit         essentia-extractor
     ++ lib.optional enableAcoustid         pythonPackages.pyacoustid
     ++ lib.optional enableBeatport         pythonPackages.requests_oauthlib
+    ++ lib.optional enableConvert          ffmpeg
+    ++ lib.optional enableDiscogs          pythonPackages.discogs_client
     ++ lib.optional (enableFetchart
                   || enableDeezer
                   || enableEmbyupdate
@@ -139,10 +143,9 @@ in pythonPackages.buildPythonApplication rec {
                   || enableSubsonicplaylist
                   || enableSubsonicupdate
                   || enableAcousticbrainz) pythonPackages.requests
-    ++ lib.optional enableConvert          ffmpeg
-    ++ lib.optional enableDiscogs          pythonPackages.discogs_client
     ++ lib.optional enableKeyfinder        keyfinder-cli
     ++ lib.optional enableLastfm           pythonPackages.pylast
+    ++ lib.optional enableLyrics           pythonPackages.beautifulsoup4
     ++ lib.optional enableMpd              pythonPackages.mpd2
     ++ lib.optional enableSonosUpdate      pythonPackages.soco
     ++ lib.optional enableThumbnails       pythonPackages.pyxdg

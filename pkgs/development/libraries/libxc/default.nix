@@ -1,7 +1,7 @@
 { lib, stdenv, fetchFromGitLab, cmake, gfortran, perl }:
 
 let
-  version = "5.1.2";
+  version = "5.1.4";
 
 in stdenv.mkDerivation {
   pname = "libxc";
@@ -11,7 +11,7 @@ in stdenv.mkDerivation {
     owner = "libxc";
     repo = "libxc";
     rev = version;
-    sha256 = "1bcj7x0kaal62m41v9hxb4h1d2cxs2ynvsfqqg7c5yi7829nvapb";
+    sha256 = "0rs6v72zz3jr22r29zxxdk8wdsfv6wid6cx2661974z09dbvbr1f";
   };
 
   buildInputs = [ gfortran ];
@@ -28,7 +28,6 @@ in stdenv.mkDerivation {
   '';
 
   doCheck = true;
-  enableParallelBuilding = true;
 
   meta = with lib; {
     description = "Library of exchange-correlation functionals for density-functional theory";

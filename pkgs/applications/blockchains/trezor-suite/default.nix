@@ -1,4 +1,5 @@
 { lib
+, stdenv
 , fetchurl
 , appimageTools
 , tor
@@ -7,12 +8,21 @@
 
 let
   pname = "trezor-suite";
-  version = "21.2.2";
+  version = "21.5.1";
   name = "${pname}-${version}";
 
+  suffix = {
+    aarch64-linux = "linux-arm64";
+    x86_64-linux  = "linux-x86_64";
+  }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
+
   src = fetchurl {
-    url = "https://github.com/trezor/${pname}/releases/download/v${version}/Trezor-Suite-${version}-linux-x86_64.AppImage";
-    sha256 = "0dj3azx9jvxchrpm02w6nkcis6wlnc6df04z7xc6f66fwn6r3kkw";
+    url = "https://github.com/trezor/${pname}/releases/download/v${version}/Trezor-Suite-${version}-${suffix}.AppImage";
+    # sha512 hashes are obtained from latest-linux-arm64.yml and latest-linux.yml
+    sha512 = {
+      aarch64-linux = "sha512-nqwfonWySc+wBSJjC8BW9vm+v5zHbKqbbrTTRmoZdEYBJg2SthMtTULNLVpXaX9NHxr6guZnOWdBlzVk2dQkfQ==";
+      x86_64-linux  = "sha512-tfvdNXsjMe8YXJwTuujz4tKTdfsCuR/9VECF8EkcRP95YM7vuDV8dumru1jKtdiv0gaS1GT3SPEeAfmczY5jGg==";
+    }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };
 
   appimageContents = appimageTools.extractType2 {
@@ -35,7 +45,8 @@ appimageTools.wrapType2 rec {
     install -m 444 -D ${appimageContents}/${pname}.desktop $out/share/applications/${pname}.desktop
     install -m 444 -D ${appimageContents}/${pname}.png $out/share/icons/hicolor/512x512/apps/${pname}.png
     install -m 444 -D ${appimageContents}/resources/images/icons/512x512.png $out/share/icons/hicolor/512x512/apps/${pname}.png
-    substituteInPlace $out/share/applications/trezor-suite.desktop --replace 'Exec=AppRun' 'Exec=${pname}'
+    substituteInPlace $out/share/applications/${pname}.desktop \
+      --replace 'Exec=AppRun' 'Exec=${pname}'
 
     # symlink system binaries instead bundled ones
     mkdir -p $out/share/${pname}/resources/bin/{bridge,tor}
@@ -48,6 +59,6 @@ appimageTools.wrapType2 rec {
     homepage = "https://suite.trezor.io";
     license = licenses.unfree;
     maintainers = with maintainers; [ prusnak ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [ "aarch64-linux" "x86_64-linux" ];
   };
 }

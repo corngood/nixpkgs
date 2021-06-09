@@ -65,9 +65,9 @@ let
       sha256 = sha256Hash;
     };
 
+    nativeBuildInputs = [ unzip ];
     buildInputs = [
       makeWrapper
-      unzip
     ];
     installPhase = ''
       cp -r . $out
@@ -145,7 +145,7 @@ let
         ]}"
 
       # AS launches LLDBFrontend with a custom LD_LIBRARY_PATH
-      wrapProgram $out/bin/lldb/bin/LLDBFrontend --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [
+      wrapProgram $(find $out -name LLDBFrontend) --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [
         ncurses5
         zlib
       ]}"

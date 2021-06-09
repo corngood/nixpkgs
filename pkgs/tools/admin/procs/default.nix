@@ -1,17 +1,17 @@
-{ lib, stdenv, fetchFromGitHub, rustPlatform, installShellFiles, Security }:
+{ lib, stdenv, fetchFromGitHub, rustPlatform, installShellFiles, Security, libiconv }:
 
 rustPlatform.buildRustPackage rec {
   pname = "procs";
-  version = "0.11.3";
+  version = "0.11.8";
 
   src = fetchFromGitHub {
     owner = "dalance";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-OaHsNxrOrPlAwtFDY3Tnx+nOabax98xcGQeNds32iOA=";
+    sha256 = "sha256-ZeCTUoi2HAMUeyze7LdxH0mi1Dd6q8Sw6+xPAVf3HTs=";
   };
 
-  cargoSha256 = "sha256-miOfm1Sw6tIICkT9T2V82cdGG2STo9vuLPWsAN/8wuM=";
+  cargoSha256 = "sha256-8myay5y4PGb/8s0vPLeg9xt6xqAQxGFXJz/GiV0ABlA=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -22,7 +22,7 @@ rustPlatform.buildRustPackage rec {
     done
   '';
 
-  buildInputs = lib.optional stdenv.isDarwin Security;
+  buildInputs = lib.optionals stdenv.isDarwin [ Security libiconv ];
 
   meta = with lib; {
     description = "A modern replacement for ps written in Rust";

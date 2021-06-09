@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   pname = "helm-secrets";
-  version = "3.4.1";
+  version = "3.7.0";
 
   src = fetchFromGitHub {
     owner = "jkroepke";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-EXCr0QjupsBBKTm6Opw5bcNwAD4FGGyOiqaa8L91/OI=";
+    hash = "sha256-AM+TLeSrXjn10DiQzXSqSwTqsc7CjTdnf6TWetden7g=";
   };
 
   nativeBuildInputs = [ makeWrapper ];

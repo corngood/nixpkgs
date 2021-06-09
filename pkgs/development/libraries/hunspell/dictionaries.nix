@@ -45,7 +45,8 @@ let
         platforms = platforms.all;
       };
       phases = "unpackPhase patchPhase buildPhase installPhase";
-      buildInputs = [ bash coreutils unzip which zip ];
+      nativeBuildInputs = [ unzip ];
+      buildInputs = [ bash coreutils which zip ];
       patchPhase = ''
         substituteInPlace ortograf/herramientas/make_dict.sh \
            --replace /bin/bash bash \
@@ -86,7 +87,7 @@ let
         license = licenses.lgpl3;
         platforms = platforms.all;
       };
-      buildInputs = [ unzip ];
+      nativeBuildInputs = [ unzip ];
       phases = "unpackPhase installPhase";
       sourceRoot = ".";
       unpackCmd = ''
@@ -126,7 +127,7 @@ let
         maintainers = with maintainers; [ renzo ];
         platforms = platforms.all;
       };
-      buildInputs = [ unzip ];
+      nativeBuildInputs = [ unzip ];
       phases = "unpackPhase installPhase";
       sourceRoot = ".";
       unpackCmd = ''
@@ -155,7 +156,7 @@ let
         maintainers = with maintainers; [ renzo ];
         platforms = platforms.all;
       };
-      buildInputs = [ unzip ];
+      nativeBuildInputs = [ unzip ];
       phases = "unpackPhase installPhase";
       sourceRoot = ".";
       unpackCmd = ''
@@ -182,7 +183,7 @@ let
         maintainers = with maintainers; [ renzo ];
         platforms = platforms.all;
       };
-      buildInputs = [ unzip ];
+      nativeBuildInputs = [ unzip ];
       phases = "unpackPhase patchPhase installPhase";
       sourceRoot = ".";
       prePatch = ''
@@ -760,11 +761,11 @@ in rec {
   da_DK = da-dk;
   da-dk = mkDict rec {
     name = "hunspell-dict-da-dk-${version}";
-    version = "2.5.137";
+    version = "2.5.189";
 
     src = fetchurl {
       url = "https://stavekontrolden.dk/dictionaries/da_DK/da_DK-${version}.oxt";
-      sha256 = "16y0smkg1mq0133r1fbw5ak6s2xw39281knk5ivhanakayq789qx";
+      sha256 = "sha256:0i1cw0nfg24b0sg2yc3q7315ng5vc5245nvh0l1cndkn2c9z4978";
     };
 
     shortName = "da-dk";

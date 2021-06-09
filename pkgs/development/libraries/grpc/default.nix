@@ -1,15 +1,15 @@
 { lib, stdenv, fetchFromGitHub, fetchpatch, cmake, zlib, c-ares, pkg-config, re2, openssl, protobuf
-, gflags, libnsl
+, abseil-cpp, libnsl
 }:
 
 stdenv.mkDerivation rec {
-  version = "1.36.1"; # N.B: if you change this, change pythonPackages.grpcio-tools to a matching version too
+  version = "1.38.0"; # N.B: if you change this, change pythonPackages.grpcio-tools to a matching version too
   pname = "grpc";
   src = fetchFromGitHub {
     owner = "grpc";
     repo = "grpc";
     rev = "v${version}";
-    sha256 = "0lb6pls9m05bvr6bvqzp6apdchhsazc5866yvmgkm979xcrzdy2z";
+    sha256 = "0an903nh8lz3xlf79zsh2v55nrwnjzzavkjlrsl7j9aysgwmgn4r";
     fetchSubmodules = true;
   };
   patches = [
@@ -21,7 +21,8 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ zlib c-ares c-ares.cmake-config re2 openssl protobuf gflags ]
+  propagatedBuildInputs = [ c-ares re2 zlib abseil-cpp ];
+  buildInputs = [ c-ares.cmake-config openssl protobuf ]
     ++ lib.optionals stdenv.isLinux [ libnsl ];
 
   cmakeFlags =
@@ -30,9 +31,10 @@ stdenv.mkDerivation rec {
       "-DgRPC_RE2_PROVIDER=package"
       "-DgRPC_SSL_PROVIDER=package"
       "-DgRPC_PROTOBUF_PROVIDER=package"
-      "-DgRPC_GFLAGS_PROVIDER=package"
+      "-DgRPC_ABSL_PROVIDER=package"
       "-DBUILD_SHARED_LIBS=ON"
       "-DCMAKE_SKIP_BUILD_RPATH=OFF"
+      "-DCMAKE_CXX_STANDARD=17"
     ];
 
   # CMake creates a build directory by default, this conflicts with the

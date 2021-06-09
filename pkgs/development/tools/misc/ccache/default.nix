@@ -7,39 +7,52 @@
 , cmake
 , perl
 , zstd
+, bashInteractive
 , xcodebuild
 , makeWrapper
 }:
 
 let ccache = stdenv.mkDerivation rec {
   pname = "ccache";
-  version = "4.2";
+  version = "4.3";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
     rev = "v${version}";
-    sha256 = "1lr9804xyzbs72f9jbbzy1fjqxwrwpb4rp431wqialvms4251d8f";
+    hash = "sha256-ZBxDTMUZiZJLIYbvACTFwvlss+IZiMjiL0khfM5hFCM=";
   };
-
-  patches = lib.optional stdenv.isDarwin (substituteAll {
-    src = ./force-objdump-on-darwin.patch;
-    objdump = "${binutils.bintools}/bin/objdump";
-  });
-
-  nativeBuildInputs = [ asciidoc cmake perl ];
-
-  buildInputs = [ zstd ];
 
   outputs = [ "out" "man" ];
 
+  patches = [
+    # When building for Darwin, test/run uses dwarfdump, whereas on
+    # Linux it uses objdump. We don't have dwarfdump packaged for
+    # Darwin, so this patch updates the test to also use objdump on
+    # Darwin.
+    (substituteAll {
+      src = ./force-objdump-on-darwin.patch;
+      objdump = "${binutils.bintools}/bin/objdump";
+    })
+  ];
+
+  nativeBuildInputs = [ asciidoc cmake perl ];
+  buildInputs = [ zstd ];
+
   doCheck = true;
-  checkInputs = lib.optional stdenv.isDarwin xcodebuild;
+  checkInputs = [
+    # test/run requires the compgen function which is available in
+    # bashInteractive, but not bash.
+    bashInteractive
+  ] ++ lib.optional stdenv.isDarwin xcodebuild;
+
   checkPhase = ''
+    runHook preCheck
     export HOME=$(mktemp -d)
     ctest --output-on-failure ${lib.optionalString stdenv.isDarwin ''
-      -E '^(test.nocpp2|test.modules)$'
+      -E '^(test.nocpp2|test.basedir|test.multi_arch)$'
     ''}
+    runHook postCheck
   '';
 
   passthru = {
@@ -89,7 +102,7 @@ let ccache = stdenv.mkDerivation rec {
     homepage = "https://ccache.dev";
     downloadPage = "https://ccache.dev/download.html";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ metadark r-burns ];
+    maintainers = with maintainers; [ kira-bruneau r-burns ];
     platforms = platforms.unix;
   };
 };

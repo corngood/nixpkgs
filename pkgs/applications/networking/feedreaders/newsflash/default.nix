@@ -20,20 +20,26 @@
 
 stdenv.mkDerivation rec {
   pname = "newsflash";
-  version = "1.3.0";
+  version = "1.4.1";
 
   src = fetchFromGitLab {
     owner = "news-flash";
     repo = "news_flash_gtk";
     rev = version;
-    hash = "sha256-Vu8PXdnayrglAFVfO+WZTzk4Qrb/3uqzQIwClnRHto8=";
+    hash = "sha256-pskmvztKOwutXRHVnW5u68/0DAuV9Gb+Ovp2JbXiMYo=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-dWumQi/Bk7w2C8zVVExxguWchZU+K2qTC02otsiK9jA=";
+    hash = "sha256-qq8cZplt5YWUwsXUShMDhQm3RGH2kCEBk64x6bOa50E=";
   };
+
+  # https://github.com/CasualX/obfstr/blob/v0.2.4/build.rs#L5
+  # obfstr 0.2.4 fails to set RUSTC_BOOTSTRAP in its build script because cargo
+  # build scripts are forbidden from setting RUSTC_BOOTSTRAP since rustc 1.52.0
+  # https://github.com/rust-lang/rust/blob/1.52.0/RELEASES.md#compatibility-notes
+  RUSTC_BOOTSTRAP = 1;
 
   patches = [
     # Post install tries to generate an icon cache & update the
@@ -89,6 +95,6 @@ stdenv.mkDerivation rec {
     description = "A modern feed reader designed for the GNOME desktop";
     homepage = "https://gitlab.com/news-flash/news_flash_gtk";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ metadark ];
+    maintainers = with maintainers; [ kira-bruneau ];
   };
 }

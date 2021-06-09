@@ -61,7 +61,7 @@ rec {
     targetPkgs = pkgs: with pkgs; [
       gtk3
       bashInteractive
-      gnome3.zenity
+      gnome.zenity
       python2
       xorg.xrandr
       which
@@ -184,6 +184,7 @@ rec {
       # libraries not on the upstream include list, but nevertheless expected
       # by at least one appimage
       libtool.lib # for Synfigstudio
+      xorg.libxshmfence # for apple-music-electron
       at-spi2-core
     ];
   };

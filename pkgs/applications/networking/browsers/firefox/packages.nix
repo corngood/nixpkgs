@@ -7,16 +7,16 @@ in
 rec {
   firefox = common rec {
     pname = "firefox";
-    ffversion = "85.0.2";
+    ffversion = "89.0";
     src = fetchurl {
       url = "mirror://mozilla/firefox/releases/${ffversion}/source/firefox-${ffversion}.source.tar.xz";
-      sha512 = "2m46li5ni1m4xv42h99rn2hhhv2mqy229wihmzxmgvws1rh2h11yf6x2a07akkjrsp2dmwxmmkhmf9dhakgj9i55z5qqi99azyx07df";
+      sha512 = "5089720feda15d054d0aa4c3bdeb84760314dadd6381d7360e688d8e396154868220c6315add650d8d2a42652cb8a9bfeb833885812ef0bd70a74ee58ad18aa3";
     };
 
     meta = {
       description = "A web browser built from Firefox source tree";
       homepage = "http://www.mozilla.com/en-US/firefox/";
-      maintainers = with lib.maintainers; [ eelco lovesegfault ];
+      maintainers = with lib.maintainers; [ eelco lovesegfault hexa ];
       platforms = lib.platforms.unix;
       badPlatforms = lib.platforms.darwin;
       broken = stdenv.buildPlatform.is32bit; # since Firefox 60, build on 32-bit platforms fails with "out of memory".
@@ -32,16 +32,16 @@ rec {
 
   firefox-esr-78 = common rec {
     pname = "firefox-esr";
-    ffversion = "78.8.0esr";
+    ffversion = "78.11.0esr";
     src = fetchurl {
       url = "mirror://mozilla/firefox/releases/${ffversion}/source/firefox-${ffversion}.source.tar.xz";
-      sha512 = "0160aa6c408c2af66d24b74cf98e1a07ab1604e7b93ffcde79201f9d68e41e896ef965f1904de52d5dd82ffedae33ac96e93b871727bf5dd5983c5af2f1f439f";
+      sha512 = "d02fc2eda587155b1c54ca12a6c5cde220a29f41f154f1c9b71ae8f966d8cc9439201a5b241e03fc0795b74e2479f7aa5d6b69f70b7639432e5382f321f7a6f4";
     };
 
     meta = {
       description = "A web browser built from Firefox Extended Support Release source tree";
       homepage = "http://www.mozilla.com/en-US/firefox/";
-      maintainers = with lib.maintainers; [ eelco ];
+      maintainers = with lib.maintainers; [ eelco hexa ];
       platforms = lib.platforms.unix;
       badPlatforms = lib.platforms.darwin;
       broken = stdenv.buildPlatform.is32bit; # since Firefox 60, build on 32-bit platforms fails with "out of memory".

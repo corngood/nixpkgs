@@ -303,13 +303,11 @@ rec {
       preferBuiltin = true;
       target = "zImage";
       extraConfig = ''
-        # Serial port for Raspberry Pi 3. Upstream forgot to add it to the ARMv7 defconfig.
+        # Serial port for Raspberry Pi 3. Wasn't included in ARMv7 defconfig
+        # until 4.17.
         SERIAL_8250_BCM2835AUX y
         SERIAL_8250_EXTENDED y
         SERIAL_8250_SHARE_IRQ y
-
-        # Fix broken sunxi-sid nvmem driver.
-        TI_CPTS y
 
         # Hangs ODROID-XU4
         ARM_BIG_LITTLE_CPUIDLE n
@@ -374,6 +372,13 @@ rec {
     };
     gcc = {
       arch = "armv8-a";
+    };
+  };
+
+  apple-m1 = {
+    gcc = {
+      arch = "armv8.3-a+crypto+sha2+aes+crc+fp16+lse+simd+ras+rdm+rcpc";
+      cpu = "apple-a13";
     };
   };
 
@@ -476,11 +481,11 @@ rec {
   riscv-multiplatform = {
     linux-kernel = {
       name = "riscv-multiplatform";
-      target = "vmlinux";
+      target = "Image";
       autoModules = true;
       baseConfig = "defconfig";
+      DTB = true;
       extraConfig = ''
-        FTRACE n
         SERIAL_OF_PLATFORM y
       '';
     };
@@ -497,7 +502,10 @@ rec {
         else if lib.versionOlder version "6" then sheevaplug
         else if lib.versionOlder version "7" then raspberrypi
         else armv7l-hf-multiplatform
-    else if platform.isAarch64 then aarch64-multiplatform
+
+    else if platform.isAarch64 then
+      if platform.isDarwin then apple-m1
+      else aarch64-multiplatform
 
     else if platform.isRiscV then riscv-multiplatform
 

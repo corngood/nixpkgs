@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, python2Packages, makeWrapper, unzip
+{ lib, stdenv, fetchurl, python2Packages, makeWrapper
 , guiSupport ? false, tk ? null
 , ApplicationServices
 , mercurialSrc ? fetchurl rec {
@@ -22,7 +22,7 @@ in python2Packages.buildPythonApplication {
   inherit python; # pass it so that the same version can be used in hg2git
 
   nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ docutils unzip ]
+  buildInputs = [ docutils ]
     ++ lib.optionals stdenv.isDarwin [ ApplicationServices ];
 
   propagatedBuildInputs = [ hg-git dulwich ];

@@ -1,4 +1,4 @@
-{lib, stdenv, fetchurl, unzip, xz, dpkg
+{lib, stdenv, fetchurl, xz, dpkg
 , libxslt, docbook_xsl, makeWrapper
 , python3Packages
 , perlPackages, curl, gnupg, diffutils
@@ -17,7 +17,7 @@ in stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ unzip xz dpkg libxslt python setuptools curl gnupg diffutils ] ++
+  buildInputs = [ xz dpkg libxslt python setuptools curl gnupg diffutils ] ++
     (with perlPackages; [ perl CryptSSLeay LWP TimeDate DBFile FileDesktopEntry ParseDebControl LWPProtocolHttps ]);
 
   preConfigure = ''

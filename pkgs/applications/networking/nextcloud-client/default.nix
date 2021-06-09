@@ -20,13 +20,13 @@
 
 mkDerivation rec {
   pname = "nextcloud-client";
-  version = "3.1.3";
+  version = "3.2.2";
 
   src = fetchFromGitHub {
     owner = "nextcloud";
     repo = "desktop";
     rev = "v${version}";
-    sha256 = "sha256-8Ql6tOvWOjAvMJA87WlT9TbpnbciBsjDxRuYlMVi/m8=";
+    sha256 = "sha256-UPWr5P6oEBtDK/Cuz8nZlHqKFyGEf44vbMfrphxNkMU=";
   };
 
   patches = [
@@ -53,6 +53,10 @@ mkDerivation rec {
     qtgraphicaleffects
     qtwebsockets
     sqlite
+  ];
+
+  qtWrapperArgs = [
+    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ libsecret ]}"
   ];
 
   cmakeFlags = [

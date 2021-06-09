@@ -8,6 +8,8 @@ let
 
       # This is important to obtain a version of `libpq` that does not depend on systemd.
       , enableSystemd ? (lib.versionAtLeast version "9.6" && !stdenv.isDarwin)
+      , gssSupport ? with stdenv.hostPlatform; !isWindows && !isStatic, libkrb5
+
 
       # for postgreql.pkgs
       , this, self, newScope, buildEnv
@@ -38,6 +40,7 @@ let
       [ zlib readline openssl libxml2 ]
       ++ lib.optionals icuEnabled [ icu ]
       ++ lib.optionals enableSystemd [ systemd ]
+      ++ lib.optionals gssSupport [ libkrb5 ]
       ++ lib.optionals (!stdenv.isDarwin) [ libossp_uuid ];
 
     nativeBuildInputs = [ makeWrapper ] ++ lib.optionals icuEnabled [ pkg-config ];
@@ -62,7 +65,8 @@ let
       "--enable-debug"
       (lib.optionalString enableSystemd "--with-systemd")
       (if stdenv.isDarwin then "--with-uuid=e2fs" else "--with-ossp-uuid")
-    ] ++ lib.optionals icuEnabled [ "--with-icu" ];
+    ] ++ lib.optionals icuEnabled [ "--with-icu" ]
+      ++ lib.optionals gssSupport [ "--with-gssapi" ];
 
     patches =
       [ (if atLeast "9.4" then ./patches/disable-resolve_symlinks-94.patch else ./patches/disable-resolve_symlinks.patch)
@@ -191,15 +195,6 @@ let
 
 in self: {
 
-  postgresql_9_5 = self.callPackage generic {
-    version = "9.5.25";
-    psqlSchema = "9.5";
-    sha256 = "00yny0sskxrqk4ji2phgv3iqxd1aiy6rh660k73s4s1pn9gcaa3n";
-    this = self.postgresql_9_5;
-    thisAttr = "postgresql_9_5";
-    inherit self;
-  };
-
   postgresql_9_6 = self.callPackage generic {
     version = "9.6.21";
     psqlSchema = "9.6";
@@ -216,6 +211,7 @@ in self: {
     this = self.postgresql_10;
     thisAttr = "postgresql_10";
     inherit self;
+    icu = self.icu67;
   };
 
   postgresql_11 = self.callPackage generic {

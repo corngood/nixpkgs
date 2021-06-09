@@ -4,13 +4,13 @@ let
   arch = if stdenv.is64bit then "amd64" else "x86";
 in stdenv.mkDerivation rec {
   pname = "teamspeak-server";
-  version = "3.13.2";
+  version = "3.13.5";
 
   src = fetchurl {
     url = "https://files.teamspeak-services.com/releases/server/${version}/teamspeak3-server_linux_${arch}-${version}.tar.bz2";
     sha256 = if stdenv.is64bit
-      then "1l9i9667wppwxbbnf6kxamnqlbxzkz9ync4rsypfla124b6cidpz"
-      else "0qhd05abiycsgc16r1p6y8bfdrl6zji21xaqwdizpr0jb01z335g";
+      then "sha256-2tSX/ET2lZsi0mVB3KnbnBXMSTRsneGUA8w6mZ6TmlY="
+      else "sha256-RdxG4nGXTTSY+P5oZu4uP5l7gKcU9C6uIILyNldSK50=";
   };
 
   buildInputs = [ stdenv.cc.cc postgresql.lib ];
@@ -18,6 +18,8 @@ in stdenv.mkDerivation rec {
   nativeBuildInputs = [ autoPatchelfHook ];
 
   installPhase = ''
+    runHook preInstall
+
     # Install files.
     mkdir -p $out/lib/teamspeak
     mv * $out/lib/teamspeak/
@@ -26,18 +28,20 @@ in stdenv.mkDerivation rec {
     mkdir -p $out/bin/
     ln -s $out/lib/teamspeak/ts3server $out/bin/ts3server
     ln -s $out/lib/teamspeak/tsdns/tsdnsserver $out/bin/tsdnsserver
+
+    runHook postInstall
   '';
 
   passthru.updateScript = writeScript "update-teampeak-server" ''
     #!/usr/bin/env nix-shell
-    #!nix-shell -i bash -p common-updater-scripts curl gnugrep gnused
+    #!nix-shell -i bash -p common-updater-scripts curl gnugrep gnused jq pup
 
     set -eu -o pipefail
 
     version=$( \
-        curl -s "https://www.teamspeak.de/download/teamspeak-3-amd64-server-linux/" \
-        | grep softwareVersion \
-        | sed -E -e 's/^.*<span itemprop="softwareVersion">([^<]+)<\/span>.*$/\1/' \
+      curl https://www.teamspeak.com/en/downloads/ \
+        | pup "#server .linux .version json{}" \
+        | jq -r ".[0].text"
     )
 
     versionOld=$(nix-instantiate --eval --strict -A "teamspeak_server.version")

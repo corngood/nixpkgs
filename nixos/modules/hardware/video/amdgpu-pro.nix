@@ -15,7 +15,7 @@ let
 
   opengl = config.hardware.opengl;
 
-  kernel = pkgs.linux_4_9.override {
+  kernel = pkgs.linux_4_18.override {
     extraConfig = ''
       KALLSYMS_ALL y
     '';
@@ -49,6 +49,7 @@ in
       mkdir -p /run/lib
       ln -sfn ${package}/lib ${package.libCompatDir}
       ln -sfn ${package} /run/amdgpu-pro
+      ln -sfn ${package} /run/amdgpu
     '' + optionalString opengl.driSupport32Bit ''
       ln -sfn ${package32}/lib ${package32.libCompatDir}
     '';

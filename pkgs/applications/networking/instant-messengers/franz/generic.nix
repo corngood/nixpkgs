@@ -23,11 +23,13 @@
 , udev
 , libnotify
 , xdg-utils
+, mesa
 }:
 
 # Helper function for building a derivation for Franz and forks.
 
-{ pname, name, version, src, meta }:
+{ pname, name, version, src, meta, extraBuildInputs ? [] }:
+
 stdenv.mkDerivation rec {
   inherit pname version src meta;
 
@@ -35,7 +37,7 @@ stdenv.mkDerivation rec {
   dontPatchELF = true;
 
   nativeBuildInputs = [ autoPatchelfHook makeWrapper wrapGAppsHook dpkg ];
-  buildInputs = (with xorg; [
+  buildInputs = extraBuildInputs ++ (with xorg; [
     libXi
     libXcursor
     libXdamage
@@ -48,6 +50,7 @@ stdenv.mkDerivation rec {
     libXtst
     libXScrnSaver
   ]) ++ [
+    mesa #libgbm
     gtk3
     atk
     glib

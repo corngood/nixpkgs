@@ -134,7 +134,7 @@ in
     containerRuntimeEndpoint = mkOption {
       description = "Endpoint at which to find the container runtime api interface/socket";
       type = str;
-      default = "unix:///var/run/containerd/containerd.sock";
+      default = "unix:///run/containerd/containerd.sock";
     };
 
     enable = mkEnableOption "Kubernetes kubelet.";
@@ -142,7 +142,7 @@ in
     extraOpts = mkOption {
       description = "Kubernetes kubelet extra command line options.";
       default = "";
-      type = str;
+      type = separatedString " ";
     };
 
     featureGates = mkOption {
@@ -266,7 +266,7 @@ in
           gitMinimal
           openssh
           util-linux
-          iproute
+          iproute2
           ethtool
           thin-provisioning-tools
           iptables
@@ -276,9 +276,9 @@ in
           ${concatMapStrings (img: ''
             echo "Seeding container image: ${img}"
             ${if (lib.hasSuffix "gz" img) then
-              ''${pkgs.gzip}/bin/zcat "${img}" | ${pkgs.containerd}/bin/ctr -n k8s.io image import -''
+              ''${pkgs.gzip}/bin/zcat "${img}" | ${pkgs.containerd}/bin/ctr -n k8s.io image import --all-platforms -''
             else
-              ''${pkgs.coreutils}/bin/cat "${img}" | ${pkgs.containerd}/bin/ctr -n k8s.io image import -''
+              ''${pkgs.coreutils}/bin/cat "${img}" | ${pkgs.containerd}/bin/ctr -n k8s.io image import --all-platforms -''
             }
           '') cfg.seedDockerImages}
 

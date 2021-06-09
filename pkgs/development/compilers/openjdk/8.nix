@@ -83,9 +83,9 @@ let
 
     outputs = [ "out" "jre" ];
 
-    nativeBuildInputs = [ pkg-config lndir ];
+    nativeBuildInputs = [ pkg-config lndir unzip ];
     buildInputs = [
-      cpio file which unzip zip perl openjdk8-bootstrap zlib cups freetype alsaLib
+      cpio file which zip perl openjdk8-bootstrap zlib cups freetype alsaLib
       libjpeg giflib libX11 libICE libXext libXrender libXtst libXt libXtst
       libXi libXinerama libXcursor libXrandr fontconfig
     ] ++ lib.optionals (!headless && enableGnome2) [
@@ -106,6 +106,7 @@ let
       ./fix-java-home-jdk8.patch
       ./read-truststore-from-env-jdk8.patch
       ./currency-date-range-jdk8.patch
+      ./fix-library-path-jdk8.patch
     ] ++ lib.optionals (!headless && enableGnome2) [
       ./swing-use-gtk-jdk8.patch
     ];
@@ -262,6 +263,7 @@ let
       description = "The open-source Java Development Kit";
       maintainers = with maintainers; [ edwtjo ];
       platforms = [ "i686-linux" "x86_64-linux" "aarch64-linux" ];
+      mainProgram = "java";
     };
 
     passthru = {

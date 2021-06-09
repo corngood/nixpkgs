@@ -1,28 +1,57 @@
 { lib
-, buildPythonPackage
-, fetchPypi
-, pytest
 , aiohttp
 , async_generator
+, buildPythonPackage
+, fetchFromGitHub
+, httpx
+, pytest
+, pytestCheckHook
+, sanic
+, websockets
 }:
 
 buildPythonPackage rec {
   pname = "pytest-sanic";
-  version = "1.6.2";
+  version = "1.7.1";
 
-  src = fetchPypi {
-    inherit pname version;
-    sha256 = "6428ed8cc2e6cfa05b92689a8589149aacdc1f0640fcf9673211aa733e6a5209";
+  src = fetchFromGitHub {
+    owner = "yunstanford";
+    repo = pname;
+    rev = "v${version}";
+    sha256 = "sha256-OtyulpSHUWERtcIRT5j3YtHciIxFiIFYKqtlEd1NSFw=";
   };
 
+  buildInputs = [ pytest ];
+
   propagatedBuildInputs = [
-    pytest
     aiohttp
     async_generator
+    httpx
+    pytest
+    websockets
   ];
 
-  # circular dependency on sanic
-  doCheck = false;
+  checkInputs = [
+    sanic
+    pytestCheckHook
+  ];
+
+  disabledTests = [
+    # https://github.com/yunstanford/pytest-sanic/issues/51
+    "test_fixture_sanic_client_get"
+    "test_fixture_sanic_client_post"
+    "test_fixture_sanic_client_put"
+    "test_fixture_sanic_client_delete"
+    "test_fixture_sanic_client_patch"
+    "test_fixture_sanic_client_options"
+    "test_fixture_sanic_client_head"
+    "test_fixture_sanic_client_close"
+    "test_fixture_sanic_client_passing_headers"
+    "test_fixture_sanic_client_context_manager"
+    "test_fixture_test_client_context_manager"
+  ];
+
+  pythonImportsCheck = [ "pytest_sanic" ];
 
   meta = with lib; {
     description = "A pytest plugin for Sanic";
