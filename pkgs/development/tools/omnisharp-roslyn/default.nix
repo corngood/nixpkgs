@@ -106,7 +106,7 @@ in stdenv.mkDerivation rec {
     homepage = "https://github.com/OmniSharp/omnisharp-roslyn";
     platforms = platforms.linux;
     license = licenses.mit;
-    maintainers = with maintainers; [ tesq0 ericdallo ];
+    maintainers = with maintainers; [ tesq0 ericdallo corngood ];
   };
 
 }
