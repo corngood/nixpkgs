@@ -18,6 +18,7 @@ _linkDeps() {
         # Locate the DLL - it should be an *executable* file on $DLLPATH.
         local dllPath="$(PATH="$(dirname "$target"):$DLLPATH" type -P "$dll")"
         if [ -z "$dllPath" ]; then continue; fi
+        dllPath="$(readlink -f "$dllPath")"
         if [[ "$symlinkTarget"/ == "$prefix"/* ]]; then
             dllPath="$(realpath -s --relative-to="$dir" "$dllPath")"
         fi
