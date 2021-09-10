@@ -1,26 +1,15 @@
-{ lib, stdenv, fetchurl, gettext, libgpgerror, enableCapabilities ? false, libcap
-, buildPackages, fetchpatch
-}:
+{ lib, stdenv, fetchurl, gettext, libgpgerror, enableCapabilities ? false, libcap, buildPackages }:
 
 assert enableCapabilities -> stdenv.isLinux;
 
 stdenv.mkDerivation rec {
   pname = "libgcrypt";
-  version = "1.9.1";
+  version = "1.9.3";
 
   src = fetchurl {
     url = "mirror://gnupg/libgcrypt/${pname}-${version}.tar.bz2";
-    sha256 = "1nb50bgzp83q6r5cz4v40y1mcbhpqwqyxlay87xp1lrbkf5pm9n5";
+    sha256 = "sha256-l+vk+U4vfjW3UhlM4VoPPGYyTg/2ryZlm7+1/y7DKP0=";
   };
-
-  patches = [
-    # fix build on 32bit musl
-    (fetchpatch {
-      name = "fix_building_with_disable-asm_on_x86.patch";
-      url = "https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=commitdiff_plain;h=af23ab5c5482d625ff52e60606cf044e2b0106c8";
-      sha256 = "1m8apm8wra6fk89ggha4d0bba5absihm38zvb2khklqh9q5hj9jw";
-    })
-  ];
 
   outputs = [ "out" "dev" "info" ];
   outputBin = "dev";
@@ -69,6 +58,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://www.gnu.org/software/libgcrypt/";
+    changelog = "https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;hb=refs/tags/${pname}-${version}";
     description = "General-purpose cryptographic library";
     license = licenses.lgpl2Plus;
     platforms = platforms.all;

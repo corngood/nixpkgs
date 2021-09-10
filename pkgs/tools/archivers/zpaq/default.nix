@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, perl, unzip }:
+{ lib, stdenv, fetchFromGitHub, perl }:
 
 stdenv.mkDerivation rec {
   pname = "zpaq";
@@ -12,7 +12,6 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ perl /* for pod2man */ ];
-  buildInputs = [ unzip ];
 
   preBuild = let
     CPPFLAGS = with stdenv; ""
@@ -33,6 +32,5 @@ stdenv.mkDerivation rec {
     license = licenses.gpl3Plus ;
     maintainers = with maintainers; [ raskin ];
     platforms = platforms.linux;
-    inherit version;
   };
 }

@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchzip, libGLU, libGL, unzip, libXrandr, libX11, libXxf86vm }:
+{ lib, stdenv, fetchzip, libGLU, libGL, libXrandr, libX11, libXxf86vm }:
 
 let
   common = import ./common.nix { inherit fetchzip; };
@@ -27,7 +27,7 @@ stdenv.mkDerivation rec {
     mkdir -p $out/lib
   '';
 
-  buildInputs = [ unzip libGLU libGL libXrandr libX11 libXxf86vm ];
+  buildInputs = [ libGLU libGL libXrandr libX11 libXxf86vm ];
 
   meta = {
     homepage = "http://irrlicht.sourceforge.net/";

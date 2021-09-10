@@ -7,33 +7,37 @@
 , poetry-core
 , pytest-aiohttp
 , pytest-asyncio
-, pytest-cov
 , pytest-mock
 , pytestCheckHook
+, pythonOlder
 }:
 
 buildPythonPackage rec {
   pname = "regenmaschine";
-  version = "3.1.1";
+  version = "3.1.5";
   format = "pyproject";
+  disabled = pythonOlder "3.6";
 
   src = fetchFromGitHub {
     owner = "bachya";
     repo = pname;
     rev = version;
-    sha256 = "0m6i7vspp8ssdk2k32kznql1j8gkp300kzb7pk67hzvpijdy3mca";
+    sha256 = "0jm4x66kk7aa19hablkij43vsnsyy85a638zjfjsqghwqppwklgw";
   };
 
-  nativeBuildInputs = [ poetry-core ];
+  nativeBuildInputs = [
+    poetry-core
+  ];
 
-  propagatedBuildInputs = [ aiohttp ];
+  propagatedBuildInputs = [
+    aiohttp
+  ];
 
   checkInputs = [
     aresponses
     asynctest
     pytest-aiohttp
     pytest-asyncio
-    pytest-cov
     pytest-mock
     pytestCheckHook
   ];

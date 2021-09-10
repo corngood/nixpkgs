@@ -28,7 +28,7 @@ let
   unpack = id: (name: source:
     pkgs.stdenv.mkDerivation {
       name = "redmine-${id}-${name}";
-      buildInputs = [ pkgs.unzip ];
+      nativeBuildInputs = [ pkgs.unzip ];
       buildCommand = ''
         mkdir -p $out
         cd $out
@@ -71,7 +71,7 @@ in
       };
 
       port = mkOption {
-        type = types.int;
+        type = types.port;
         default = 3000;
         description = "Port on which Redmine is ran.";
       };

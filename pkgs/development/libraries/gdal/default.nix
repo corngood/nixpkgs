@@ -7,22 +7,20 @@ with lib;
 
 stdenv.mkDerivation rec {
   pname = "gdal";
-  # broken with poppler 20.08, however, can't fetch patches cleanly
-  version = "3.1.2.post2020-08-26";
+  version = "3.3.1";
 
   src = fetchFromGitHub {
     owner = "OSGeo";
     repo = "gdal";
-    rev = "9a8df672204a8b3b33c36e09a32f747e21166fe9";
-    sha256 = "1n25jma4x1l7slwxk702q77r84vxr90fyn4c3zpkr07q1b8wqql9";
+    rev = "v${version}";
+    sha256 = "0832w40a92cl8ydkv0pk7nl1ivhfhbhqbhmpqmdjpi0126jlm2y0";
   };
 
   sourceRoot = "source/gdal";
 
-  nativeBuildInputs = [ autoreconfHook pkg-config ];
+  nativeBuildInputs = [ autoreconfHook pkg-config unzip ];
 
   buildInputs = [
-    unzip
     libjpeg
     libtiff
     libpng

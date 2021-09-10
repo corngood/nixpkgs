@@ -1,5 +1,5 @@
-{ lib, stdenv, fetchurl, fetchpatch
-, pkg-config, autoreconfHook
+{ lib, stdenv, fetchpatch, fetchFromGitHub
+, pkg-config, autoreconfHook, perl, gperf, bison, flex
 , gmp, python3, iptables, ldns, unbound, openssl, pcsclite, glib
 , openresolv
 , systemd, pam
@@ -19,14 +19,17 @@ stdenv.mkDerivation rec {
   pname = "strongswan";
   version = "5.8.1"; # Make sure to also update <nixpkgs/nixos/modules/services/networking/strongswan-swanctl/swanctl-params.nix> when upgrading!
 
-  src = fetchurl {
-    url = "https://download.strongswan.org/${pname}-${version}.tar.bz2";
-    sha256 = "034rd6kr1bmnvj8rg2kcxdjb0cgj3dn9310mmm94j1awxan71byr";
+  src = fetchFromGitHub {
+    owner = "strongswan";
+    repo = "strongswan";
+    rev = version;
+    sha256 = "1a1hw2jsbwvkdhhxjmq87hz13ivbgvqwks1q3adz14mqgbc64snd";
   };
 
+  enableParallelBuilding = true;
   dontPatchELF = true;
 
-  nativeBuildInputs = [ pkg-config autoreconfHook ];
+  nativeBuildInputs = [ pkg-config autoreconfHook perl gperf bison flex ];
   buildInputs =
     [ curl gmp python3 ldns unbound openssl pcsclite ]
     ++ optionals enableTNC [ trousers sqlite libxml2 ]
@@ -50,7 +53,7 @@ stdenv.mkDerivation rec {
     # glibc-2.26 reorganized internal includes
     sed '1i#include <stdint.h>' -i src/libstrongswan/utils/utils/memory.h
 
-    substituteInPlace src/libcharon/plugins/resolve/resolve_handler.c --replace "/sbin/resolvconf" "${openresolv}/sbin/resolvconf"
+    substituteInPlace src/libcharon/plugins/resolve/resolve_handler.c --replace "/sbin/resolvconf" "/run/current-system/sw/bin/resolvconf"
     '';
 
   configureFlags =

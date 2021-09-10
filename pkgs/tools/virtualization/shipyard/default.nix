@@ -2,18 +2,18 @@
 
 buildGoModule rec {
   pname = "shipyard";
-  version = "0.2.9";
+  version = "0.3.2";
 
   src = fetchFromGitHub {
     rev = "v${version}";
     owner = "shipyard-run";
     repo = pname;
-    sha256 = "sha256-S2nH1E20frsJzW2RCn+eJ9ylVdhVbo4wesNwlQll9S4=";
+    sha256 = "sha256-9eGaOSmHrJlcLOvZuLaNu8D/D/rWiyFb4ztxybUP0uM=";
   };
-  vendorSha256 = "sha256-rglpY7A0S56slL+mXFRgaZwS0bF1b9zxxmNYiX6TJzs=";
+  vendorSha256 = "sha256-tTkPFftPDNXafIjAjNg6V6e/+2S/v5Do/YyAXPaGIqA=";
 
-  buildFlagsArray = [
-    "-ldflags=-s -w -X main.version=${version}"
+  ldflags = [
+    "-s" "-w" "-X main.version=${version}"
   ];
 
   # Tests require a large variety of tools and resources to run including

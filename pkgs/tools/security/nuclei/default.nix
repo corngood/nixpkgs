@@ -1,24 +1,28 @@
-{ buildGoModule
+{ lib
+, buildGoModule
 , fetchFromGitHub
-, lib
 }:
 
 buildGoModule rec {
   pname = "nuclei";
-  version = "2.2.0";
+  version = "2.5.0";
 
   src = fetchFromGitHub {
     owner = "projectdiscovery";
-    repo = "nuclei";
+    repo = pname;
     rev = "v${version}";
-    sha256 = "0xrvza86aczlnb11x58fiqch5g0q6gvpxwsi5dq3akfi95gk3a3x";
+    sha256 = "sha256-6mZ8XstophadNk/3zJe2n3WL4u34jjnWh9m2qrt06hw=";
   };
 
-  vendorSha256 = "1v3ax8l1lgp2vs50gsa2fhdd6bvyfdlkd118akrqmwxahyyyqycv";
+  vendorSha256 = "sha256-tJ9cdZloTSXoytmMJ+6S5XAKHYs16SZmbUwZdmVnDzc=";
 
-  preBuild = ''
-    mv v2/* .
-  '';
+  modRoot = "./v2";
+  subPackages = [
+    "cmd/nuclei/"
+  ];
+
+  # Test files are not part of the release tarball
+  doCheck = false;
 
   meta = with lib; {
     description = "Tool for configurable targeted scanning";

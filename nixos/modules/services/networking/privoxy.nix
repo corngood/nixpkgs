@@ -165,15 +165,29 @@ in
       };
       default = {};
       example = literalExample ''
-        { listen-address = "[::]:8118";               # listen on IPv6 only
-          forward-socks5 = ".onion localhost:9050 ."; # forward .onion requests to Tor
+        { # Listen on IPv6 only
+          listen-address = "[::]:8118";
+
+          # Forward .onion requests to Tor
+          forward-socks5 = ".onion localhost:9050 .";
+
+          # Log redirects and filters
+          debug = [ 128 64 ];
+          # This is equivalent to writing these lines
+          # in the Privoxy configuration file:
+          # debug 128
+          # debug 64
         }
       '';
       description = ''
         This option is mapped to the main Privoxy configuration file.
         Check out the Privoxy user manual at
-        <link xlink:href="file://${pkgs.privoxy}/share/doc/privoxy/user-manual/config.html"/>
+        <link xlink:href="https://www.privoxy.org/user-manual/config.html"/>
         for available settings and documentation.
+
+        <note><para>
+          Repeated settings can be represented by using a list.
+        </para></note>
       '';
     };
 
@@ -191,9 +205,8 @@ in
 
     users.groups.privoxy = {};
 
-    systemd.tmpfiles.rules = with cfg.settings; [
-      "d ${certificate-directory} 0770 privoxy privoxy ${cfg.certsLifetime}"
-    ];
+    systemd.tmpfiles.rules = optional cfg.inspectHttps
+      "d ${cfg.settings.certificate-directory} 0770 privoxy privoxy ${cfg.certsLifetime}";
 
     systemd.services.privoxy = {
       description = "Filtering web proxy";
@@ -229,7 +242,7 @@ in
           "default.action"
         ] ++ optional cfg.inspectHttps (toString inspectAction);
     } // (optionalAttrs cfg.enableTor {
-      forward-socks5 = "127.0.0.1:9063 .";
+      forward-socks5 = "/ 127.0.0.1:9063 .";
       toggle = true;
       enable-remote-toggle = false;
       enable-edit-actions = false;

@@ -1,25 +1,31 @@
 { lib
 , buildPythonPackage
-, fetchPypi
+, fetchFromGitHub
+, filelock
 , flit-core
-, toml
-, pep517
-, packaging
-, isPy3k
-, typing
-, pythonOlder
 , importlib-metadata
+, isPy3k
+, packaging
+, pep517
+, pytest-mock
+, pytest-rerunfailures
+, pytest-xdist
+, pytestCheckHook
+, pythonOlder
+, toml
+, typing ? null
 }:
 
 buildPythonPackage rec {
   pname = "build";
-  version = "0.1.0";
-
+  version = "0.5.1";
   format = "pyproject";
 
-  src = fetchPypi {
-    inherit pname version;
-    sha256 = "1d6m21lijwm04g50nwgsgj7x3vhblzw7jv05ah8psqgzk20bbch8";
+  src = fetchFromGitHub {
+    owner = "pypa";
+    repo = pname;
+    rev = version;
+    sha256 = "15hc9mbxsngfc9n805x8rk7yqbxnw12mpk6hfwcsldnfii1vg2ph";
   };
 
   nativeBuildInputs = [
@@ -36,8 +42,23 @@ buildPythonPackage rec {
     importlib-metadata
   ];
 
-  # No tests in archive
-  doCheck = false;
+  checkInputs = [
+    filelock
+    pytest-mock
+    pytest-rerunfailures
+    pytest-xdist
+    pytestCheckHook
+  ];
+
+  disabledTests = [
+    "test_isolation"
+    "test_isolated_environment_install"
+    "test_default_pip_is_never_too_old"
+    "test_build"
+    "test_init"
+  ];
+
+  pythonImportsCheck = [ "build" ];
 
   meta = with lib; {
     description = "Simple, correct PEP517 package builder";

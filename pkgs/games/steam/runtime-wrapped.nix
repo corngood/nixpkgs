@@ -6,7 +6,7 @@ let
   overridePkgs = lib.optionals (!runtimeOnly) (with pkgs; [
     libgpgerror
     libpulseaudio
-    alsaLib
+    alsa-lib
     openalSoft
     libva1
     libvdpau
@@ -15,6 +15,7 @@ let
     nss
     nspr
     xorg.libxcb
+    libpng
   ]);
 
   allPkgs = overridePkgs ++ [ steam-runtime ];

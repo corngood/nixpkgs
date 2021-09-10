@@ -1,4 +1,6 @@
-{ lib, stdenv
+{ lib
+, stdenv
+, substituteAll
 , fetchurl
 , fetchpatch
 , pkg-config
@@ -23,46 +25,53 @@
 , fribidi
 , xorg
 , epoxy
-, json-glib
 , libxkbcommon
 , libxml2
 , gmp
-, gnome3
+, gnome
 , gsettings-desktop-schemas
 , sassc
 , trackerSupport ? stdenv.isLinux
 , tracker
 , x11Support ? stdenv.isLinux
 , waylandSupport ? stdenv.isLinux
-, mesa
+, libGL
 , wayland
 , wayland-protocols
 , xineramaSupport ? stdenv.isLinux
 , cupsSupport ? stdenv.isLinux
 , withGtkDoc ? stdenv.isLinux
-, cups ? null
+, cups
 , AppKit
 , Cocoa
 , broadwaySupport ? true
 }:
 
-assert cupsSupport -> cups != null;
+let
+
+  gtkCleanImmodulesCache = substituteAll {
+    src = ./hooks/clean-immodules-cache.sh;
+    gtk_module_path = "gtk-3.0";
+    gtk_binary_version = "3.0.0";
+  };
+
+in
 
 stdenv.mkDerivation rec {
   pname = "gtk+3";
-  version = "3.24.24";
+  version = "3.24.30";
 
   outputs = [ "out" "dev" ] ++ lib.optional withGtkDoc "devdoc";
   outputBin = "dev";
 
   setupHooks = [
-    ./hooks/gtk3-clean-immodules-cache.sh
     ./hooks/drop-icon-theme-cache.sh
+    gtkCleanImmodulesCache
   ];
 
   src = fetchurl {
     url = "mirror://gnome/sources/gtk+/${lib.versions.majorMinor version}/gtk+-${version}.tar.xz";
-    sha256 = "12ipk1d376bai9v820qzhxba93kkh5abi6mhyqr4hwjvqmkl77fc";
+    sha256 = "sha256-unW//zIK0fTPvukrqBPsM2MizDxmDUBqrQFLBwh6O6k=";
   };
 
   patches = [
@@ -101,7 +110,6 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libxkbcommon
     epoxy
-    json-glib
     isocodes
   ] ++ lib.optionals stdenv.isDarwin [
     AppKit
@@ -131,7 +139,7 @@ stdenv.mkDerivation rec {
     # explicitly propagated, always needed
     Cocoa
   ] ++ lib.optionals waylandSupport [
-    mesa
+    libGL
     wayland
     wayland-protocols
   ] ++ lib.optionals xineramaSupport [
@@ -176,6 +184,8 @@ stdenv.mkDerivation rec {
     moveToOutput bin/gtk-update-icon-cache "$out"
     # Launcher
     moveToOutput bin/gtk-launch "$out"
+    # Broadway daemon
+    moveToOutput bin/broadwayd "$out"
 
     # TODO: patch glib directly
     for f in $dev/bin/gtk-encode-symbolic-svg; do
@@ -194,7 +204,7 @@ stdenv.mkDerivation rec {
   '';
 
   passthru = {
-    updateScript = gnome3.updateScript {
+    updateScript = gnome.updateScript {
       packageName = "gtk+";
       attrPath = "gtk3";
     };
@@ -214,7 +224,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://www.gtk.org/";
     license = licenses.lgpl2Plus;
-    maintainers = with maintainers; [ raskin lethalman worldofpeace ];
+    maintainers = with maintainers; [ raskin ] ++ teams.gnome.members;
     platforms = platforms.all;
     changelog = "https://gitlab.gnome.org/GNOME/gtk/-/raw/${version}/NEWS";
   };

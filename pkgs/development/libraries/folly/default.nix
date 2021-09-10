@@ -8,7 +8,7 @@
 , gflags
 , libiberty
 , lz4
-, lzma
+, xz
 , zlib
 , jemalloc
 , openssl
@@ -19,13 +19,13 @@
 
 stdenv.mkDerivation (rec {
   pname = "folly";
-  version = "2021.01.25.00";
+  version = "2021.08.30.00";
 
   src = fetchFromGitHub {
     owner = "facebook";
     repo = "folly";
     rev = "v${version}";
-    sha256 = "sha256-n2cpXdjPZYNjvSHBZFFn3JFwqYCFWc8qSKwet80LtJE=";
+    sha256 = "sha256-LS1FD5NMLkv7dr4j1b75aEdTDJdbjrXymF7eDFPGRDI=";
   };
 
   nativeBuildInputs = [
@@ -43,7 +43,7 @@ stdenv.mkDerivation (rec {
     libiberty
     openssl
     lz4
-    lzma
+    xz
     zlib
     jemalloc
     libunwind
