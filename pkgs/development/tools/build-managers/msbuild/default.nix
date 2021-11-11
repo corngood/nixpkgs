@@ -58,19 +58,21 @@ stdenv.mkDerivation rec {
 
     # license check is case sensitive
     mv LICENSE license.bak && mv license.bak license
-  '';
 
-  buildPhase = ''
     # nuget would otherwise try to base itself in /homeless-shelter
     export HOME=$(pwd)/fake-home
+  '';
 
+  addDeps = ''
     cp ${nuget-config} NuGet.config
     nuget sources Add -Name nixos -Source $(pwd)/nixos
 
     for package in ${toString deps}; do
       nuget add $package -Source nixos
     done
+  '';
 
+  build = ''
     mkdir -p artifacts
     unzip ${xplat} -d artifacts
     mv artifacts/msbuild artifacts/mono-msbuild
@@ -89,6 +91,27 @@ stdenv.mkDerivation rec {
     # TODO there are some (many?) failing tests
     ./eng/cibuild_bootstrapped_msbuild.sh --host_type mono --configuration Release --skip_tests /p:DisableNerdbankVersioning=true
     patchShebangs stage1/mono-msbuild/msbuild
+  '';
+
+
+  buildPhase = ''
+    eval "$addDeps"
+    eval "$build"
+  '';
+
+  shellHook = ''
+    createDeps() {
+      out=$(pwd)
+      tmpdir=$(mktemp -d -p "$out")
+      trap 'rm -rf $tmpdir' EXIT
+      pushd "$tmpdir"
+      unpackPhase
+      cd msbuild*
+      patchPhase
+      eval "$build"
+      ${./create-deps.sh} > "$out"/deps.nix
+      popd
+    }
   '';
 
   installPhase = ''
