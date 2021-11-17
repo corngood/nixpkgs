@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   pname = "p4";
-  version = "2020.1.2007551";
+  version = "2021.1.2179737";
 
   src = fetchurl {
-    url = "https://cdist2.perforce.com/perforce/r20.1/bin.linux26x86_64/helix-core-server.tgz";
-    sha256 = "0ly9b838zrpp6841fzapizdd3xmria55bwfrh2j29qwxiwzqj80y";
+    url = "http://web.archive.org/web/20210910002004/https://cdist2.perforce.com/perforce/r21.1/bin.linux26x86_64/helix-core-server.tgz";
+    sha256 = "038zhpwcgwvyrr5d4vaq778107095narywpvivsykfpjg0wxcw1s";
   };
 
   sourceRoot = ".";
