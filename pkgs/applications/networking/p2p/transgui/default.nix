@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, pkg-config, makeDesktopItem, unzip, fpc, lazarus,
+{ lib, stdenv, fetchFromGitHub, fetchpatch, pkg-config, makeDesktopItem, unzip, fpc, lazarus,
 libX11, glib, gtk2, gdk-pixbuf, pango, atk, cairo, openssl }:
 
 stdenv.mkDerivation rec {
@@ -23,6 +23,14 @@ stdenv.mkDerivation rec {
     -lX11 -lglib-2.0 -lgtk-x11-2.0 -lgdk-x11-2.0
     -lgdk_pixbuf-2.0 -lpango-1.0 -latk-1.0 -lcairo -lc -lcrypto
   ";
+
+  patches = [
+    (fetchpatch {
+      url = "https://github.com/transmission-remote-gui/transgui/pull/1329/commits/8d63a310cbdc99ff8d565e2429c0740a8be5c3cb.patch";
+      sha256 = "MBDiR2M/OCcGLT19zG2X5gOq4uHYT/YUK9VAT9FO4CQ=";
+      name = "fix_duplicate_status.patch";
+    })
+  ];
 
   prePatch = ''
     substituteInPlace restranslator.pas --replace /usr/ $out/
