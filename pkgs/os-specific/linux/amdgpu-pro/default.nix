@@ -74,8 +74,7 @@ in stdenv.mkDerivation rec {
 
       postBuild = ''
         pushd usr/src/amdgpu-*
-        # HACK: turn compression back on
-        find -name \*.ko -exec xz -0 {} \;
+        find -name \*.ko -exec xz {} \;
         popd
       '';
 
