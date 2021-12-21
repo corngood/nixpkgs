@@ -11,7 +11,7 @@
 , expat
 , libffi
 , libselinux
-, libudev
+, udev
 , kernel ? null
 }:
 
@@ -122,7 +122,7 @@ in stdenv.mkDerivation rec {
     libffi
     libselinux
     # libudev is not listed in any dependencies, but is loaded dynamically
-    libudev
+    udev
     xorg.libXext
     xorg.libX11
     xorg.libXfixes
