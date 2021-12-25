@@ -617,6 +617,10 @@ rec {
         execFormat = pe;
         families = { };
       };
+      cygwin = {
+        execFormat = pe;
+        families = { };
+      };
       ghcjs = {
         execFormat = unknown;
         families = { };
@@ -650,7 +654,6 @@ rec {
   types.abi = enum (attrValues abis);
 
   abis = setTypes types.openAbi {
-    cygnus = { };
     msvc = { };
 
     # Note: eabi is specific to ARM and PowerPC.
@@ -785,8 +788,7 @@ rec {
         if elemAt l 1 == "cygwin" then
           {
             cpu = elemAt l 0;
-            kernel = "windows";
-            abi = "cygnus";
+            kernel = "cygwin";
           }
         # MSVC ought to be the default ABI so this case isn't needed. But then it
         # becomes difficult to handle the gnu* variants for Aarch32 correctly for
@@ -933,12 +935,7 @@ rec {
       abi,
       ...
     }:
-    if abi == abis.cygnus then
-      "${cpu.name}-cygwin"
-    else if kernel.families ? darwin then
-      "${cpu.name}-darwin"
-    else
-      "${cpu.name}-${kernelName kernel}";
+    if kernel.families ? darwin then "${cpu.name}-darwin" else "${cpu.name}-${kernelName kernel}";
 
   tripleFromSystem =
     {
