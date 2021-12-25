@@ -109,10 +109,10 @@ stdenv.mkDerivation ({
   hardeningDisable = [ "format" "pie" ];
 
   postPatch = ''
-    configureScripts=$(find . -name configure)
+    (configureScripts=$(find . -name configure)
     for configureScript in $configureScripts; do
       patchShebangs $configureScript
-    done
+    done)
   ''
   # This should kill all the stdinc frameworks that gcc and friends like to
   # insert into default search paths.
