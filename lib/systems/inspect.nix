@@ -47,7 +47,7 @@ rec {
     isNetBSD       = { kernel = kernels.netbsd; };
     isOpenBSD      = { kernel = kernels.openbsd; };
     isWindows      = { kernel = kernels.windows; };
-    isCygwin       = { kernel = kernels.windows; abi = abis.cygnus; };
+    isCygwin       = { kernel = kernels.cygwin; };
     isMinGW        = { kernel = kernels.windows; abi = abis.gnu; };
     isWasi         = { kernel = kernels.wasi; };
     isRedox        = { kernel = kernels.redox; };

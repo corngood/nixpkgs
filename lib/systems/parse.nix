@@ -302,6 +302,7 @@ rec {
     wasi     = { execFormat = wasm;    families = { }; };
     redox    = { execFormat = elf;     families = { }; };
     windows  = { execFormat = pe;      families = { }; };
+    cygwin   = { execFormat = pe;      families = { }; };
     ghcjs    = { execFormat = unknown; families = { }; };
     genode   = { execFormat = elf;     families = { }; };
     mmixware = { execFormat = unknown; families = { }; };
@@ -324,7 +325,6 @@ rec {
   types.abi = enum (attrValues abis);
 
   abis = setTypes types.openAbi {
-    cygnus       = {};
     msvc         = {};
 
     # Note: eabi is specific to ARM and PowerPC.
@@ -396,7 +396,7 @@ rec {
       else throw "Target specification with 1 components is ambiguous";
     "2" = # We only do 2-part hacks for things Nix already supports
       if elemAt l 1 == "cygwin"
-        then { cpu = elemAt l 0;                      kernel = "windows";  abi = "cygnus";   }
+        then { cpu = elemAt l 0;                      kernel = "cygwin";   }
       # MSVC ought to be the default ABI so this case isn't needed. But then it
       # becomes difficult to handle the gnu* variants for Aarch32 correctly for
       # minGW. So it's easier to make gnu* the default for the MinGW, but
@@ -472,8 +472,7 @@ rec {
   mkSystemFromString = s: mkSystemFromSkeleton (mkSkeletonFromList (lib.splitString "-" s));
 
   doubleFromSystem = { cpu, kernel, abi, ... }:
-    /**/ if abi == abis.cygnus       then "${cpu.name}-cygwin"
-    else if kernel.families ? darwin then "${cpu.name}-darwin"
+    if kernel.families ? darwin then "${cpu.name}-darwin"
     else "${cpu.name}-${kernel.name}";
 
   tripleFromSystem = { cpu, vendor, kernel, abi, ... } @ sys: assert isSystem sys; let
