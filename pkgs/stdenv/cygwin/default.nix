@@ -19,6 +19,8 @@ let
       preHook = ''
         shopt -s expand_aliases
         export lt_cv_deplibs_check_method=pass_all
+        export gl_cv_have_weak=no
+        export gl_cv_ld_autoimport=no
       '';
       extraNativeBuildInputs = [
         ../cygwin/all-buildinputs-as-runtimedep.sh

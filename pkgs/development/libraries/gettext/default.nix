@@ -33,9 +33,6 @@ stdenv.mkDerivation rec {
     # own wchar.h file, which does not cope well with the system's
     # wchar.h and stddef.h (gcc-4.3 - glibc-2.9)
     "gl_cv_func_wcwidth_works=yes"
-  ] ++ lib.optional stdenv.hostPlatform.isCygwin [
-    "gl_cv_ld_autoimport=no"
-    "gl_cv_have_weak=no"
   ];
 
   postPatch = ''

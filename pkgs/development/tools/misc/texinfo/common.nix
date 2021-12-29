@@ -3,7 +3,7 @@
 { stdenv, buildPackages, fetchurl, perl, xz
 
 # we are a dependency of gcc, this simplifies bootstraping
-, interactive ? false, ncurses, procps
+, interactive ? false, ncurses, procps, gettext
 }:
 
 # Note: this package is used for bootstrapping fetchurl, and thus
@@ -39,6 +39,7 @@ stdenv.mkDerivation {
 
   buildInputs = [ xz.bin ]
     ++ optionals stdenv.isSunOS [ libiconv gawk ]
+    ++ optionals stdenv.isCygwin [ gettext ]
     ++ optional interactive ncurses;
 
   configureFlags = [ "PERL=${buildPackages.perl}/bin/perl" ]
