@@ -281,6 +281,11 @@ rec {
     libc = "msvcrt"; # This distinguishes the mingw (non posix) toolchain
   };
 
+  cygwin = {
+    config = "x86_64-pc-cygwin";
+    # libc = "newlib";
+  };
+
   # BSDs
 
   amd64-netbsd = lib.warn "The amd64-netbsd system example is deprecated. Use x86_64-netbsd instead." x86_64-netbsd;

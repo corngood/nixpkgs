@@ -82,7 +82,7 @@ let
       "--with-dwarf2"
     ] else [
       (if crossDarwin then "--with-sysroot=${lib.getLib libcCross}/share/sysroot"
-       else                "--with-headers=${lib.getDev libcCross}${libcCross.incdir or "/include"}")
+       else                lib.optionalString (libcCross != null) "--with-headers=${lib.getDev libcCross}${libcCross.incdir or "/include"}")
       "--enable-__cxa_atexit"
       "--enable-long-long"
       "--enable-threads=${if targetPlatform.isUnix then "posix"

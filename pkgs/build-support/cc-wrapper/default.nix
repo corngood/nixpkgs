@@ -351,6 +351,10 @@ stdenv.mkDerivation {
       for dir in "${cc}"/lib/gcc/*/*/include-fixed; do
         echo '-idirafter' ''${dir} >> $out/nix-support/libc-cflags
       done
+    '' + optionalString (libc.w32api or null != null) ''
+        echo '-idirafter ${lib.getDev libc.w32api}/include' >> $out/nix-support/libc-cflags
+        echo '-idirafter ${lib.getDev libc.w32api}/include/w32api' >> $out/nix-support/libc-cflags
+        echo '-L${lib.getLib libc.w32api}/lib/w32api' >> $out/nix-support/libc-cflags
     '' + ''
 
       echo "${libc_lib}" > $out/nix-support/orig-libc

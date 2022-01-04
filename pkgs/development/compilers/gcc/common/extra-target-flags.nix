@@ -16,6 +16,11 @@ in
       ]);
     in mkFlags libcCross langD
     ++ lib.optionals (!crossStageStatic) (mkFlags threadsCross langD)
+    ++ lib.optionals (libcCross.w32api or null != null) [
+      "-idirafter ${lib.getDev libcCross.w32api}/include"
+      "-idirafter ${lib.getDev libcCross.w32api}/include/w32api"
+      "-L${lib.getLib libcCross.w32api}/lib/w32api"
+    ]
     ;
 
   EXTRA_LDFLAGS_FOR_TARGET = let

@@ -13,18 +13,26 @@ in stdenv.mkDerivation {
 
   outputs = [ "out" "dev" ];
 
-  configureFlags = [
-    "--enable-idl"
-    "--enable-secure-api"
-  ];
+  configureFlags =
+    if stdenv.targetPlatform.isCygwin
+    then [
+      "--enable-w32api"
+      "--enable-sdk=all"
+    ] ++ (if stdenv.targetPlatform.is64bit
+          then [ "--disable-lib32" "--enable-lib64" ]
+          else [ "--disable-lib64" "--enable-lib32" ])
+    else [
+      "--enable-idl"
+      "--enable-secure-api"
+    ];
 
   enableParallelBuilding = true;
 
-  buildInputs = [ windows.mingw_w64_headers ];
+  buildInputs = lib.optional (!stdenv.targetPlatform.isCygwin) windows.mingw_w64_headers;
   dontStrip = true;
   hardeningDisable = [ "stackprotector" "fortify" ];
 
   meta = {
-    platforms = lib.platforms.windows;
+    platforms = lib.platforms.windows ++ lib.platforms.cygwin;
   };
 }

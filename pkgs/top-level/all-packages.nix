@@ -11659,6 +11659,7 @@ with pkgs;
   # The GCC used to build libc for the target platform. Normal gccs will be
   # built with, and use, that cross-compiled libc.
   gccCrossStageStatic = assert stdenv.targetPlatform != stdenv.hostPlatform; let
+    bintools = binutilsNoLibc;
     libcCross1 = binutilsNoLibc.libc;
     in wrapCCWith {
       cc = gccFun {
@@ -11672,12 +11673,12 @@ with pkgs;
 
         # just for stage static
         crossStageStatic = true;
-        langCC = false;
+        langCC = stdenv.targetPlatform.isCygwin;
         libcCross = libcCross1;
-        targetPackages.stdenv.cc.bintools = binutilsNoLibc;
+        targetPackages.stdenv.cc.bintools = bintools;
         enableShared = false;
       };
-      bintools = binutilsNoLibc;
+      inherit bintools;
       libc = libcCross1;
       extraPackages = [];
   };
@@ -16433,6 +16434,7 @@ with pkgs;
   in     if libc == "msvcrt" then targetPackages.windows.mingw_w64_headers or windows.mingw_w64_headers
     else if libc == "nblibc" then targetPackages.netbsdCross.headers or netbsdCross.headers
     else if libc == "libSystem" && stdenv.targetPlatform.isAarch64 then targetPackages.darwin.LibsystemCross or darwin.LibsystemCross
+    else if stdenv.targetPlatform.isCygwin then targetPackages.cygwin.libc-boot or cygwin.libc-boot
     else null;
 
   # We can choose:
@@ -16446,6 +16448,7 @@ with pkgs;
     else if name == "newlib" && stdenv.targetPlatform.isMsp430 then targetPackages.msp430NewlibCross or msp430NewlibCross
     else if name == "newlib" && stdenv.targetPlatform.isVc4 then targetPackages.vc4-newlib or vc4-newlib
     else if name == "newlib" && stdenv.targetPlatform.isOr1k then targetPackages.or1k-newlib or or1k-newlib
+    else if name == "newlib" && stdenv.targetPlatform.isCygwin then targetPackages.cygwin.libc or cygwin.libc
     else if name == "newlib" then targetPackages.newlibCross or newlibCross
     else if name == "newlib-nano" then targetPackages.newlib-nanoCross or newlib-nanoCross
     else if name == "musl" then targetPackages.muslCross or muslCross
@@ -22786,6 +22789,7 @@ with pkgs;
 
   vndr = callPackage ../development/tools/vndr { };
 
+  cygwin = callPackages ../os-specific/cygwin {};
   windows = callPackages ../os-specific/windows {};
 
   wirelesstools = callPackage ../os-specific/linux/wireless-tools { };
@@ -33602,6 +33606,14 @@ with pkgs;
   newlib-nanoCross = callPackage ../development/misc/newlib {
     nanoizeNewlib = true;
     stdenv = crossLibcStdenv;
+  };
+
+  cocom-tools = callPackage ../development/tools/cocom-tools {};
+
+  newlib-cygwin = callPackage ../development/misc/newlib/cygwin.nix {};
+  newlib-cygwinCross = callPackage ../development/misc/newlib/cygwin.nix {
+    stdenv = crossLibcStdenv;
+    zlib = zlib.override { stdenv = crossLibcStdenv; };
   };
 
   omnisharp-roslyn = callPackage ../development/tools/omnisharp-roslyn { };
