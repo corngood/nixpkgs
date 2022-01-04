@@ -837,6 +837,7 @@ rec {
             "mmixware"
             "ghcjs"
             "mingw32"
+            "cygwin"
           ]
           || hasPrefix "freebsd" (elemAt l 2)
           || hasPrefix "netbsd" (elemAt l 2)

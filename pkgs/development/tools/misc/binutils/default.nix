@@ -32,7 +32,10 @@ assert enableGoldDefault -> enableGold;
 let
   inherit (stdenv) buildPlatform hostPlatform targetPlatform;
 
-  version = "2.44";
+  version =
+    if stdenv.targetPlatform.isCygwin
+    then "2.45"
+    else "2.44";
 
   #INFO: The targetPrefix prepended to binary names to allow multiple binuntils
   # on the PATH to both be usable.
@@ -78,7 +81,11 @@ stdenv.mkDerivation (finalAttrs: {
   pname = targetPrefix + "binutils";
   inherit version;
 
-  src = fetchurl {
+  src = if stdenv.targetPlatform.isCygwin then (fetchurl {
+    url = "mirror://gnu/binutils/binutils-${version}.tar.bz2";
+    sha256 = "sha256-Z/waQDDQjuh3pIZ9PcqzWCgUj4fh/QXabbWF7VoWa9Q=";
+  })
+  else fetchurl {
     url = "mirror://gnu/binutils/binutils-with-gold-${version}.tar.bz2";
     hash = "sha256-NHM+pJXMDlDnDbTliQ3sKKxB8OFMShZeac8n+5moxMg=";
   };
@@ -98,6 +105,7 @@ stdenv.mkDerivation (finalAttrs: {
     # For some reason bfd ld doesn't search DT_RPATH when cross-compiling. It's
     # not clear why this behavior was decided upon but it has the unfortunate
     # consequence that the linker will fail to find transitive dependencies of
+
     # shared objects when cross-compiling. Consequently, we are forced to
     # override this behavior, forcing ld to search DT_RPATH even when
     # cross-compiling.

@@ -7728,6 +7728,7 @@ with pkgs;
       relibc
     else if libc == "llvm" then
       llvmPackages_20.libc
+    else if stdenv.targetPlatform.isCygwin then targetPackages.cygwin.libc-boot or cygwin.libc-boot
     else
       throw "Unknown libc ${libc}";
 
@@ -10871,6 +10872,7 @@ with pkgs;
   v4l-utils = callPackage ../os-specific/linux/v4l-utils { };
 
   windows = recurseIntoAttrs (callPackages ../os-specific/windows { });
+  cygwin = recurseIntoAttrs (callPackages ../os-specific/cygwin { });
 
   wpa_supplicant = callPackage ../os-specific/linux/wpa_supplicant { };
 
@@ -15485,6 +15487,14 @@ with pkgs;
 
   newlib-nano = newlib.override {
     nanoizeNewlib = true;
+  };
+
+  cocom-tools = callPackage ../development/tools/cocom-tools {};
+
+  newlib-cygwin = callPackage ../development/misc/newlib/cygwin.nix {};
+  newlib-cygwinCross = callPackage ../development/misc/newlib/cygwin.nix {
+    stdenv = crossLibcStdenv;
+    zlib = zlib.override { stdenv = crossLibcStdenv; };
   };
 
   wfuzz = with python3Packages; toPythonApplication wfuzz;

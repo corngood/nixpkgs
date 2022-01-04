@@ -109,7 +109,9 @@ let
             if crossDarwin then
               "--with-sysroot=${lib.getLib libcCross}/share/sysroot"
             else
-              "--with-headers=${lib.getDev libcCross}${libcCross.incdir or "/include"}"
+              lib.optionalString (
+                libcCross != null
+              ) "--with-headers=${lib.getDev libcCross}${libcCross.incdir or "/include"}"
           )
           "--enable-__cxa_atexit"
           "--enable-long-long"

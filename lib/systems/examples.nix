@@ -383,6 +383,11 @@ rec {
     useLLVM = true;
   };
 
+  cygwin = {
+    config = "x86_64-pc-cygwin";
+    # libc = "newlib";
+  };
+
   # BSDs
 
   aarch64-freebsd = {
