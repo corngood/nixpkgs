@@ -563,7 +563,13 @@ with pkgs;
               gmp = null;
               aclSupport = false;
               attrSupport = false;
+              gettext = buildPackages.gettext.override {
+                fetchurl = stdenv.fetchurlBoot;
+                libiconv = buildPackages.libiconv.override { fetchurl = stdenv.fetchurlBoot; };
+                inherit xz;
+              };
               autoreconfHook = buildPackages.autoreconfHook.override rec {
+                inherit gettext;
                 automake = buildPackages.automake.override {
                   fetchurl = stdenv.fetchurlBoot;
                   inherit perl autoconf;
@@ -572,11 +578,6 @@ with pkgs;
                   fetchurl = stdenv.fetchurlBoot;
                   m4 = buildPackages.m4.override { fetchurl = stdenv.fetchurlBoot; };
                   inherit perl;
-                };
-                gettext = buildPackages.gettext.override {
-                  fetchurl = stdenv.fetchurlBoot;
-                  libiconv = buildPackages.libiconv.override { fetchurl = stdenv.fetchurlBoot; };
-                  inherit xz;
                 };
                 libtool = buildPackages.libtool.override {
                   fetchurl = stdenv.fetchurlBoot;

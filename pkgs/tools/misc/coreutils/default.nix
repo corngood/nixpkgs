@@ -1,5 +1,5 @@
 { stdenv, lib, buildPackages
-, autoreconfHook, bison, texinfo, fetchurl, perl, xz, libiconv, gmp ? null
+, autoreconfHook, bison, texinfo, fetchurl, perl, xz, libiconv, gettext, gmp ? null
 , aclSupport ? stdenv.isLinux, acl ? null
 , attrSupport ? stdenv.isLinux, attr ? null
 , selinuxSupport? false, libselinux ? null, libsepol ? null
@@ -108,7 +108,12 @@ stdenv.mkDerivation (rec {
     ++ optional withOpenssl openssl
     ++ optionals selinuxSupport [ libselinux libsepol ]
        # TODO(@Ericson2314): Investigate whether Darwin could benefit too
-    ++ optional (stdenv.hostPlatform != stdenv.buildPlatform && stdenv.hostPlatform.libc != "glibc") libiconv;
+    ++ optional (stdenv.hostPlatform != stdenv.buildPlatform && stdenv.hostPlatform.libc != "glibc") libiconv
+    ++ optional stdenv.hostPlatform.isCygwin gettext;
+
+  # https://www.gnu.org/software/make/manual/html_node/Libraries_002fSearch.html
+  # -lintl is used as a make dependency
+  makeFlags = optional stdenv.hostPlatform.isCygwin "VPATH=${lib.getLib gettext}/lib";
 
   # The tests are known broken on Cygwin
   # (http://article.gmane.org/gmane.comp.gnu.core-utils.bugs/19025),
