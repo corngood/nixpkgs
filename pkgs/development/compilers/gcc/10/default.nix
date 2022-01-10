@@ -107,10 +107,10 @@ stdenv.mkDerivation ({
   hardeningDisable = [ "format" "pie" ];
 
   postPatch = ''
-    (configureScripts=$(find . -name configure)
+    configureScripts=$(find . -name configure)
     for configureScript in $configureScripts; do
       patchShebangs $configureScript
-    done)
+    done
   ''
   # This should kill all the stdinc frameworks that gcc and friends like to
   # insert into default search paths.
@@ -123,11 +123,8 @@ stdenv.mkDerivation ({
 
     substituteInPlace libgfortran/configure \
       --replace "-install_name \\\$rpath/\\\$soname" "-install_name ''${!outputLib}/lib/\\\$soname"
-  '' + lib.optionalString hostPlatform.isCygwin ''
-    substituteInPlace gcc/config/i386/cygwin.h\
-      --replace "../include/w32api%s -idirafter ../../include/w32api%s" "${stdenv.cc.w32api-headers}/include/w32api"
-    echo '#define STANDARD_STARTFILE_PREFIX_1 "${stdenv.cc.libc}/lib/"' >> gcc/config/i386/cygwin.h
-  '' + (
+  ''
+  + (
     if targetPlatform != hostPlatform || stdenv.cc.libc != null then
       # On NixOS, use the right path to the dynamic linker instead of
       # `/lib/ld*.so'.

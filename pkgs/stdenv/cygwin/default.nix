@@ -49,13 +49,11 @@ let
         cc = callPackage ../../development/compilers/gcc/10 {
           stdenv = stdenv // {
             cc = stdenv.cc // {
-              libc = cygwin.packages.cygwin-devel;
-              w32api-headers = cygwin.packages.w32api-headers;
+              libc = cygwin.libc-boot;
               nativeLibc = false;
             };
           };
           noSysDirs = true;
-          profiledCompiler = false;
           libcCross = null;
           isl = isl_0_17;
         # } // { hardeningUnsupportedFlags = [ "fortify" ]; };
