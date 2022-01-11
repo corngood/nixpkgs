@@ -34,6 +34,9 @@ stdenv.mkDerivation rec {
     sha256 = "0qhgyphzdv72dgdfxin2xbk9623za3jwbcvhhaxixiwp6djj8vsm";
   };
 
+  patches =
+    optional stdenv.hostPlatform.isCygwin ./fix-missing-timeval.patch;
+
   outputs = [ "bin" "out" "dev" "lib" ]
     ++ optional enablePython "python";
 

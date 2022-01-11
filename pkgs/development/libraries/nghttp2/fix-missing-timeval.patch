@@ -1,0 +1,14 @@
+diff --git a/src/util.h b/src/util.h
+index 3443fe0..3aa47fa 100644
+--- a/src/util.h
++++ b/src/util.h
+@@ -34,6 +34,9 @@
+ #ifdef HAVE_NETDB_H
+ #  include <netdb.h>
+ #endif // HAVE_NETDB_H
++#ifdef HAVE_SYS_TIME_H
++#  include <sys/time.h>
++#endif // HAVE_SYS_TIME_H
+ 
+ #include <cmath>
+ #include <cstring>
