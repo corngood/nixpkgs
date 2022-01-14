@@ -5,11 +5,43 @@
 }:
 
 let
+  nativePrefix = "/usr";
+
+  withLibcBoot = prevStage: {
+    inherit config overlays;
+    stdenv = with prevStage; import ../generic {
+      inherit config;
+      inherit (stdenv)
+        buildPlatform
+        hostPlatform
+        targetPlatform
+        initialPath
+        shell
+        fetchurlBoot
+        ;
+      cc = import ../../build-support/cc-wrapper {
+        name = "cc-native";
+        nativeTools = true;
+        nativeLibc = false;
+        libc = cygwin.libc-boot;
+        inherit lib nativePrefix;
+        bintools = import ../../build-support/bintools-wrapper {
+          name = "bintools-native";
+          inherit lib stdenvNoCC nativePrefix;
+          nativeTools = true;
+          nativeLibc = false;
+          libc = cygwin.libc-boot;
+        };
+        inherit stdenvNoCC;
+      };
+    };
+  };
+
   stageFun = prevStage: {
     inherit config overlays;
     stdenv = with prevStage; import ../generic {
-      inherit
-        config
+      inherit config;
+      inherit (stdenv)
         buildPlatform
         hostPlatform
         targetPlatform
@@ -43,16 +75,10 @@ let
       cc = import ../../build-support/cc-wrapper {
         nativeTools = false;
         nativeLibc = false;
-        libc = cygwin.packages.cygwin-devel;
+        libc = cygwin.libc-boot;
         # gcc 11 was broken but I forget why
         # TODO: find out
         cc = callPackage ../../development/compilers/gcc/10 {
-          stdenv = stdenv // {
-            cc = stdenv.cc // {
-              libc = cygwin.libc-boot;
-              nativeLibc = false;
-            };
-          };
           noSysDirs = true;
           libcCross = null;
           isl = isl_0_17;
@@ -62,7 +88,7 @@ let
           name = "bintools";
           nativeTools = false;
           nativeLibc = false;
-          libc = cygwin.packages.cygwin-devel;
+          libc = cygwin.libc-boot;
           bintools = binutils-unwrapped;
           extraBuildCommands = ''
             echo "-L${cygwin.packages.w32api-runtime}/lib/w32api" > $out/nix-support/libc-ldflags
@@ -75,6 +101,7 @@ let
   };
 
 in bootStages ++ [
+  withLibcBoot
 
   # The previous stage still has dependencies on /usr/bin: cygwin1.dll, and any
   # libraries found by configuration (e.g. -lintl)

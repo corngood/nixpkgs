@@ -111,7 +111,7 @@ let
       "--with-mpc=${libmpc}"
     ]
     ++ lib.optional (libelf != null) "--with-libelf=${libelf}"
-    ++ lib.optional (!(crossMingw && crossStageStatic))
+    ++ lib.optional (!(crossMingw && crossStageStatic) && stdenv.cc.libc != null)
       "--with-native-system-header-dir=${lib.getDev stdenv.cc.libc}/include"
 
     # Basic configuration
