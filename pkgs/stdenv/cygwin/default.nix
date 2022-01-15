@@ -18,6 +18,8 @@ let
         initialPath
         shell
         fetchurlBoot
+        preHook
+        extraNativeBuildInputs
         ;
       cc = import ../../build-support/cc-wrapper {
         name = "cc-native";
