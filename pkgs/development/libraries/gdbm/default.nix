@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchurl }:
+{ stdenv, lib, fetchurl, autoconf }:
 
 stdenv.mkDerivation rec {
   pname = "gdbm";
@@ -9,11 +9,6 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-OurAVkizSCoQotqYa586OAoprWUL6AuYF6Q1+4EUopI=";
   };
 
-  doCheck = true; # not cross;
-
-  # Linking static stubs on cygwin requires correct ordering.
-  # Consider upstreaming this.
-
   # Disable dbmfetch03.at test because it depends on unlink()
   # failing on a link in a chmod -w directory, which cygwin
   # apparently allows.
@@ -21,10 +16,12 @@ stdenv.mkDerivation rec {
   # after building, this command will fail:
   # $ PATH=./tests:./src:$PATH gdbmtool
   # if you rename the tests/gdbmtool dir, it works
-  postPatch = lib.optionalString stdenv.buildPlatform.isCygwin ''
-      substituteInPlace tests/Makefile.in --replace \
-        '_LDADD = ../src/libgdbm.la ../compat/libgdbm_compat.la' \
-        '_LDADD = ../compat/libgdbm_compat.la ../src/libgdbm.la'
+  postPatch = lib.optional stdenv.hostPlatform.isCygwin ''
+      for file in {src,compat}/Makefile.in
+      do
+        substituteInPlace "$file" \
+          --replace '_la_LDFLAGS =' '_la_LDFLAGS = -no-undefined'
+      done
       substituteInPlace tests/testsuite.at \
          --replace 'm4_include([dbmfetch03.at])' "" \
          --replace 'm4_include([gdbmtool00.at])' "" \
@@ -32,6 +29,12 @@ stdenv.mkDerivation rec {
          --replace 'm4_include([gdbmtool02.at])' "" \
          --replace 'm4_include([gdbmtool03.at])' ""
   '';
+
+  nativeBuildInputs =
+    # because we patched .at files
+    lib.optional stdenv.hostPlatform.isCygwin autoconf;
+
+  doCheck = true; # not cross;
 
   enableParallelBuilding = true;
   configureFlags = [ "--enable-libgdbm-compat" ];

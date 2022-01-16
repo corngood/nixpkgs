@@ -23,8 +23,12 @@ stdenv.mkDerivation rec {
   '';
 
   # boehm-gc whitelists GCC threading models
-  patches = lib.optional stdenv.hostPlatform.isMinGW ./mcfgthread.patch
-    ++ lib.optional stdenv.hostPlatform.isCygwin ./disable-libsupc++.patch;
+  patches = lib.optional stdenv.hostPlatform.isMinGW ./mcfgthread.patch;
+
+  postPatch = lib.optional stdenv.hostPlatform.isCygwin ''
+      substituteInPlace configure \
+        --replace CXXLIBS=\"-lsupc++\" CXXLIBS=
+  '';
 
   configureFlags =
     [ "--enable-cplusplus" "--with-libatomic-ops=none" ]

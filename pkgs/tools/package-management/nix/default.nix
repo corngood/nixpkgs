@@ -24,8 +24,10 @@ common =
   , withLibseccomp ? lib.meta.availableOn stdenv.hostPlatform libseccomp, libseccomp
   , withAWS ? !enableStatic && (stdenv.isLinux || stdenv.isDarwin), aws-sdk-cpp
   , enableStatic ? stdenv.hostPlatform.isStatic
-  , enableDocumentation ? lib.versionOlder version "2.4pre" ||
-                          stdenv.hostPlatform == stdenv.buildPlatform
+  , enableDocumentation ? !stdenv.buildPlatform.isCygwin &&
+                          (lib.versionOlder version "2.4pre" ||
+                          stdenv.hostPlatform == stdenv.buildPlatform)
+
   , pname, version, suffix ? "", src
   , patches ? [ ]
   }:

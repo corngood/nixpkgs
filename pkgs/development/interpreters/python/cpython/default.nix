@@ -502,7 +502,7 @@ in with passthru; stdenv.mkDerivation {
       high level dynamic data types.
     '';
     license = licenses.psfl;
-    platforms = with platforms; linux ++ darwin;
+    platforms = with platforms; linux ++ darwin ++ cygwin;
     maintainers = with maintainers; [ fridh ];
   };
 }

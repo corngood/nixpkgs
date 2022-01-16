@@ -42,9 +42,13 @@ stdenv.mkDerivation {
     bison
   ];
 
+  bootstrapFlags =
+    # this is needed to use readlink(), etc
+    lib.optional stdenv.hostPlatform.isCygwin "--cxxflags=--std=gnu++11";
+
   buildPhase = ''
     runHook preBuild
-    ./bootstrap.sh
+    ./bootstrap.sh $bootstrapFlags
     runHook postBuild
   '';
 
