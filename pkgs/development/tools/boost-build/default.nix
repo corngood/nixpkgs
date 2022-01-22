@@ -42,9 +42,14 @@ stdenv.mkDerivation {
     bison
   ];
 
+  postBuild = lib.optional stdenv.hostPlatform.isCygwin ''
+    test -e b2.exe || mv b2 b2.exe
+    test ! -e bjam || test -e bjam.exe || mv bjam bjam.exe
+  '';
+
   bootstrapFlags =
     # this is needed to use readlink(), etc
-    lib.optional stdenv.hostPlatform.isCygwin "--cxxflags=--std=gnu++11";
+    lib.optional (!(useBoost ? version) && stdenv.hostPlatform.isCygwin) "--cxxflags=--std=gnu++11";
 
   buildPhase = ''
     runHook preBuild

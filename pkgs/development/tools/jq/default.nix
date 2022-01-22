@@ -26,6 +26,11 @@ stdenv.mkDerivation rec {
     })
   ];
 
+  postPatch = lib.optional stdenv.hostPlatform.isCygwin ''
+    substituteInPlace Makefile.am \
+      --replace '_la_LDFLAGS =' '_la_LDFLAGS = -no-undefined'
+  '';
+
   outputs = [ "bin" "doc" "man" "dev" "lib" "out" ];
 
   # Upstream script that writes the version that's eventually compiled
