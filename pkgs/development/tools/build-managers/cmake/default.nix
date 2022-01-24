@@ -34,11 +34,15 @@ stdenv.mkDerivation rec {
     # Derived from https://github.com/libuv/libuv/commit/1a5d4f08238dd532c3718e210078de1186a5920d
     ./libuv-application-services.patch
 
-  ] ++ lib.optional stdenv.isCygwin ./3.2.2-cygwin.patch
+  ]
   # Derived from https://github.com/curl/curl/commit/31f631a142d855f069242f3e0c643beec25d1b51
   ++ lib.optional (stdenv.isDarwin && isBootstrap) ./remove-systemconfiguration-dep.patch
   # On Darwin, always set CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG.
   ++ lib.optional stdenv.isDarwin ./darwin-always-set-runtime-c-flag.patch;
+
+  postPatch = lib.optional stdenv.hostPlatform.isCygwin ''
+    substituteInPlace Utilities/cmcurl/lib/smb.c --replace '_getpid' 'getpid'
+  '';
 
   outputs = [ "out" ]
     ++ lib.optionals buildDocs [ "man" "info" ];

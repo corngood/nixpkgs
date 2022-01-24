@@ -121,7 +121,10 @@ stdenv.mkDerivation rec {
 
   doCheck = false; # expensive, fails
 
-  postInstall = ''
+  postInstall =
+    lib.optionalString stdenv.hostPlatform.isCygwin ''
+    PATH=$out/bin:$HOST_PATH:$PATH
+  '' + ''
     moveToOutput bin/curl-config "$dev"
 
     # Install completions
