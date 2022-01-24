@@ -4393,7 +4393,8 @@ with pkgs;
   curl = curlMinimal.override ({
     idnSupport = true;
   } // lib.optionalAttrs (!stdenv.hostPlatform.isStatic) {
-    gssSupport = true;
+    # libkrb5 is currently broken on cygwin
+    gssSupport = !stdenv.hostPlatform.isCygwin;
     brotliSupport = true;
   });
 
