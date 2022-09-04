@@ -1,0 +1,25 @@
+From 6428e996472d2334f71da5e54f96f3a19f992f5e Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Fri, 29 Dec 2023 23:24:25 -0400
+Subject: [PATCH 1/2] allow missing pdbs
+
+---
+ build.proj | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build.proj b/build.proj
+index 7d074d8802..0fdfd99696 100644
+--- a/build.proj
++++ b/build.proj
+@@ -123,7 +123,7 @@
+     <CreateSdkSymbolsLayout SdkLayoutPath="$(SdkLayout)"
+                             AllSymbolsPath="$(UnifiedSymbolsLayout)"
+                             SdkSymbolsLayoutPath="$(SdkSymbolsLayout)"
+-                            FailOnMissingPDBs="true" />
++                            FailOnMissingPDBs="false" />
+ 
+     <Exec Command="tar --numeric-owner -czf $(SdkSymbolsTarball) *"
+           WorkingDirectory="$(SdkSymbolsLayout)" />
+-- 
+2.40.1
+

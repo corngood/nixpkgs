@@ -1,0 +1,24 @@
+From e452fad9da54ae2f7a91de10d7bda4a0bb6b44e6 Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Wed, 10 Jan 2024 01:19:41 -0400
+Subject: [PATCH] disable installer in runtime
+
+---
+ src/runtime/eng/SourceBuild.props | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/runtime/eng/SourceBuild.props b/src/runtime/eng/SourceBuild.props
+index 1e9d5cf890..9647504bde 100644
+--- a/src/runtime/eng/SourceBuild.props
++++ b/src/runtime/eng/SourceBuild.props
+@@ -48,6 +48,7 @@
+       <InnerBuildArgs Condition="'$(OfficialBuildId)' != ''">$(InnerBuildArgs) /p:OfficialBuildId=$(OfficialBuildId)</InnerBuildArgs>
+       <InnerBuildArgs Condition="'$(ContinuousIntegrationBuild)' != ''">$(InnerBuildArgs) /p:ContinuousIntegrationBuild=$(ContinuousIntegrationBuild)</InnerBuildArgs>
+       <InnerBuildArgs Condition="'$(SourceBuildUseMonoRuntime)' == 'true'">$(InnerBuildArgs) --usemonoruntime</InnerBuildArgs>
++      <InnerBuildArgs>$(InnerBuildArgs) /p:SkipInstallerBuild=true</InnerBuildArgs>
+     </PropertyGroup>
+   </Target>
+ 
+-- 
+2.40.1
+

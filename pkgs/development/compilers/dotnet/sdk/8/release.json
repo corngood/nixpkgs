@@ -1,0 +1,9 @@
+{
+  "release": "8.0.0",
+  "channel": "8.0",
+  "tag": "v8.0.0",
+  "sdkVersion": "8.0.100",
+  "runtimeVersion": "8.0.0",
+  "sourceRepository": "https://github.com/dotnet/dotnet",
+  "sourceVersion": "40e7f014ff784457efffa58074549735e30772ae"
+}
