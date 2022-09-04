@@ -1,0 +1,33 @@
+From ee89752e35721dab63d37d7486a7ac6a92a4d59f Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Thu, 11 Jan 2024 12:04:14 -0400
+Subject: [PATCH] sign apphost
+
+---
+ src/runtime/Directory.Build.targets | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/src/runtime/Directory.Build.targets b/src/runtime/Directory.Build.targets
+index 7e26eef0a4..b7c3c9e854 100644
+--- a/src/runtime/Directory.Build.targets
++++ b/src/runtime/Directory.Build.targets
+@@ -227,4 +227,16 @@
+       <HostPolicyVersion Condition="'$(HostPolicyVersion)' == ''">$(ProductVersion)</HostPolicyVersion>
+     </PropertyGroup>
+   </Target>
++  <Target Name="UnsignAppHost" BeforeTargets="_CreateAppHost" Condition="'$(AppHostSourcePath)' != ''">
++    <Exec Command='codesign_allocate -r -i "$(AppHostSourcePath)" -o "$(AppHostSourcePath)".$$ &amp;&amp; mv "$(AppHostSourcePath)".$$ "$(AppHostSourcePath)" 2>&amp;1'/>
++  </Target>
++  <Target Name="SignAppHost" AfterTargets="_CreateAppHost" Condition="'$(AppHostIntermediatePath)' != ''">
++    <Exec Command='codesign -f -s - "$(AppHostIntermediatePath)" 2>&amp;1'/>
++  </Target>
++  <Target Name="UnsignBundle" BeforeTargets="GenerateSingleFileBundle" Condition="'$(PublishedSingleFileName)' != ''">
++    <Exec Command='codesign_allocate -r -i "@(FilesToBundle)" -o "@(FilesToBundle)".$$ &amp;&amp; mv "@(FilesToBundle)".$$ "@(FilesToBundle)" 2>&amp;1' Condition="'%(FilesToBundle.RelativePath)' == '$(PublishedSingleFileName)'"/>
++  </Target>
++  <Target Name="SignBundle" AfterTargets="GenerateSingleFileBundle" Condition="'$(PublishedSingleFilePath)' != ''">
++    <Exec Command='codesign -f -s - "$(PublishedSingleFilePath)" 2>&amp;1'/>
++  </Target>
+ </Project>
+-- 
+2.42.0
+

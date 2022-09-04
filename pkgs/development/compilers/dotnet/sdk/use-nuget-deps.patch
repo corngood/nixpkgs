@@ -1,0 +1,25 @@
+From 6b64e8b68c0713059ca95b9117db7d0ceb253325 Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Sun, 31 Dec 2023 01:20:35 -0400
+Subject: [PATCH] use nuget deps
+
+---
+ prep.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/prep.sh b/prep.sh
+index 472c348ae5..afa60484b9 100755
+--- a/prep.sh
++++ b/prep.sh
+@@ -147,7 +147,7 @@ function BootstrapArtifacts {
+   fi
+ 
+   # Run restore on project to initiate download of bootstrap packages
+-  "$DOTNET_SDK_PATH/dotnet" restore "$workingDir/buildBootstrapPreviouslySB.csproj" /bl:artifacts/prep/bootstrap.binlog /fileLoggerParameters:LogFile=artifacts/prep/bootstrap.log /p:ArchiveDir="$packagesArchiveDir" /p:BootstrapOverrideVersionsProps="$SCRIPT_ROOT/eng/bootstrap/OverrideBootstrapVersions.props"
++  "$DOTNET_SDK_PATH/dotnet" restore "$workingDir/buildBootstrapPreviouslySB.csproj" /bl:artifacts/prep/bootstrap.binlog /fileLoggerParameters:LogFile=artifacts/prep/bootstrap.log /p:ArchiveDir="$packagesArchiveDir" /p:BootstrapOverrideVersionsProps="$SCRIPT_ROOT/eng/bootstrap/OverrideBootstrapVersions.props" ${prepDeps:+--source} "${prepDeps:-}"
+ 
+   # Remove working directory
+   rm -rf "$workingDir"
+-- 
+2.40.1
+
