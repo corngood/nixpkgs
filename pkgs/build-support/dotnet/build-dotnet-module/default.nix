@@ -89,6 +89,7 @@ let
 
   inherit (callPackage ./hooks {
     inherit dotnet-sdk dotnet-test-sdk disabledTests nuget-source dotnet-runtime runtimeDeps buildType;
+    runtimeId = dotnetCorePackages.systemToDotnetRid stdenvNoCC.targetPlatform.system;
   }) dotnetConfigureHook dotnetBuildHook dotnetCheckHook dotnetInstallHook dotnetFixupHook;
 
   localDeps =
@@ -155,15 +156,7 @@ stdenvNoCC.mkDerivation (args // {
 
     fetch-deps =
       let
-        # Derivations may set flags such as `--runtime <rid>` based on the host platform to avoid restoring/building nuget dependencies they dont have or dont need.
-        # This introduces an issue; In this script we loop over all platforms from `meta` and add the RID flag for it, as to fetch all required dependencies.
-        # The script would inherit the RID flag from the derivation based on the platform building the script, and set the flag for any iteration we do over the RIDs.
-        # That causes conflicts. To circumvent it we remove all occurances of the flag.
-        flags =
-          let
-            isRuntime = flag: lib.hasPrefix "--runtime" flag;
-          in
-            builtins.filter (flag: !(isRuntime flag)) (dotnetFlags ++ dotnetRestoreFlags);
+        flags = dotnetFlags ++ dotnetRestoreFlags;
         runtimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) platforms;
       in
       writeShellScript "fetch-${pname}-deps" ''
