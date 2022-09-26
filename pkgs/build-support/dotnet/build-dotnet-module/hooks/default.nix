@@ -9,6 +9,7 @@
 , dotnet-runtime
 , runtimeDeps
 , buildType
+, runtimeId
 }:
 
 let
@@ -21,6 +22,7 @@ in
       deps = [ dotnet-sdk nuget-source ];
       substitutions = {
         nugetSource = nuget-source;
+        inherit runtimeId;
       };
     } ./dotnet-configure-hook.sh) { };
 

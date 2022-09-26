@@ -90,6 +90,7 @@ let
 
   inherit (callPackage ./hooks {
     inherit dotnet-sdk dotnet-test-sdk disabledTests nuget-source dotnet-runtime runtimeDeps buildType;
+    runtimeId = dotnet-sdk.systemToDotnetRid stdenvNoCC.targetPlatform.system;
   }) dotnetConfigureHook dotnetBuildHook dotnetCheckHook dotnetInstallHook dotnetFixupHook;
 
   localDeps =
