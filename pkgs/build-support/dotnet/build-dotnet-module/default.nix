@@ -135,9 +135,7 @@ let
     paths = [ dependenciesSource sdkSource ];
   };
 
-  NUGET_FALLBACK_PACKAGES = lib.concatStringsSep ";" (map (p: "${lib.getLib p}/share/nuget/packages") (args.buildInputs or []));
-
-in stdenvNoCC.mkDerivation (args // {
+finalPackage = stdenvNoCC.mkDerivation (args // {
   nativeBuildInputs = args.nativeBuildInputs or [ ] ++ [
     dotnetConfigureHook
     dotnetBuildHook
@@ -160,7 +158,7 @@ in stdenvNoCC.mkDerivation (args // {
   # gappsWrapperArgs gets included when wrapping for dotnet, as to avoid double wrapping
   dontWrapGApps = args.dontWrapGApps or true;
 
-  inherit selfContainedBuild useAppHost NUGET_FALLBACK_PACKAGES;
+  inherit selfContainedBuild useAppHost;
 
   passthru = {
     inherit nuget-source;
@@ -189,7 +187,11 @@ in stdenvNoCC.mkDerivation (args // {
 
         trap exitTrap EXIT
 
-        export NUGET_FALLBACK_PACKAGES='${NUGET_FALLBACK_PACKAGES}'
+        for path in ${lib.escapeShellArgs finalPackage.buildInputs}; do
+            path="$path/share/nuget/packages"
+            [[ ! -e "$path" ]] || \
+               NUGET_FALLBACK_PACKAGES="$path''${NUGET_FALLBACK_PACKAGES:+;$NUGET_FALLBACK_PACKAGES}"
+        done
 
         dotnetRestore() {
             local -r project="''${1-}"
@@ -248,4 +250,5 @@ in stdenvNoCC.mkDerivation (args // {
   } // args.passthru or { };
 
   meta = (args.meta or { }) // { inherit platforms; };
-})
+});
+in finalPackage
