@@ -17,7 +17,7 @@
 , openssl
 , stdenv
 , zlib
-, writeShellApplication
+, writeShellScript
 , nuget-to-nix
 }:
 let
@@ -295,41 +295,40 @@ stdenv.mkDerivation rec {
   '';
 
   # Script to create deps.nix file for dotnet dependencies. Run it with
-  # $(nix-build -A github-runner.passthru.createDepsFile)/bin/create-deps-file
-  #
-  # Default output path is /tmp/${pname}-deps.nix, but can be overriden with cli argument.
+  # $(nix-build -A github-runner.passthru.fetch-deps)
   #
   # Inspired by passthru.fetch-deps in pkgs/build-support/build-dotnet-module/default.nix
-  passthru.createDepsFile = writeShellApplication {
-    name = "create-deps-file";
-    runtimeInputs = [ dotnetSdk (nuget-to-nix.override { dotnet-sdk = dotnetSdk; }) ];
-    text = ''
-      # Disable telemetry data
-      export DOTNET_CLI_TELEMETRY_OPTOUT=1
+  passthru.fetch-deps = writeShellScript "fetch-${pname}-deps"  ''
+    set -euo pipefail
 
-      deps_file="$(realpath "''${1:-$(mktemp -t "${pname}-deps-XXXXXX.nix")}")"
+    export PATH="${lib.makeBinPath [ coreutils dotnetSdk (nuget-to-nix.override { dotnet-sdk = dotnetSdk; }) ]}"
 
-      printf "\n* Setup workdir\n"
-      workdir="$(mktemp -d /tmp/${pname}.XXX)"
-      HOME="$workdir"/.fake-home
-      cp -rT "${src}" "$workdir"
-      chmod -R +w "$workdir"
-      trap 'rm -rf "$workdir"' EXIT
+    export DOTNET_NOLOGO=1
+    # Disable telemetry data
+    export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-      pushd "$workdir"
+    deps_file="${builtins.toString ./deps.nix}"
 
-      mkdir nuget_pkgs
+    printf "\n* Setup workdir\n"
+    workdir="$(mktemp -d /tmp/${pname}.XXX)"
+    HOME="$workdir"/.fake-home
+    cp -rT "${src}" "$workdir"
+    chmod -R +w "$workdir"
+    trap 'rm -rf "$workdir"' EXIT
 
-      ${lib.concatMapStrings (rid: ''
-      printf "\n* Restore ${pname} (${rid}) dotnet project\n"
-      dotnet restore src/ActionsRunner.sln --packages nuget_pkgs --no-cache --force --runtime "${rid}"
-      '') (lib.attrValues runtimeIds)}
+    pushd "$workdir"
 
-      printf "\n* Make %s file\n" "$(basename "$deps_file")"
-      nuget-to-nix "$workdir/nuget_pkgs" "${dotnetSdk.packages}" > "$deps_file"
-      printf "\n* Dependency file writen to %s" "$deps_file"
-    '';
-  };
+    mkdir nuget_pkgs
+
+    ${lib.concatMapStrings (rid: ''
+    printf "\n* Restore ${pname} (${rid}) dotnet project\n"
+    dotnet restore src/ActionsRunner.sln --packages nuget_pkgs --no-cache --force --runtime "${rid}"
+    '') (lib.attrValues runtimeIds)}
+
+    printf "\n* Make %s file\n" "$(basename "$deps_file")"
+    nuget-to-nix "$workdir/nuget_pkgs" "${dotnetSdk.packages}" > "$deps_file"
+    printf "\n* Dependency file writen to %s" "$deps_file"
+  '';
 
   meta = with lib; {
     description = "Self-hosted runner for GitHub Actions";
