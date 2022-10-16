@@ -3,8 +3,6 @@
 set -eo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-deps_file="$(realpath ./deps.nix)"
-
 nix-prefetch-git https://github.com/microsoft/python-language-server --quiet > repo_info
 new_version="$(jq -r ".date" < repo_info | cut -d"T" -f1)"
 new_hash="$(jq -r ".sha256" < repo_info)"
@@ -20,4 +18,4 @@ fi
 
 pushd ../../../..
 update-source-version python-language-server "$new_version" "$new_hash" --rev="$new_rev"
-$(nix-build -A python-language-server.fetch-deps --no-out-link) "$deps_file"
+$(nix-build -A python-language-server.fetch-deps --no-out-link)
