@@ -27,6 +27,14 @@ in  {
       '';
     };
 
+    extraConfig = mkOption {
+      type = types.lines;
+      default = "";
+      description = lib.mdDoc ''
+        A literal string to append to swanctl.conf.
+      '';
+    };
+
     swanctl = paramsToOptions swanctlParams;
   };
 
@@ -39,7 +47,7 @@ in  {
     ];
 
     environment.etc."swanctl/swanctl.conf".text =
-      paramsToConf cfg.swanctl swanctlParams;
+      paramsToConf cfg.swanctl swanctlParams + "\n" + cfg.extraConfig;
 
     # The swanctl command complains when the following directories don't exist:
     # See: https://wiki.strongswan.org/projects/strongswan/wiki/Swanctldirectory
