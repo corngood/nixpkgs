@@ -4,6 +4,7 @@
 , enableParallelBuilding ? true
 , srcArchiveSuffix ? "tar.bz2"
 , extraPatches ? []
+, nixosTests
 }:
 
 let
@@ -71,6 +72,8 @@ stdenv.mkDerivation rec {
   + ''
     ln -s $out/bin/mcs $out/bin/gmcs
   '';
+
+  passthru.tests = nixosTests.mono;
 
   inherit enableParallelBuilding;
 

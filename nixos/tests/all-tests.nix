@@ -439,6 +439,7 @@ in {
   molly-brown = handleTest ./molly-brown.nix {};
   monica = handleTest ./web-apps/monica.nix {};
   mongodb = handleTest ./mongodb.nix {};
+  mono = handleTest ./mono.nix {};
   moodle = handleTest ./moodle.nix {};
   moonraker = handleTest ./moonraker.nix {};
   morty = handleTest ./morty.nix {};
