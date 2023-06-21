@@ -38537,7 +38537,8 @@ with pkgs;
     nanoizeNewlib = true;
   };
 
-  omnisharp-roslyn = callPackage ../development/tools/omnisharp-roslyn { };
+  csharp-language-server-protocol = callPackage ../development/libraries/csharp-language-server-protocol {};
+  omnisharp-roslyn = callPackage ../development/tools/omnisharp-roslyn {};
 
   wasmtime = callPackage ../development/interpreters/wasmtime {
     inherit (darwin.apple_sdk.frameworks) Security;
