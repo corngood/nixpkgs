@@ -80,13 +80,15 @@ dotnetInstallHook() {
         done
     }
 
-    if (( ${#dotnetProjectFilesArray[@]} == 0 )); then
-        dotnetPublish
-    else
-        local projectFile
-        for projectFile in "${dotnetProjectFilesArray[@]}"; do
-            dotnetPublish "$projectFile"
-        done
+    if [[ -z "${dontPublish-}" ]]; then
+      if (( ${#dotnetProjectFilesArray[@]} == 0 )); then
+          dotnetPublish
+      else
+          local projectFile
+          for projectFile in "${dotnetProjectFilesArray[@]}"; do
+              dotnetPublish "$projectFile"
+          done
+      fi
     fi
 
     if [[ -n ${packNupkg-} ]]; then
