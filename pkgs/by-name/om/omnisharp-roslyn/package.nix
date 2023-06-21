@@ -5,6 +5,7 @@
   fetchFromGitHub,
   runCommand,
   expect,
+  csharp-language-server-protocol,
 }:
 
 let
@@ -27,6 +28,10 @@ let
 
     dotnet-sdk = sdk_8_0;
     dotnet-runtime = sdk_8_0;
+
+    buildInputs = [
+      csharp-language-server-protocol
+    ];
 
     dotnetInstallFlags = [ "--framework net8.0" ];
     dotnetBuildFlags = [
