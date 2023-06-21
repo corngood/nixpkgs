@@ -43,6 +43,10 @@ let finalPackage = buildDotnetModule rec {
     "-property:RollForward=LatestMajor"
   ];
 
+  patches = [
+    ./fix-threading.patch
+  ];
+
   postPatch = ''
     # Relax the version requirement
     rm global.json
