@@ -12,6 +12,7 @@
 , disabledTests
 , nuget-source
 , dotnet-runtime
+, nuget
 , runtimeDeps
 , buildType
 , runtimeId
@@ -67,7 +68,7 @@ in
   dotnetInstallHook = callPackage ({ }:
     makeSetupHook {
       name = "dotnet-install-hook";
-      propagatedBuildInputs = [ dotnet-sdk ];
+      propagatedBuildInputs = [ dotnet-sdk nuget ];
       substitutions = {
         inherit buildType runtimeId;
       };

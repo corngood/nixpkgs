@@ -7,6 +7,7 @@
 , symlinkJoin
 , makeWrapper
 , dotnetCorePackages
+, dotnetPackages
 , mkNugetSource
 , mkNugetDeps
 , nuget-to-nix
@@ -102,14 +103,8 @@ let
       if runtimeId != null
       then runtimeId
       else dotnetCorePackages.systemToDotnetRid stdenvNoCC.targetPlatform.system;
+    nuget = dotnetPackages.Nuget;
   }) dotnetConfigureHook dotnetBuildHook dotnetCheckHook dotnetInstallHook dotnetFixupHook;
-
-  referenceSource =
-    if (projectReferences != [ ])
-    then mkNugetSource {
-      name = "${name}-reference-source";
-      deps = projectReferences;
-    } else null;
 
   _nugetDeps =
     if (nugetDeps != null) then
@@ -134,25 +129,30 @@ let
   # a packages dependencies when the dotnet-sdk version changes
   sdkDeps = lib.lists.flatten [ dotnet-sdk.packages ];
 
-  sdkSource = let
-    version = dotnet-sdk.version or (lib.concatStringsSep "-" dotnet-sdk.versions);
-  in mkNugetSource {
-    name = "dotnet-sdk-${version}-source";
-    deps = sdkDeps;
-  };
-
-  localSource = symlinkJoin {
-    name = "${name}-local-source";
-    paths = [ sdkSource ]
-      ++ lib.optional (referenceSource != null) referenceSource;
+  sdkPackages = stdenvNoCC.mkDerivation rec {
+    name = "sdk-packages";
+    nativeBuildInputs = [ dotnetPackages.Nuget ];
+    buildCommand = ''
+      HOME=$(pwd)/fake-home
+      mkdir -p "$out"/share/nuget/packages
+      for dep in ${builtins.concatStringsSep " " sdkDeps}; do
+        for package in "$dep"/*.nupkg; do
+          nuget add "$package" -source "$out"/share/nuget/packages -expand
+        done
+      done
+    '';
   };
 
   nuget-source = symlinkJoin {
     name = "${name}-nuget-source";
-    paths = [ localSource dependenciesSource ];
+    paths = [ dependenciesSource ];
   };
 
   nugetDepsFile = _nugetDeps.sourceFile;
+
+  buildInputs = args.buildInputs or [] ++ [
+    sdkPackages
+  ] ++ projectReferences;
 in
 stdenvNoCC.mkDerivation (args // {
   nativeBuildInputs = args.nativeBuildInputs or [ ] ++ [
@@ -177,7 +177,7 @@ stdenvNoCC.mkDerivation (args // {
   # gappsWrapperArgs gets included when wrapping for dotnet, as to avoid double wrapping
   dontWrapGApps = args.dontWrapGApps or true;
 
-  inherit selfContainedBuild useAppHost useDotnetFromEnv;
+  inherit selfContainedBuild useAppHost useDotnetFromEnv buildInputs;
 
   passthru = {
     inherit nuget-source;
@@ -247,6 +247,14 @@ stdenvNoCC.mkDerivation (args // {
 
         trap exitTrap EXIT INT TERM
 
+        export NUGET_FALLBACK_PACKAGES
+        for input in ${toString (map lib.getDev buildInputs)}
+        do
+            path="$input/share/nuget/packages"
+            [[ ! -d "$path" ]] || \
+              NUGET_FALLBACK_PACKAGES=''${NUGET_FALLBACK_PACKAGES:+''${NUGET_FALLBACK_PACKAGES};}$path
+        done
+
         dotnetRestore() {
             local -r project="''${1-}"
             local -r rid="$2"
@@ -278,10 +286,6 @@ stdenvNoCC.mkDerivation (args // {
         chmod -R +w "$src"
 
         cd "$src"
-
-        # this needs to be done in src/ in case there's a local config which
-        # clears the global sources
-        dotnet nuget add source -n local "${localSource}"
 
         echo "Restoring project..."
 

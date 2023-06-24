@@ -1,5 +1,12 @@
 declare -a projectFile testProjectFile
 
+addNugetFallbackPath() {
+    local path="$1/share/nuget/packages"
+    [[ ! -e "$path" ]] || addToSearchPathWithCustomDelimiter \; NUGET_FALLBACK_PACKAGES "$path"
+}
+
+addEnvHooks "$targetOffset" addNugetFallbackPath
+
 # Inherit arguments from derivation
 dotnetFlags=( ${dotnetFlags[@]-} )
 dotnetRestoreFlags=( ${dotnetRestoreFlags[@]-} )
