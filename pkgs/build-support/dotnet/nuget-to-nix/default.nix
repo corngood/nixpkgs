@@ -10,23 +10,18 @@
 , gnugrep
 , gawk
 , dotnet-sdk
+, python3
 }:
 
 runCommandLocal "nuget-to-nix" {
+  nativeBuildInputs = [
+    dotnet-sdk
+  ];
   script = substituteAll {
-    src = ./nuget-to-nix.sh;
-    inherit runtimeShell;
-
-    binPath = lib.makeBinPath [
-      nix
-      coreutils
-      jq
-      yq
-      curl
-      gnugrep
-      gawk
-      dotnet-sdk
-    ];
+    src = ./nuget-to-nix.py;
+    pythonInterpreter = (python3.withPackages (ps: with ps; [ aiofiles aiohttp ])).interpreter;
+    dotnet = dotnet-sdk;
+    nix = nix;
   };
 
   meta.description = "Convert a nuget packages directory to a lockfile for buildDotnetModule";
