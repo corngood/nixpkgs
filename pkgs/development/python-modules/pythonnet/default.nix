@@ -60,8 +60,7 @@ buildPythonPackage {
   preConfigure = ''
     dotnet restore \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true \
-      --source ${dotnet-build.nuget-source}
+      -p:Deterministic=true
   '';
 
   # Rerun this when updating to refresh Nuget dependencies

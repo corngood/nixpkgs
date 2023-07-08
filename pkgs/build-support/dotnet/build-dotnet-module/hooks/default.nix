@@ -10,12 +10,12 @@
 , dotnet-sdk
 , dotnet-test-sdk
 , disabledTests
-, nuget-source
 , dotnet-runtime
 , nuget
 , runtimeDeps
 , buildType
 , runtimeId
+, lndir
 }:
 assert (builtins.isString runtimeId);
 
@@ -26,9 +26,8 @@ in
   dotnetConfigureHook = callPackage ({ }:
     makeSetupHook {
       name = "dotnet-configure-hook";
-      propagatedBuildInputs = [ dotnet-sdk nuget-source ];
+      propagatedBuildInputs = [ dotnet-sdk lndir ];
       substitutions = {
-        nugetSource = nuget-source;
         dynamicLinker = "${stdenv.cc}/nix-support/dynamic-linker";
         libPath = lib.makeLibraryPath [
           stdenv.cc.cc.lib

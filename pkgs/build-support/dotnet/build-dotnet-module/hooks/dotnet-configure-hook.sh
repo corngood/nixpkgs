@@ -1,8 +1,12 @@
-declare -a projectFile testProjectFile
+declare -a projectFile testProjectFile packageDirs
 
 addNugetFallbackPath() {
     local path="$1/share/nuget/packages"
-    [[ ! -e "$path" ]] || addToSearchPathWithCustomDelimiter \; NUGET_FALLBACK_PACKAGES "$path"
+    if [[ -e "$path" ]]
+    then
+        packageDirs+=("$path")
+        addToSearchPathWithCustomDelimiter \; NUGET_FALLBACK_PACKAGES "$path"
+    fi
 }
 
 addEnvHooks "$targetOffset" addNugetFallbackPath
@@ -22,35 +26,25 @@ dotnetConfigureHook() {
 
     dotnetRestore() {
         local -r project="${1-}"
-        env dotnet restore ${project-} \
+        dotnet restore ${project-} \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
             --runtime "@runtimeId@" \
-            --source "@nugetSource@/lib" \
             ${parallelFlag-} \
             ${dotnetRestoreFlags[@]} \
-            ${dotnetFlags[@]}
+            ${dotnetFlags[@]} \
+            -v:d
     }
 
-    # Generate a NuGet.config file to make sure everything,
-    # including things like <Sdk /> dependencies, is restored from the proper source
-cat <<EOF > "./NuGet.config"
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <clear />
-    <add key="nugetSource" value="@nugetSource@/lib" />
-  </packageSources>
-</configuration>
-EOF
+    # dotnet tool restore doesn't seem to understand NUGET_FALLBACK_PACKAGES
+    local -r all_packages="$HOME/.nuget/all_packages"
+    mkdir -p "$all_packages"
+    for p in "${packageDirs[@]}"
+    do
+        lndir -silent $p "$all_packages"
+    done
 
-    # Patch paket.dependencies and paket.lock (if found) to use the proper source. This ensures
-    # paket restore works correctly
-    # We use + instead of / in sed to avoid problems with slashes
-    find -name paket.dependencies -exec sed -i 's+source .*+source @nugetSource@/lib+g' {} \;
-    find -name paket.lock -exec sed -i 's+remote:.*+remote: @nugetSource@/lib+g' {} \;
-
-    env dotnet tool restore --add-source "@nugetSource@/lib"
+    NUGET_PACKAGES="$all_packages" dotnet tool restore
 
     (( "${#projectFile[@]}" == 0 )) && dotnetRestore
 
@@ -58,26 +52,26 @@ EOF
         dotnetRestore "$project"
     done
 
-    echo "Fixing up native binaries..."
-    # Find all native binaries and nuget libraries, and fix them up,
-    # by setting the proper interpreter and rpath to some commonly used libraries
-    for binary in $(find "$HOME/.nuget/packages/" -type f -executable); do
-        if patchelf --print-interpreter "$binary" >/dev/null 2>/dev/null; then
-            echo "Found binary: $binary, fixing it up..."
-            patchelf --set-interpreter "$(cat "@dynamicLinker@")" "$binary"
+    # echo "Fixing up native binaries..."
+    # # Find all native binaries and nuget libraries, and fix them up,
+    # # by setting the proper interpreter and rpath to some commonly used libraries
+    # for binary in $(find "$HOME/.nuget/packages/" -type f -executable); do
+    #     if patchelf --print-interpreter "$binary" >/dev/null 2>/dev/null; then
+    #         echo "Found binary: $binary, fixing it up..."
+    #         patchelf --set-interpreter "$(cat "@dynamicLinker@")" "$binary"
 
-            # This makes sure that if the binary requires some specific runtime dependencies, it can find it.
-            # This fixes dotnet-built binaries like crossgen2
-            patchelf \
-                --add-needed libicui18n.so \
-                --add-needed libicuuc.so \
-                --add-needed libz.so \
-                --add-needed libssl.so \
-                "$binary"
+    #         # This makes sure that if the binary requires some specific runtime dependencies, it can find it.
+    #         # This fixes dotnet-built binaries like crossgen2
+    #         patchelf \
+    #             --add-needed libicui18n.so \
+    #             --add-needed libicuuc.so \
+    #             --add-needed libz.so \
+    #             --add-needed libssl.so \
+    #             "$binary"
 
-            patchelf --set-rpath "@libPath@" "$binary"
-        fi
-    done
+    #         patchelf --set-rpath "@libPath@" "$binary"
+    #     fi
+    # done
 
     runHook postConfigure
 
