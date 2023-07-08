@@ -24,6 +24,8 @@ dotnetConfigureHook() {
         local -r parallelFlag="--disable-parallel"
     fi
 
+    source=$(mktemp -d)
+
     dotnetRestore() {
         local -r project="${1-}"
         dotnet restore ${project-} \
@@ -33,6 +35,7 @@ dotnetConfigureHook() {
             ${parallelFlag-} \
             ${dotnetRestoreFlags[@]} \
             ${dotnetFlags[@]} \
+            --source "$source" \
             -v:d
     }
 
