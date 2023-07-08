@@ -36,6 +36,11 @@ buildPythonPackage {
       --replace 'dynamic = ["version"]' 'version = "${version}"'
   '';
 
+  buildInputs = [
+    dotnet-build.sdkPackages
+    dotnet-build._nugetDeps
+  ];
+
   nativeBuildInputs = [
     setuptools
     dotnet-sdk

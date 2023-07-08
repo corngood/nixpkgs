@@ -1,15 +1,14 @@
 declare -a projectFile testProjectFile packageDirs
 
-addNugetFallbackPath() {
+addNugetPackageDir() {
     local path="$1/share/nuget/packages"
     if [[ -e "$path" ]]
     then
         packageDirs+=("$path")
-        addToSearchPathWithCustomDelimiter \; NUGET_FALLBACK_PACKAGES "$path"
     fi
 }
 
-addEnvHooks "$targetOffset" addNugetFallbackPath
+addEnvHooks "$targetOffset" addNugetPackageDir
 
 # Inherit arguments from derivation
 dotnetFlags=( ${dotnetFlags[@]-} )
@@ -35,8 +34,7 @@ dotnetConfigureHook() {
             ${parallelFlag-} \
             ${dotnetRestoreFlags[@]} \
             ${dotnetFlags[@]} \
-            --source "$source" \
-            -v:d
+            --source "$source"
     }
 
     # dotnet tool restore doesn't seem to understand NUGET_FALLBACK_PACKAGES

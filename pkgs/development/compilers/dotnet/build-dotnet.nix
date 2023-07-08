@@ -112,15 +112,31 @@ stdenv.mkDerivation (finalAttrs: rec {
       $out/packs/Microsoft.NETCore.App.Host.linux-x64/*/runtimes/linux-x64/native/singlefilehost
   '';
 
-  setupHook = writeText "dotnet-setup-hook" ''
-    if [ ! -w "$HOME" ]; then
-      export HOME=$(mktemp -d) # Dotnet expects a writable home directory for its configuration files
-    fi
-
+  setupHook = writeText "dotnet-setup-hook" (''
     export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 # Dont try to expand NuGetFallbackFolder to disk
     export DOTNET_NOLOGO=1 # Disables the welcome message
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
-  '';
+  '' + lib.optionalString (type == "sdk") ''
+    if [ ! -w "$HOME" ]; then
+      export HOME=$(mktemp -d) # Dotnet expects a writable home directory for its configuration files
+      # TODO: I'm not sure we want to do this unconditionally, but this may not
+      # happen if some other hook makes $HOME writable
+      @out@/bin/dotnet nuget disable source nuget.org
+    fi
+
+    addNugetFallbackPath() {
+      local path="$1/share/nuget/packages"
+      if [[ -e "$path" ]]
+      then
+        local prev=''${NUGET_FALLBACK_PACKAGES:-}
+        addToSearchPathWithCustomDelimiter \; NUGET_FALLBACK_PACKAGES "$path"
+        [[ "$prev" == "$NUGET_FALLBACK_PACKAGES" ]] || \
+          @out@/bin/dotnet nuget add source "$path"
+      fi
+    }
+
+    addEnvHooks "$targetOffset" addNugetFallbackPath
+  '');
 
   passthru = {
     inherit icu;
