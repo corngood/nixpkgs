@@ -47,7 +47,9 @@ dotnetConfigureHook() {
         lndir -silent $p "$all_packages"
     done
 
-    NUGET_PACKAGES="$all_packages" dotnet tool restore
+    export NUGET_PACKAGES="$all_packages"
+
+    dotnet tool restore
 
     (( "${#projectFile[@]}" == 0 )) && dotnetRestore
 
