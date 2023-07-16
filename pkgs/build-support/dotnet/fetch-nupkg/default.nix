@@ -35,22 +35,22 @@
     dotnetPackages.Nuget
   ];
 
-  # buildCommand = ''
-  #     HOME=$(pwd)/fake-home
-  #     nuget add "$src" -source "$out"/share/nuget/packages -expand
+  buildCommand = ''
+      HOME=$(pwd)/fake-home
+      nuget add "$src" -source "$out"/share/nuget/packages -expand
+  '';
+
+  # unpackPhase = ''
+  #   unzip $src
+  #   chmod -R +rw .
   # '';
 
-  unpackPhase = ''
-    unzip $src
-    chmod -R +rw .
-  '';
-
-  installPhase = ''
-    dir=$out/share/nuget/packages/${lib.toLower pname}/${lib.toLower version}
-    mkdir -p $dir
-    cp -r . $dir
-    echo {} > "$dir"/.nupkg.metadata
-  '';
+  # installPhase = ''
+  #   dir=$out/share/nuget/packages/${lib.toLower pname}/${lib.toLower version}
+  #   mkdir -p $dir
+  #   cp -r . $dir
+  #   echo {} > "$dir"/.nupkg.metadata
+  # '';
 
   autoPatchelfIgnoreMissingDeps = [ "*" ];
 }
