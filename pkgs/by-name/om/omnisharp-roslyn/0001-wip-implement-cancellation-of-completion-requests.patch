@@ -1,0 +1,117 @@
+From 79ba4a01735660fa5690a90a4c3acbaa49905355 Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Mon, 19 Jun 2023 22:28:23 -0300
+Subject: [PATCH] wip: implement cancellation of completion requests
+
+---
+ src/OmniSharp.Abstractions/Mef/IRequestHandler`2.cs  |  8 +++++++-
+ .../Handlers/OmniSharpCompletionHandler.cs           |  8 ++++----
+ .../Services/Completion/CompletionService.cs         | 12 ++++++------
+ 3 files changed, 17 insertions(+), 11 deletions(-)
+
+diff --git a/src/OmniSharp.Abstractions/Mef/IRequestHandler`2.cs b/src/OmniSharp.Abstractions/Mef/IRequestHandler`2.cs
+index 7a6e543a..458ea182 100644
+--- a/src/OmniSharp.Abstractions/Mef/IRequestHandler`2.cs
++++ b/src/OmniSharp.Abstractions/Mef/IRequestHandler`2.cs
+@@ -1,4 +1,5 @@
+-﻿using System.Threading.Tasks;
++﻿using System.Threading;
++using System.Threading.Tasks;
+ 
+ namespace OmniSharp.Mef
+ {
+@@ -6,4 +7,9 @@ public interface IRequestHandler<TRequest, TResponse> : IRequestHandler
+     {
+         Task<TResponse> Handle(TRequest request);
+     }
++
++    public interface IRequestHandlerCancel<TRequest, TResponse> : IRequestHandler
++    {
++        Task<TResponse> Handle(TRequest request, CancellationToken cancel);
++    }
+ }
+diff --git a/src/OmniSharp.LanguageServerProtocol/Handlers/OmniSharpCompletionHandler.cs b/src/OmniSharp.LanguageServerProtocol/Handlers/OmniSharpCompletionHandler.cs
+index 4ed204d9..b6dd6982 100644
+--- a/src/OmniSharp.LanguageServerProtocol/Handlers/OmniSharpCompletionHandler.cs
++++ b/src/OmniSharp.LanguageServerProtocol/Handlers/OmniSharpCompletionHandler.cs
+@@ -33,7 +33,7 @@ class OmniSharpCompletionHandler : CompletionHandlerBase
+         public static IEnumerable<IJsonRpcHandler> Enumerate(RequestHandlers handlers)
+         {
+             foreach (var (selector, completionHandler, completionResolveHandler) in handlers
+-                .OfType<Mef.IRequestHandler<CompletionRequest, CompletionResponse>,
++                .OfType<Mef.IRequestHandlerCancel<CompletionRequest, CompletionResponse>,
+                         Mef.IRequestHandler<CompletionResolveRequest, CompletionResolveResponse>>())
+             {
+                 if (completionHandler != null && completionResolveHandler != null)
+@@ -41,12 +41,12 @@ public static IEnumerable<IJsonRpcHandler> Enumerate(RequestHandlers handlers)
+             }
+         }
+ 
+-        private readonly Mef.IRequestHandler<CompletionRequest, CompletionResponse> _completionHandler;
++        private readonly Mef.IRequestHandlerCancel<CompletionRequest, CompletionResponse> _completionHandler;
+         private readonly Mef.IRequestHandler<CompletionResolveRequest, CompletionResolveResponse> _completionResolveHandler;
+         private readonly TextDocumentSelector _documentSelector;
+ 
+         public OmniSharpCompletionHandler(
+-            Mef.IRequestHandler<CompletionRequest, CompletionResponse> completionHandler,
++            Mef.IRequestHandlerCancel<CompletionRequest, CompletionResponse> completionHandler,
+             Mef.IRequestHandler<CompletionResolveRequest, CompletionResolveResponse> completionResolveHandler,
+             TextDocumentSelector documentSelector)
+         {
+@@ -66,7 +66,7 @@ public override async Task<CompletionList> Handle(CompletionParams request, Canc
+                 TriggerCharacter = request.Context?.TriggerCharacter is { Length: > 0 } str ? str[0] : null
+             };
+ 
+-            var omnisharpResponse = await _completionHandler.Handle(omnisharpRequest);
++            var omnisharpResponse = await _completionHandler.Handle(omnisharpRequest, token);
+ 
+             return new CompletionList(omnisharpResponse.Items.Select(ToLSPCompletionItem), isIncomplete: omnisharpResponse.IsIncomplete);
+         }
+diff --git a/src/OmniSharp.Roslyn.CSharp/Services/Completion/CompletionService.cs b/src/OmniSharp.Roslyn.CSharp/Services/Completion/CompletionService.cs
+index e4b1e323..68daeda5 100644
+--- a/src/OmniSharp.Roslyn.CSharp/Services/Completion/CompletionService.cs
++++ b/src/OmniSharp.Roslyn.CSharp/Services/Completion/CompletionService.cs
+@@ -32,7 +32,7 @@ namespace OmniSharp.Roslyn.CSharp.Services.Completion
+     [OmniSharpHandler(OmniSharpEndpoints.CompletionResolve, LanguageNames.CSharp)]
+     [OmniSharpHandler(OmniSharpEndpoints.CompletionAfterInsert, LanguageNames.CSharp)]
+     public class CompletionService :
+-        IRequestHandler<CompletionRequest, CompletionResponse>,
++        IRequestHandlerCancel<CompletionRequest, CompletionResponse>,
+         IRequestHandler<CompletionResolveRequest, CompletionResolveResponse>,
+         IRequestHandler<CompletionAfterInsertRequest, CompletionAfterInsertResponse>
+     {
+@@ -52,12 +52,12 @@ public CompletionService(OmniSharpWorkspace workspace, FormattingOptions formatt
+             _omniSharpOptions = omniSharpOptions;
+         }
+ 
+-        public Task<CompletionResponse> Handle(CompletionRequest request)
++        public Task<CompletionResponse> Handle(CompletionRequest request, CancellationToken cancel)
+         {
+-            return Handle(request, forceExpandedCompletionIndexCreation: false);
++            return Handle(request, cancel, forceExpandedCompletionIndexCreation: false);
+         }
+ 
+-        public async Task<CompletionResponse> Handle(CompletionRequest request, bool forceExpandedCompletionIndexCreation)
++        public async Task<CompletionResponse> Handle(CompletionRequest request, CancellationToken cancel, bool forceExpandedCompletionIndexCreation)
+         {
+             _logger.LogTrace("Completions requested");
+ 
+@@ -86,13 +86,13 @@ public async Task<CompletionResponse> Handle(CompletionRequest request, bool for
+                 ForceExpandedCompletionIndexCreation: forceExpandedCompletionIndexCreation);
+ 
+             if (request.CompletionTrigger == CompletionTriggerKind.TriggerCharacter &&
+-                !await OmniSharpCompletionService.ShouldTriggerCompletionAsync(completionService, document, position, trigger, roles: null, options, CancellationToken.None))
++                !await OmniSharpCompletionService.ShouldTriggerCompletionAsync(completionService, document, position, trigger, roles: null, options, cancel))
+             {
+                 _logger.LogTrace("Should not insert completions here.");
+                 return new CompletionResponse { Items = ImmutableArray<CompletionItem>.Empty };
+             }
+ 
+-            var completions = await OmniSharpCompletionService.GetCompletionsAsync(completionService, document, position, trigger, roles: null, options, CancellationToken.None);
++            var completions = await OmniSharpCompletionService.GetCompletionsAsync(completionService, document, position, trigger, roles: null, options, cancel);
+             _logger.LogTrace("Found {0} completions for {1}:{2},{3}",
+                              completions.ItemsList.Count,
+                              request.FileName,
+-- 
+2.42.0
+
