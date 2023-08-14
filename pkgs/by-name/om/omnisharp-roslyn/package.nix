@@ -43,6 +43,10 @@ let
       "-property:RollForward=LatestMajor"
     ];
 
+    patches = [
+      ./0001-wip-implement-cancellation-of-completion-requests.patch
+    ];
+
     postPatch = ''
       # Relax the version requirement
       rm global.json
