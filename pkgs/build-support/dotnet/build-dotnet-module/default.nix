@@ -208,6 +208,7 @@ stdenvNoCC.mkDerivation (args // {
       in
       writeShellScript "fetch-${pname}-deps" ''
         set -euo pipefail
+        shopt -s nullglob
 
         export PATH="${lib.makeBinPath [ coreutils runtimeShellPackage dotnet-sdk (nuget-to-nix.override { inherit dotnet-sdk; }) ]}"
 
@@ -288,7 +289,6 @@ stdenvNoCC.mkDerivation (args // {
         echo "Restoring project..."
 
         ${dotnet-sdk}/bin/dotnet tool restore
-        cp -r $HOME/.nuget/packages/* $tmp/nuget_pkgs || true
 
         for rid in "${lib.concatStringsSep "\" \"" runtimeIds}"; do
             (( ''${#projectFiles[@]} == 0 )) && dotnetRestore "" "$rid"
@@ -297,8 +297,11 @@ stdenvNoCC.mkDerivation (args // {
                 dotnetRestore "$project" "$rid"
             done
         done
-        # Second copy, makes sure packages restored by ie. paket are included
-        cp -r $HOME/.nuget/packages/* $tmp/nuget_pkgs || true
+        # makes sure packages restored by ie. paket are included
+        for x in $HOME/.nuget/packages/*
+        do
+          cp -r "$x" $tmp/nuget_pkgs
+        done
 
         echo "Succesfully restored project"
 
