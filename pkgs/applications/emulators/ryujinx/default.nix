@@ -1,6 +1,6 @@
 { lib
 , buildDotnetModule
-, dotnetCorePackages
+, dotnet8Packages
 , fetchFromGitHub
 , wrapGAppsHook
 , libX11
@@ -37,8 +37,8 @@ buildDotnetModule rec {
     sha256 = "15yai8zwwy2537ng6iqyg2jhv0q2w1c9rahkdkbvgkwiycsl7rjy";
   };
 
-  dotnet-sdk = dotnetCorePackages.sdk_8_0;
-  dotnet-runtime = dotnetCorePackages.runtime_8_0;
+  dotnet-sdk = dotnet8Packages.sdk;
+  dotnet-runtime = dotnet8Packages.runtime;
 
   nugetDeps = ./deps.nix;
 

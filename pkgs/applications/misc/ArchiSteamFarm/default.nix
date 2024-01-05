@@ -1,7 +1,7 @@
 { lib
 , buildDotnetModule
 , fetchFromGitHub
-, dotnetCorePackages
+, dotnet8Packages
 , libkrb5
 , zlib
 , openssl
@@ -20,8 +20,8 @@ buildDotnetModule rec {
     hash = "sha256-VlJiTCdoH6hlVtQgECIlbsQvg3S58B5IIy1zRxh1eOg=";
   };
 
-  dotnet-runtime = dotnetCorePackages.aspnetcore_8_0;
-  dotnet-sdk = dotnetCorePackages.sdk_8_0;
+  dotnet-runtime = dotnet8Packages.aspnetcore;
+  dotnet-sdk = dotnet8Packages.sdk;
 
   nugetDeps = ./deps.nix;
 
@@ -56,6 +56,7 @@ buildDotnetModule rec {
     buildPlugin() {
       echo "Publishing plugin $1"
       dotnet publish $1 -p:ContinuousIntegrationBuild=true -p:Deterministic=true \
+        -p:RuntimeIdentifiers=${dotnet-sdk.targetRid} \
         --output $out/lib/ArchiSteamFarm/plugins/$1 --configuration Release \
         -p:TargetLatestRuntimePatch=false -p:UseAppHost=false
      }
