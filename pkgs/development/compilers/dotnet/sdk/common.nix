@@ -1,19 +1,16 @@
-# TODO: switch to stdenvNoCC
-{ stdenv
+{ stdenvNoCC
 , lib
 , writeText
 , testers
 , runCommand
-}: type: args: stdenv.mkDerivation (finalAttrs: args // {
+}: type: args: stdenvNoCC.mkDerivation (finalAttrs: args // {
   doInstallCheck = true;
 
-  # TODO: this should probably be postInstallCheck, see TODO in build-dotnet.nix
-  # TODO: send output to /dev/null
-  installCheckPhase = args.installCheckPhase or "" + ''
-    $out/bin/dotnet --info
-  '';
+  postInstallCheck = ''
+    $out/bin/dotnet --info >/dev/null
+  '' + args.postInstallCheck or "";
 
-  # TODO: move this to sdk section?
+} // lib.optionalAttrs (type == "sdk") {
   setupHook = writeText "dotnet-setup-hook" (''
     if [ ! -w "$HOME" ]; then
       export HOME=$(mktemp -d) # Dotnet expects a writable home directory for its configuration files
@@ -25,7 +22,6 @@
     export DOTNET_SKIP_WORKLOAD_INTEGRITY_CHECK=1 # Skip integrity check on first run, which fails due to read-only directory
   '' + args.setupHook or "");
 
-} // lib.optionalAttrs (type == "sdk") {
   passthru = {
     tests = {
       version = testers.testVersion {

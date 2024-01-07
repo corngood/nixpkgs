@@ -105,8 +105,7 @@ mkCommon type rec {
       $out/packs/Microsoft.NETCore.App.Host.linux-x64/*/runtimes/linux-x64/native/singlefilehost
   '';
 
-  # TODO: move this to preInstallCheck when common.nix is changed
-  installCheckPhase = setupHook;
+  preInstallCheck = setupHook;
 
   # if this is done with wrapProgram, you get:
   # Error: cannot execute dotnet when renamed to .dotnet-wrapped.
