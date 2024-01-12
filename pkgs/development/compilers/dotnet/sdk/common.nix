@@ -32,7 +32,7 @@
         nativeBuildInputs = [ finalAttrs.finalPackage ];
       } ''
         HOME=$(pwd)/fake-home
-        dotnet new console --no-restore
+        dotnet new console --no-restore -n test -o .
         dotnet restore --source "$(mktemp -d)"
         dotnet build --no-restore
         output="$(dotnet run --no-build)"
