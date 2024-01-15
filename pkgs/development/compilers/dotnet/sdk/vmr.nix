@@ -22,6 +22,7 @@
 , openssl
 , getconf
 , makeWrapper
+, pkgsBuildHost
 
 , dotnetSdk
 , releaseManifest
@@ -251,8 +252,9 @@ in clangStdenv.mkDerivation rec {
   passthru = {
     inherit manifestJson buildRid targetRid;
     icu = _icu;
-    # TODO
-    # updateScript = ./update.sh;
+    updateScript = pkgsBuildHost.callPackage ./update.nix {
+      inherit hash releaseManifest;
+    };
   };
 
   meta = with lib; {

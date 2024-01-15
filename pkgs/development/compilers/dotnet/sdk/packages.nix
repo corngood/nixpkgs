@@ -36,7 +36,7 @@ in {
     '';
 
     passthru = {
-      inherit (vmr) icu targetRid;
+      inherit (vmr) icu targetRid updateScript;
       fetch-deps = vmr.fetch-deps;
     };
 

@@ -64,7 +64,7 @@ let
 
     passthru = old.passthru or {} // { fetch-deps =
       let
-        inherit (vmr) targetRid;
+        inherit (vmr) targetRid updateScript;
         otherRids =
           lib.remove targetRid (
             map (system: dotnetCorePackages.systemToDotnetRid system)
