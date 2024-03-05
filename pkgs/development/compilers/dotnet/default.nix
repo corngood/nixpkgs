@@ -129,9 +129,14 @@ in
     buildPhase = ''
       runHook preBuild
 
-      ./build.sh --build
+      ./build.sh --build --configuration Release
 
       runHook postBuild
+    '';
+
+    installPhase = ''
+      mkdir $out
+      cp artifacts/Release/Shipping/* $out
     '';
 
     passthru = {
