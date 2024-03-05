@@ -44,16 +44,17 @@ in
     nix,
     jq,
     nuget-to-nix,
-    cacert
+    cacert,
+    mkNugetDeps
   }: stdenvNoCC.mkDerivation (finalAttrs:
   let
-    depsFile = ./${finalAttrs.name}/deps.nix;
+    sdk = dotnet_8_0_102.sdk_8_0;
   in rec {
     name = "installer";
     version = "8.0.201";
 
     preHook = ''
-      export DOTNET_INSTALL_DIR=${dotnet_8_0_102.sdk_8_0}
+      export DOTNET_INSTALL_DIR=${sdk}
     '';
 
     src = fetchFromGitHub {
@@ -63,6 +64,11 @@ in
       hash = "sha256-OHnNokpoy91DWBKKWpMoFKMHb7OwW/t0goqXYaZUSoU=";
     };
 
+    nugetDeps = mkNugetDeps {
+      name = "${name}-deps";
+      sourceFile = ./${name}/deps.nix;
+    };
+
     nativeBuildInputs = [
       jq
       nuget-to-nix
@@ -70,7 +76,7 @@ in
     ];
 
     buildInputs = [
-      dotnet_8_0_102.sdk_8_0
+      sdk
     ];
 
     postPatch = ''
@@ -84,10 +90,19 @@ in
       substituteInPlace \
         run-build.sh \
         --replace-fail '--build --restore' ""
+
+      patchShebangs $(find -name \*.sh -type f -executable)
     '';
 
     configurePhase = ''
       runHook preConfigure
+
+      rm NuGet.config
+      dotnet new nugetconfig
+      dotnet nuget disable source nuget
+      dotnet nuget add source "${sdk.packages}"
+      dotnet nuget add source "$nugetDeps"
+
       ./build.sh --restore
       runHook postConfigure
     '';
@@ -112,7 +127,7 @@ in
             phases="''${prePhases[*]:-} unpackPhase patchPhase ''${preConfigurePhases[*]:-} configurePhase" \
               genericBuild
 
-            nuget-to-nix $NUGET_PACKAGES > "${toString depsFile}"
+            nuget-to-nix $NUGET_PACKAGES > "${toString nugetDeps.sourceFile}"
 
             EOF
           '';
