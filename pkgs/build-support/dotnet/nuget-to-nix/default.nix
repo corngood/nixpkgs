@@ -10,6 +10,7 @@
 , gnugrep
 , gawk
 , dotnet-sdk
+, cacert
 }:
 
 runCommandLocal "nuget-to-nix" {
@@ -27,6 +28,7 @@ runCommandLocal "nuget-to-nix" {
       gawk
       dotnet-sdk
     ];
+    cacert = cacert;
   };
 
   meta.description = "Convert a nuget packages directory to a lockfile for buildDotnetModule";

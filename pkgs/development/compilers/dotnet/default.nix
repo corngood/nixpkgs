@@ -33,9 +33,91 @@ let
   systemToDotnetRid = system: runtimeIdentifierMap.${system} or (throw "unsupported platform ${system}");
 in
 {
-  inherit systemToDotnetRid;
+  inherit systemToDotnetRid dotnet_8_0_102;
 
   combinePackages = attrs: callPackage (import ./combine-packages.nix attrs) {};
+
+  installer = callPackage ({
+    stdenvNoCC,
+    fetchFromGitHub,
+    writeShellScript,
+    nix,
+    jq,
+    nuget-to-nix,
+    cacert
+  }: stdenvNoCC.mkDerivation (finalAttrs:
+  let
+    depsFile = ./${finalAttrs.name}/deps.nix;
+  in rec {
+    name = "installer";
+    version = "8.0.201";
+
+    preHook = ''
+      export DOTNET_INSTALL_DIR=${dotnet_8_0_102.sdk_8_0}
+    '';
+
+    src = fetchFromGitHub {
+      owner = "dotnet";
+      repo = name;
+      rev = "v${version}";
+      hash = "sha256-OHnNokpoy91DWBKKWpMoFKMHb7OwW/t0goqXYaZUSoU=";
+    };
+
+    nativeBuildInputs = [
+      jq
+      nuget-to-nix
+      cacert
+    ];
+
+    buildInputs = [
+      dotnet_8_0_102.sdk_8_0
+    ];
+
+    postPatch = ''
+      # set the sdk version in global.json to match the bootstrap sdk
+      jq '.tools.dotnet=$dotnet | del(.tools.runtimes)' \
+        global.json \
+        --arg dotnet "$(dotnet --version)" \
+        > global.json~
+      mv global.json{~,}
+
+      substituteInPlace \
+        run-build.sh \
+        --replace-fail '--build --restore' ""
+    '';
+
+    configurePhase = ''
+      runHook preConfigure
+      ./build.sh --restore
+      runHook postConfigure
+    '';
+
+    passthru = {
+      fetch-deps =
+        let
+          drv = builtins.unsafeDiscardOutputDependency finalAttrs.finalPackage.drvPath;
+        in
+          writeShellScript "fetch-dotnet-sdk-deps" ''
+            ${nix}/bin/nix-shell --pure --run 'source /dev/stdin' "${drv}" << 'EOF'
+            set -e
+
+            tmp=$(mktemp -d -p $PWD)
+            # trap 'rm -fr "$tmp"' EXIT
+
+            HOME=$tmp/.home
+            cd "$tmp"
+
+            export NUGET_PACKAGES=$tmp/.nupkgs
+
+            phases="''${prePhases[*]:-} unpackPhase patchPhase ''${preConfigurePhases[*]:-} configurePhase" \
+              genericBuild
+
+            nuget-to-nix $NUGET_PACKAGES > "${toString depsFile}"
+
+            EOF
+          '';
+      };
+  })) {};
 
   dotnet_8 = recurseIntoAttrs (callPackage ./8 { bootstrapSdk = dotnet_8_0_102.sdk_8_0; });
 } // lib.optionalAttrs config.allowAliases {
