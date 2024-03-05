@@ -45,7 +45,10 @@ in
     jq,
     nuget-to-nix,
     cacert,
-    mkNugetDeps
+    mkNugetDeps,
+    git,
+    glibcLocales,
+    xmlstarlet
   }: stdenvNoCC.mkDerivation (finalAttrs:
   let
     sdk = dotnet_8_0_102.sdk_8_0;
@@ -53,9 +56,12 @@ in
     name = "installer";
     version = "8.0.201";
 
-    preHook = ''
-      export DOTNET_INSTALL_DIR=${sdk}
-    '';
+    DOTNET_INSTALL_DIR = sdk;
+
+    # https://github.com/NixOS/nixpkgs/issues/38991
+    # bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+    LOCALE_ARCHIVE = lib.optionalString stdenvNoCC.isLinux
+      "${glibcLocales}/lib/locale/locale-archive";
 
     src = fetchFromGitHub {
       owner = "dotnet";
@@ -64,7 +70,7 @@ in
       hash = "sha256-OHnNokpoy91DWBKKWpMoFKMHb7OwW/t0goqXYaZUSoU=";
     };
 
-    nugetDeps = mkNugetDeps {
+    depsSource = mkNugetDeps {
       name = "${name}-deps";
       sourceFile = ./${name}/deps.nix;
     };
@@ -73,6 +79,9 @@ in
       jq
       nuget-to-nix
       cacert
+      git
+      (callPackage ./patch-nupkgs.nix {})
+      xmlstarlet
     ];
 
     buildInputs = [
@@ -92,25 +101,46 @@ in
         --replace-fail '--build --restore' ""
 
       patchShebangs $(find -name \*.sh -type f -executable)
+
+      xmlstarlet ed \
+        --inplace \
+        -s //Project -t elem -n Import \
+        -i \$prev -t attr -n Project -v "${./patch-restored-packages.proj}" \
+        Directory.Build.targets
     '';
 
     configurePhase = ''
       runHook preConfigure
 
-      rm NuGet.config
-      dotnet new nugetconfig
-      dotnet nuget disable source nuget
-      dotnet nuget add source "${sdk.packages}"
-      dotnet nuget add source "$nugetDeps"
+      if [[ -v depsSource ]]; then
+        rm NuGet.config
+        dotnet new nugetconfig
+        dotnet nuget disable source nuget
+        [[ ! -v depsSource ]] || dotnet nuget add source -n deps "$depsSource"
+      fi
+
+      dotnet nuget add source -n sdk "${sdk.packages}"
 
       ./build.sh --restore
+
       runHook postConfigure
+    '';
+
+    buildPhase = ''
+      runHook preBuild
+
+      ./build.sh --build
+
+      runHook postBuild
     '';
 
     passthru = {
       fetch-deps =
         let
-          drv = builtins.unsafeDiscardOutputDependency finalAttrs.finalPackage.drvPath;
+          pkg = finalAttrs.finalPackage.overrideAttrs (old: {
+            depsSource = null;
+          });
+          drv = builtins.unsafeDiscardOutputDependency pkg.drvPath;
         in
           writeShellScript "fetch-dotnet-sdk-deps" ''
             ${nix}/bin/nix-shell --pure --run 'source /dev/stdin' "${drv}" << 'EOF'
@@ -122,12 +152,11 @@ in
             HOME=$tmp/.home
             cd "$tmp"
 
-            export NUGET_PACKAGES=$tmp/.nupkgs
-
-            phases="''${prePhases[*]:-} unpackPhase patchPhase ''${preConfigurePhases[*]:-} configurePhase" \
+            # TODO: make buildPhase optional
+            phases="''${prePhases[*]:-} unpackPhase patchPhase ''${preConfigurePhases[*]:-} configurePhase buildPhase" \
               genericBuild
 
-            nuget-to-nix $NUGET_PACKAGES > "${toString nugetDeps.sourceFile}"
+            nuget-to-nix .nuget/packages > "${toString depsSource.sourceFile}"
 
             EOF
           '';
