@@ -50,7 +50,8 @@ in
     glibcLocales,
     xmlstarlet,
     fetchurl,
-    linkFarm
+    linkFarm,
+    fetchpatch
   }: stdenvNoCC.mkDerivation (finalAttrs:
   let
     sdk = dotnet_8_0_102.sdk_8_0;
@@ -93,8 +94,17 @@ in
       owner = "dotnet";
       repo = name;
       rev = "v${version}";
-      hash = "sha256-OHnNokpoy91DWBKKWpMoFKMHb7OwW/t0goqXYaZUSoU=";
+      hash = "sha256-2fpsWrpSamwJrX4OOyO9Zdvqua1dP2J+W43JrQOG/t8=";
+      leaveDotGit = true; # needed for GetCommitHash target
     };
+
+    patches = [
+      (fetchpatch {
+        name = "ExtractArchiveToDirectory-open-.tar.gz-archives-read.patch";
+        url = "https://github.com/corngood/installer/commit/9d0b6891ed97a9514bbd06a66d801b1b78415e62.patch";
+        hash = "sha256-IqVY2IFt7S5e14IO98+Pmn/bdXmJUNtVDyLXmZuwcPQ=";
+      })
+    ];
 
     depsSource = mkNugetDeps {
       name = "${name}-deps";
@@ -162,7 +172,7 @@ in
 
     installPhase = ''
       mkdir $out
-      cp artifacts/Release/Shipping/* $out
+      cp artifacts/packages/Release/Shipping/* $out
     '';
 
     passthru = {
