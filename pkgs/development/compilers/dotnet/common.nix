@@ -1,12 +1,16 @@
 # TODO: switch to stdenvNoCC
 { stdenv
+, stdenvNoCC
 , lib
 , writeText
 , testers
 , runCommand
+, runCommandWith
 , expect
 , curl
 , installShellFiles
+, callPackage
+, zlib
 }: type: args: stdenv.mkDerivation (finalAttrs: args // {
   doInstallCheck = true;
 
@@ -43,16 +47,24 @@
       mkDotnetTest =
         {
           name,
+          stdenv ? stdenvNoCC,
           template,
           usePackageSource ? false,
           build,
+          buildInputs ? [],
           # TODO: use correct runtimes instead of sdk
           runtime ? finalAttrs.finalPackage,
           runInputs ? [],
           run ? null,
         }:
         let
-          built = runCommand "dotnet-test-${name}" { buildInputs = [ finalAttrs.finalPackage ]; } (''
+          built = runCommandWith  {
+            name = "dotnet-test-${name}";
+            inherit stdenv;
+            derivationArgs = {
+              buildInputs = [ finalAttrs.finalPackage ] ++ buildInputs;
+            };
+          } (''
             HOME=$PWD/.home
             dotnet new nugetconfig
             dotnet nuget disable source nuget
@@ -76,6 +88,8 @@
         # yes, older SDKs omit the comma
         [[ "$output" =~ Hello,?\ World! ]] && touch "$out"
       '';
+
+      patchNupkgs = callPackage ./patch-nupkgs.nix {};
 
     in {
       version = testers.testVersion ({
@@ -103,6 +117,27 @@
         template = "console";
         usePackageSource = true;
         build = "dotnet publish --use-current-runtime -p:PublishSingleFile=true -o $out";
+        runtime = null;
+        run = checkConsoleOutput "$src/test";
+      };
+
+      aot = mkDotnetTest {
+        name = "aot";
+        inherit stdenv;
+        template = "console";
+        usePackageSource = true;
+        buildInputs = [ patchNupkgs zlib ];
+        build = ''
+          dotnet restore -p:PublishAot=true
+          patch-nupkgs .home/.nuget/packages
+          dotnet publish -p:PublishAot=true -o $out
+          patchelf \
+            --add-needed libicui18n.so \
+            --add-needed libicuuc.so \
+            --add-needed libz.so \
+            --add-needed libssl.so \
+            $out/test
+        '';
         runtime = null;
         run = checkConsoleOutput "$src/test";
       };
