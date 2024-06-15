@@ -4,7 +4,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../library/Library.csproj" />
-        <PackageReference Include="ProjectReferencesTest.Library" Version="*" Condition=" '$(ContinuousIntegrationBuild)'=='true' " />
+        <ProjectReference Include="../library/Library.csproj" Condition=" '$(ContinuousIntegrationBuild)'!='true' "/>
+        <PackageReference Include="ProjectReferencesTest.Library" Version="1.0.0" Condition=" '$(ContinuousIntegrationBuild)'=='true' " />
     </ItemGroup>
 </Project>

@@ -11,6 +11,7 @@
 , installShellFiles
 , callPackage
 , zlib
+, lndir
 }: type: args: stdenv.mkDerivation (finalAttrs: args // {
   doInstallCheck = true;
 
@@ -30,7 +31,17 @@
     export DOTNET_NOLOGO=1 # Disables the welcome message
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
     export DOTNET_SKIP_WORKLOAD_INTEGRITY_CHECK=1 # Skip integrity check on first run, which fails due to read-only directory
-  '' + args.setupHook or "");
+  '' + (lib.optionalString (type == "sdk") ''
+    export NUGET_FALLBACK_PACKAGES
+    NUGET_FALLBACK_PACKAGES=$(mktemp -d)
+    trap "rm -rf $NUGET_FALLBACK_PACKAGES" EXIT
+    setupNugetFallbackPackages () {
+      if [[ -d "$1/share/nuget/packages" ]]; then
+        ${lndir}/bin/lndir -silent "$1/share/nuget/packages" "$NUGET_FALLBACK_PACKAGES"
+      fi
+    }
+    addEnvHooks "$targetOffset" setupNugetFallbackPackages
+  '') + args.setupHook or "");
 
   nativeBuildInputs = (args.nativeBuildInputs or []) ++ [ installShellFiles ];
 
@@ -64,7 +75,10 @@
             name = "dotnet-test-${name}";
             inherit stdenv;
             derivationArgs = {
-              buildInputs = [ sdk ] ++ buildInputs;
+              buildInputs =
+                [ sdk ]
+                ++ buildInputs
+                ++ lib.optional (usePackageSource) sdk.packages;
               # make sure ICU works in a sandbox
               propagatedSandboxProfile = toString sdk.__propagatedSandboxProfile;
             };
@@ -72,9 +86,6 @@
             HOME=$PWD/.home
             dotnet new nugetconfig
             dotnet nuget disable source nuget
-          '' + lib.optionalString usePackageSource ''
-            dotnet nuget add source ${sdk.packages}
-          '' + ''
             dotnet new ${template} -n test -o .
           '' + build);
         in
@@ -102,9 +113,6 @@
         # yes, older SDKs omit the comma
         [[ "$output" =~ Hello,?\ World! ]] && touch "$out"
       '';
-
-      patchNupkgs = callPackage ./patch-nupkgs.nix {};
-
     in {
       version = testers.testVersion ({
         package = finalAttrs.finalPackage;
@@ -180,10 +188,9 @@
         inherit stdenv;
         template = "console";
         usePackageSource = true;
-        buildInputs = [ patchNupkgs zlib ];
+        buildInputs = [ zlib ];
         build = ''
           dotnet restore -p:PublishAot=true
-          patch-nupkgs .home/.nuget/packages
           dotnet publish -p:PublishAot=true -o $out/bin
         '';
         runtime = null;

@@ -3,20 +3,6 @@ dotnetConfigureHook() {
 
     runHook preConfigure
 
-    if [[ -z ${nugetSource-} ]]; then
-        echo
-        echo "ERROR: no dependencies were specified"
-        echo 'Hint: set `nugetSource` if using these hooks individually. If this is happening with `buildDotnetModule`, please open an issue.'
-        echo
-
-        exit 1
-    fi
-
-    local nugetSourceSedQuoted="${nugetSource//[\/\\&$'\n']/\\&}"
-    local nugetSourceXMLQuoted="$nugetSource"
-    nugetSourceXMLQuoted="${nugetSource//&/\&amp;}"
-    nugetSourceXMLQuoted="${nugetSourceXMLQuoted//\"/\&quot;}"
-
     local -r hostRuntimeId=@runtimeId@
     local -r dynamicLinker=@dynamicLinker@
     local -r libPath=@libPath@
@@ -44,7 +30,6 @@ dotnetConfigureHook() {
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
             --runtime "$dotnetRuntimeId" \
-            --source "$nugetSource/lib" \
             ${parallelFlag-} \
             "${dotnetRestoreFlagsArray[@]}" \
             "${dotnetFlagsArray[@]}"
@@ -57,7 +42,6 @@ dotnetConfigureHook() {
 <configuration>
   <packageSources>
     <clear />
-    <add key="nugetSource" value="$nugetSourceXMLQuoted/lib" />
   </packageSources>
 </configuration>
 EOF
@@ -67,10 +51,10 @@ EOF
     # nugetSourceSedQuoted abomination below safely escapes nugetSource string
     # for use as a sed replacement string to avoid issues with slashes and other
     # special characters ('&', '\\' and '\n').
-    find -name paket.dependencies -exec sed -i "s/source .*/source $nugetSourceSedQuoted\/lib/g" {} \;
-    find -name paket.lock -exec sed -i "s/remote:.*/remote: $nugetSourceSedQuoted\/lib/g" {} \;
+    # find -name paket.dependencies -exec sed -i "s/source .*/source $nugetSourceSedQuoted\/lib/g" {} \;
+    # find -name paket.lock -exec sed -i "s/remote:.*/remote: $nugetSourceSedQuoted\/lib/g" {} \;
 
-    dotnet tool restore --add-source "$nugetSource/lib"
+    echo NUGET_FALLBACK_PACKAGES=$NUGET_FALLBACK_PACKAGES
 
     # dotnetGlobalTool is set in buildDotnetGlobalTool to patch dependencies but
     # avoid other project-specific logic. This is a hack, but the old behavior
@@ -94,23 +78,25 @@ EOF
     # Find all native binaries and nuget libraries, and fix them up,
     # by setting the proper interpreter and rpath to some commonly used libraries
     local binary
-    for binary in $(find "$HOME/.nuget/packages/" -type f -executable); do
-        if patchelf --print-interpreter "$binary" >/dev/null 2>/dev/null; then
-            echo "Found binary: $binary, fixing it up..."
-            patchelf --set-interpreter "$(cat "$dynamicLinker")" "$binary"
+    if [[ -d "$HOME/.nuget/packages" ]]; then
+        for binary in $(find "$HOME/.nuget/packages/" -type f -executable); do
+            if patchelf --print-interpreter "$binary" >/dev/null 2>/dev/null; then
+                echo "Found binary: $binary, fixing it up..."
+                patchelf --set-interpreter "$(cat "$dynamicLinker")" "$binary"
 
-            # This makes sure that if the binary requires some specific runtime dependencies, it can find it.
-            # This fixes dotnet-built binaries like crossgen2
-            patchelf \
-                --add-needed libicui18n.so \
-                --add-needed libicuuc.so \
-                --add-needed libz.so \
-                --add-needed libssl.so \
-                "$binary"
+                # This makes sure that if the binary requires some specific runtime dependencies, it can find it.
+                # This fixes dotnet-built binaries like crossgen2
+                patchelf \
+                    --add-needed libicui18n.so \
+                    --add-needed libicuuc.so \
+                    --add-needed libz.so \
+                    --add-needed libssl.so \
+                    "$binary"
 
-            patchelf --set-rpath "$libPath" "$binary"
-        fi
-    done
+                patchelf --set-rpath "$libPath" "$binary"
+            fi
+        done
+    fi
 
     runHook postConfigure
 

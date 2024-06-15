@@ -52,12 +52,16 @@ dotnetInstallHook() {
             "${dotnetFlagsArray[@]}"
     }
 
+    local pkgs
+    pkgs=$(mktemp -d)
+    trap "rm -rf $pkgs" EXIT
+
     dotnetPack() {
         local -r projectFile="${1-}"
         dotnet pack ${1+"$projectFile"} \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
-            --output "$out/share" \
+            --output $pkgs \
             --configuration "$dotnetBuildType" \
             --no-build \
             --runtime "$dotnetRuntimeId" \
@@ -84,6 +88,19 @@ dotnetInstallHook() {
             done
         fi
     fi
+
+    for nupkg in "$pkgs"/*.nupkg; do
+        local -r unpacked="$pkgs/.unpacked"
+        rm -rf "$unpacked"
+        unzip -qd "$unpacked" "$nupkg"
+        chmod -R +rw "$unpacked"
+        echo {} > "$unpacked"/.nupkg.metadata
+        local id version
+        id=$(xq -r '.package.metadata.id|ascii_downcase' "$unpacked"/*.nuspec)
+        version=$(xq -r '.package.metadata.version|ascii_downcase' "$unpacked"/*.nuspec)
+        mkdir -p $out/share/nuget/packages/"$id"
+        mv "$unpacked" $out/share/nuget/packages/"$id"/"$version"
+    done
 
     runHook postInstall
 
