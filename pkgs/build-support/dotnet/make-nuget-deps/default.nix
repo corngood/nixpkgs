@@ -35,7 +35,7 @@
         ];
 
         unpackPhase = ''
-          unzip -q $src
+          unzip -nq $src
           chmod -R +rw .
         '';
 
