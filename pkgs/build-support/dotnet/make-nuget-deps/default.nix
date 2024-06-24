@@ -3,6 +3,7 @@
 , stdenvNoCC
 , stdenv
 , lib
+, zip
 , unzip
 , dotnetCorePackages
 , zlib
@@ -12,6 +13,7 @@
 , libuuid
 , openssl
 , lttng-ust_2_12
+, strip-nondeterminism
 }:
 { name, nugetDeps ? import sourceFile, sourceFile ? null }:
 (symlinkJoin {
@@ -31,7 +33,9 @@
         };
 
         nativeBuildInputs = [
+          zip
           unzip
+          strip-nondeterminism
         ];
 
         unpackPhase = ''
@@ -99,6 +103,22 @@
             popd
           done
           popd
+        '';
+
+        # unfortunately, some things like 'dotnet tool install' still need a
+        # .nupkg to install from
+        postFixup = ''
+          pushd $out/share/nuget/packages
+          for package in *; do
+            pushd $package
+              for version in *; do
+                pushd $version
+                  zip -r $package.$version.nupkg .
+                  strip-nondeterminism --type zip $package.$version.nupkg
+                popd
+              done
+            popd
+          done
         '';
       };
     };
