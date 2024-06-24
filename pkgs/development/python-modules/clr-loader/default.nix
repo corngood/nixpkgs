@@ -62,17 +62,13 @@ buildPythonPackage {
 
   # Perform dotnet restore based on the nuget-source
   preConfigure = ''
-    ls -l "$NUGET_FALLBACK_PACKAGES"
-
     dotnet restore "netfx_loader/ClrLoader.csproj" \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true \
-      --source "$NUGET_FALLBACK_PACKAGES"
+      -p:Deterministic=true
 
     dotnet restore "example/example.csproj" \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true \
-      --source "$NUGET_FALLBACK_PACKAGES"
+      -p:Deterministic=true
   '';
 
   passthru.fetch-deps = dotnet-build.fetch-deps;
