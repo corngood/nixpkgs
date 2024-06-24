@@ -279,6 +279,10 @@ stdenvNoCC.mkDerivation (args // {
         cd "$src"
         echo "Restoring project..."
 
+        #HACK: this needs to include all build inputs
+        #TODO: change fetch-deps to use a modified derivation with nix-shell, like the VMR
+        export NUGET_FALLBACK_PACKAGES="${dotnet-sdk.packages}"/share/nuget/packages
+
         ${dotnet-sdk}/bin/dotnet tool restore
         cp -r $HOME/.nuget/packages/* $tmp/nuget_pkgs || true
 
