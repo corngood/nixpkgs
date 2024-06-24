@@ -36,6 +36,11 @@ buildPythonPackage {
 
   format = "pyproject";
 
+  buildInputs = [
+    dotnetCorePackages.sdk_6_0.packages
+    dotnet-build.nugetDeps
+  ];
+
   nativeBuildInputs = [
     setuptools
     setuptools-scm
@@ -57,13 +62,17 @@ buildPythonPackage {
 
   # Perform dotnet restore based on the nuget-source
   preConfigure = ''
+    ls -l "$NUGET_FALLBACK_PACKAGES"
+
     dotnet restore "netfx_loader/ClrLoader.csproj" \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true
+      -p:Deterministic=true \
+      --source "$NUGET_FALLBACK_PACKAGES"
 
     dotnet restore "example/example.csproj" \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true
+      -p:Deterministic=true \
+      --source "$NUGET_FALLBACK_PACKAGES"
   '';
 
   passthru.fetch-deps = dotnet-build.fetch-deps;

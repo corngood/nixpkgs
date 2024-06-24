@@ -178,7 +178,9 @@ stdenvNoCC.mkDerivation (args // {
   # executables
   propagatedSandboxProfile = toString dotnet-runtime.__propagatedSandboxProfile;
 
-  passthru = lib.optionalAttrs (!lib.isDerivation nugetDeps) {
+  passthru = {
+    nugetDeps = _nugetDeps;
+  } // lib.optionalAttrs (!lib.isDerivation nugetDeps) {
     fetch-deps =
       let
         flags = dotnetFlags ++ dotnetRestoreFlags;
