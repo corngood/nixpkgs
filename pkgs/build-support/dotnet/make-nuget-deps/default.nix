@@ -14,6 +14,7 @@
 , openssl
 , lttng-ust_2_12
 , strip-nondeterminism
+, nix
 }:
 { name, nugetDeps ? import sourceFile, sourceFile ? null }:
 (symlinkJoin {
@@ -36,6 +37,7 @@
           zip
           unzip
           strip-nondeterminism
+          nix # nix-hash
         ];
 
         unpackPhase = ''
@@ -115,6 +117,12 @@
                 pushd $version
                   zip -qr $package.$version.nupkg .
                   strip-nondeterminism --type zip $package.$version.nupkg
+                  local nuspec nuspec_l nupkg
+                  nuspec=(*.nuspec)
+                  nupkg=(*.nupkg)
+                  nuspec_l=$(echo $nuspec | tr '[:upper:]' '[:lower:]')
+                  [[ "$nuspec_l" == "$nuspec" ]] || mv "$nuspec" "$nuspec_l"
+                  nix-hash --type sha512 --base64 "$nupkg" > "$nupkg".sha512
                 popd
               done
             popd
