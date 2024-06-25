@@ -44,7 +44,9 @@ buildDotnetModule rec {
 
   postConfigure = ''
     # Fixes git execution by GitInfo on mac os
-    substituteInPlace "$HOME/.nuget/packages/gitinfo/2.0.26/build/GitInfo.targets" \
+    mv "$NUGET_FALLBACK_PACKAGES/gitinfo/2.0.26/build/GitInfo.targets"{,~}
+    cp "$NUGET_FALLBACK_PACKAGES/gitinfo/2.0.26/build/GitInfo.targets"{~,}
+    substituteInPlace "$NUGET_FALLBACK_PACKAGES/gitinfo/2.0.26/build/GitInfo.targets" \
       --replace "<GitExe Condition=\"Exists('/usr/bin/git')\">/usr/bin/git</GitExe>" " " \
       --replace "<GitExe Condition=\"Exists('/usr/local/bin/git')\">/usr/local/bin/git</GitExe>" ""
   '';
