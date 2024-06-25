@@ -145,7 +145,7 @@ stdenvNoCC.mkDerivation (args // {
     yq
   ];
 
-  buildInputs = [
+  buildInputs = args.buildInputs or [] ++ [
     dotnet-sdk.packages
     _nugetDeps
   ] ++ projectReferences;
