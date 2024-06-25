@@ -70,7 +70,7 @@
           ] ++ lib.optional stdenvNoCC.isLinux lttng-ust_2_12);
           in ''
           pushd $out/share/nuget/packages
-          for x in *.${buildRid}/* *.${buildRid}.*/*; do
+          for x in */*; do
             # .nupkg.metadata is written last, so we know the packages is complete
             [[ -d "$x" ]] && [[ -f "$x"/.nupkg.metadata ]] \
               && [[ ! -f "$x"/.nix-patched ]] || continue
