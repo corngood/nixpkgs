@@ -113,7 +113,7 @@
             pushd $package
               for version in *; do
                 pushd $version
-                  zip -r $package.$version.nupkg .
+                  zip -qr $package.$version.nupkg .
                   strip-nondeterminism --type zip $package.$version.nupkg
                 popd
               done
