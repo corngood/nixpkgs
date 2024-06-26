@@ -55,7 +55,7 @@ EOF
     # find -name paket.dependencies -exec sed -i "s/source .*/source $nugetSourceSedQuoted\/lib/g" {} \;
     # find -name paket.lock -exec sed -i "s/remote:.*/remote: $nugetSourceSedQuoted\/lib/g" {} \;
 
-    echo NUGET_FALLBACK_PACKAGES=$NUGET_FALLBACK_PACKAGES
+    dotnet tool restore --add-source "$NUGET_FALLBACK_PACKAGES"
 
     # dotnetGlobalTool is set in buildDotnetGlobalTool to patch dependencies but
     # avoid other project-specific logic. This is a hack, but the old behavior

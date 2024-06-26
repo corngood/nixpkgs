@@ -44,6 +44,7 @@ dotnetInstallHook() {
         dotnet publish ${1+"$projectFile"} \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
+            -p:OverwriteReadOnlyFiles=true \
             --output "$dotnetInstallPath" \
             --configuration "$dotnetBuildType" \
             --no-build \
@@ -61,6 +62,7 @@ dotnetInstallHook() {
         dotnet pack ${1+"$projectFile"} \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
+            -p:OverwriteReadOnlyFiles=true \
             --output $pkgs \
             --configuration "$dotnetBuildType" \
             --no-build \
