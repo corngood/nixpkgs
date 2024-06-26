@@ -59,6 +59,7 @@ dotnetBuildHook() {
             -p:BuildInParallel="$parallelBuildFlag" \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
+            -p:OverwriteReadOnlyFiles=true \
             --configuration "$dotnetBuildType" \
             --no-restore \
             "${versionFlagsArray[@]}" \
