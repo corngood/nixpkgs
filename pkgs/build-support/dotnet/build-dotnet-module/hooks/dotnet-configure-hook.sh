@@ -48,13 +48,8 @@ dotnetConfigureHook() {
 </configuration>
 EOF
 
-    # Patch paket.dependencies and paket.lock (if found) to use the proper
-    # source. This ensures paket restore works correctly. Note that the
-    # nugetSourceSedQuoted abomination below safely escapes nugetSource string
-    # for use as a sed replacement string to avoid issues with slashes and other
-    # special characters ('&', '\\' and '\n').
-    # find -name paket.dependencies -exec sed -i "s/source .*/source $nugetSourceSedQuoted\/lib/g" {} \;
-    # find -name paket.lock -exec sed -i "s/remote:.*/remote: $nugetSourceSedQuoted\/lib/g" {} \;
+    find -name paket.dependencies -exec sed -i "s:source .*:source $NUGET_FALLBACK_PACKAGES:" {} \;
+    find -name paket.lock -exec sed -i "s:remote\:.*:remote\: $NUGET_FALLBACK_PACKAGES:" {} \;
 
     dotnet tool restore --add-source "$NUGET_FALLBACK_PACKAGES"
 
