@@ -31,6 +31,7 @@ dotnetConfigureHook() {
             -p:Deterministic=true \
             -p:NuGetAudit=false \
             --runtime "$dotnetRuntimeId" \
+            --source "$NUGET_FALLBACK_PACKAGES"
             ${parallelFlag-} \
             "${dotnetRestoreFlagsArray[@]}" \
             "${dotnetFlagsArray[@]}"
