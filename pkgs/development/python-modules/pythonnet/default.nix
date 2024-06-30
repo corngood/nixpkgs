@@ -65,7 +65,7 @@ buildPythonPackage {
   preConfigure = ''
     dotnet restore \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true
+      -p:Deterministic=true \
       --source "$NUGET_FALLBACK_PACKAGES"
   '';
 
