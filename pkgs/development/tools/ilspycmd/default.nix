@@ -26,11 +26,6 @@ buildDotnetModule rec {
   # bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
   env.LOCALE_ARCHIVE = lib.optionalString stdenv.hostPlatform.isLinux "${glibcLocales}/lib/locale/locale-archive";
 
-  # workaround for https://github.com/tunnelvisionlabs/ReferenceAssemblyAnnotator/issues/94
-  postConfigure = ''
-    dotnetBuildFlags=-p:NuGetPackageRoot=$NUGET_FALLBACK_PACKAGES
-  '';
-
   dotnet-sdk = dotnetCorePackages.sdk_6_0;
   dotnet-runtime = dotnetCorePackages.runtime_6_0;
 

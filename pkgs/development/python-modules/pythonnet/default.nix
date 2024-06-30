@@ -65,8 +65,7 @@ buildPythonPackage {
   preConfigure = ''
     dotnet restore \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true \
-      --source "$NUGET_FALLBACK_PACKAGES"
+      -p:Deterministic=true
   '';
 
   # Rerun this when updating to refresh Nuget dependencies

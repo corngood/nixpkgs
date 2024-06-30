@@ -32,15 +32,15 @@
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
     export DOTNET_SKIP_WORKLOAD_INTEGRITY_CHECK=1 # Skip integrity check on first run, which fails due to read-only directory
   '' + (lib.optionalString (type == "sdk") ''
-    export NUGET_FALLBACK_PACKAGES NUGET_SOURCE
+    export NUGET_PACKAGES
     nugetTemp=$(mktemp -d)
-    NUGET_FALLBACK_PACKAGES=$nugetTemp/packages
+    NUGET_PACKAGES=$nugetTemp/packages
     nugetSource=$nugetTemp/source
-    mkdir -p "$NUGET_FALLBACK_PACKAGES" "$nugetSource"
+    mkdir -p "$NUGET_PACKAGES" "$nugetSource"
     trap "rm -rf $nugetTemp" EXIT
     setupNuget () {
       if [[ -d "$1/share/nuget/packages" ]]; then
-        ${lndir}/bin/lndir -silent "$1/share/nuget/packages" "$NUGET_FALLBACK_PACKAGES"
+        ${lndir}/bin/lndir -silent "$1/share/nuget/packages" "$NUGET_PACKAGES"
       fi
       if [[ -d "$1/share/nuget/source" ]]; then
         ${lndir}/bin/lndir -silent "$1/share/nuget/source" "$nugetSource"

@@ -31,7 +31,6 @@ dotnetConfigureHook() {
             -p:Deterministic=true \
             -p:NuGetAudit=false \
             --runtime "$dotnetRuntimeId" \
-            --source "$NUGET_FALLBACK_PACKAGES" \
             ${parallelFlag-} \
             "${dotnetRestoreFlagsArray[@]}" \
             "${dotnetFlagsArray[@]}"
@@ -51,7 +50,7 @@ EOF
     find -name paket.dependencies -exec sed -i "s:source .*:source $nugetSource:" {} \;
     find -name paket.lock -exec sed -i "s:remote\:.*:remote\: $nugetSource:" {} \;
 
-    dotnet tool restore --add-source "$NUGET_FALLBACK_PACKAGES"
+    dotnet tool restore
 
     # dotnetGlobalTool is set in buildDotnetGlobalTool to patch dependencies but
     # avoid other project-specific logic. This is a hack, but the old behavior
