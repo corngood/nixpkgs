@@ -38,6 +38,7 @@ buildDotnetModule rec {
       -p:Configuration=Release \
       -p:RepositoryUrl="${meta.homepage}" \
       -p:RepositoryCommit="v${version}" \
+      -p:NuGetPackageRoot="$NUGET_FALLBACK_PACKAGES" \
       src/NuGet/Microsoft.Net.Compilers.Toolset/Microsoft.Net.Compilers.Toolset.Package.csproj
 
     runHook postBuild
