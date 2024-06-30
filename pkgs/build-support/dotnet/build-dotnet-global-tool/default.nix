@@ -38,7 +38,8 @@ buildDotnetModule (args // {
     runHook preInstall
 
     # tool install doesn't natively use fallback packages
-    dotnet tool install --tool-path $out/lib/${pname} ${nugetName}
+    dotnet tool install --tool-path $out/lib/${pname} ${nugetName} \
+      --add-source "$NUGET_PACKAGES"
 
     # remove files that contain nix store paths to temp nuget sources we made
     find $out -name 'project.assets.json' -delete
