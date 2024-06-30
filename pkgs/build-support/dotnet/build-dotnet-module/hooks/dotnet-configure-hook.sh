@@ -48,8 +48,8 @@ dotnetConfigureHook() {
 </configuration>
 EOF
 
-    find -name paket.dependencies -exec sed -i "s:source .*:source $NUGET_FALLBACK_PACKAGES:" {} \;
-    find -name paket.lock -exec sed -i "s:remote\:.*:remote\: $NUGET_FALLBACK_PACKAGES:" {} \;
+    find -name paket.dependencies -exec sed -i "s:source .*:source $nugetSource:" {} \;
+    find -name paket.lock -exec sed -i "s:remote\:.*:remote\: $nugetSource:" {} \;
 
     dotnet tool restore --add-source "$NUGET_FALLBACK_PACKAGES"
 

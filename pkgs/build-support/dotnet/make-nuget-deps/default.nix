@@ -54,6 +54,9 @@
           mkdir -p $dir
           cp -r . $dir
           echo {} > "$dir"/.nupkg.metadata
+          mkdir -p $out/share/nuget/source
+          ln -s $dir/${lib.toLower pname}.${lib.toLower version}.nupkg \
+            $out/share/nuget/source/${pname}.${version}.nupkg
         '';
 
         preFixup = let
