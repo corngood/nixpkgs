@@ -33,6 +33,12 @@ dotnetInstallHook() {
         dotnetInstallFlagsArray+=("-p:UseAppHost=true")
     fi
 
+    if [[ -n ${enableParallelBuilding-} ]]; then
+        local -r maxCpuFlag="$NIX_BUILD_CORES"
+    else
+        local -r maxCpuFlag="1"
+    fi
+
     dotnetPublish() {
         local -r projectFile="${1-}"
 
@@ -42,6 +48,7 @@ dotnetInstallHook() {
         fi
 
         dotnet publish ${1+"$projectFile"} \
+            -maxcpucount:"$maxCpuFlag" \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
             -p:OverwriteReadOnlyFiles=true \
@@ -60,6 +67,7 @@ dotnetInstallHook() {
     dotnetPack() {
         local -r projectFile="${1-}"
         dotnet pack ${1+"$projectFile"} \
+            -maxcpucount:"$maxCpuFlag" \
             -p:ContinuousIntegrationBuild=true \
             -p:Deterministic=true \
             -p:OverwriteReadOnlyFiles=true \
