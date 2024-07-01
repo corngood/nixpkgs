@@ -32,6 +32,7 @@
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
     export DOTNET_SKIP_WORKLOAD_INTEGRITY_CHECK=1 # Skip integrity check on first run, which fails due to read-only directory
   '' + (lib.optionalString (type == "sdk") ''
+    export MSBUILDALWAYSOVERWRITEREADONLYFILES=1
     export NUGET_PACKAGES
     nugetTemp=$(mktemp -d)
     NUGET_PACKAGES=$nugetTemp/packages
