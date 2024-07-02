@@ -438,6 +438,7 @@ in stdenv.mkDerivation rec {
         mv "$unpacked" $out/share/nuget/packages/"$id"/"$version"
         cp "$nupkg" $out/share/nuget/packages/"$id"/"$version"/"$id"."$version".nupkg
     done
+    rm -r $out/Private.SourceBuilt.Artifacts.*.${targetRid}
 
     runHook postInstall
   '';

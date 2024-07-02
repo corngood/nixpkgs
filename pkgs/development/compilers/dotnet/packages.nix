@@ -26,11 +26,13 @@ in {
       mkdir "$out"/bin
       ln -s "$out"/dotnet "$out"/bin/dotnet
 
-      mkdir "$packages"
+      mkdir "$packages"/share/nuget/packages
       # this roughly corresponds to the {sdk,aspnetcore}_packages in ../update.sh
-      cp -r "$src"/Private.SourceBuilt.Artifacts.*.${targetRid}/*Microsoft.{NET.ILLink.Tasks,NETCore,DotNet,AspNetCore}.*.nupkg "$packages"
+      mv "$src"/share/nuget/packages/*microsoft.{net.illink.tasks,netcore,dotnet,aspnetcore}.* \
+        "$packages"/share/nuget/packages/
 
-      cp -r "$src"/Private.SourceBuilt.Artifacts.*.${targetRid} "$artifacts"
+      mkdir -p "$artifacts"/share/nuget/packags
+      mv -r "$src"/share/nuget/packages/* "$artifacts"/share/nuget/packages/
 
       runHook postInstall
     '';
