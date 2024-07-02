@@ -11,7 +11,7 @@
 let
   inherit (lib.importJSON releaseInfoFile) tarballHash artifactsUrl artifactsHash;
 
-  pkgs = callPackage ./stage1.nix {
+  pkgs = callPackage ./stage0.nix {
     inherit releaseManifestFile tarballHash depsFile;
     bootstrapSdk =
       { stdenvNoCC
@@ -32,7 +32,7 @@ let
             installPhase = ''
               mkdir -p $out
               cp -r * $out/
-              ln -fs ${old.passthru.packages}/* $out/
+              ln -fs "${old.passthru.packages}"/share/nuget/packages/*/*/*.nupkg $out/
             '';
           };
         };

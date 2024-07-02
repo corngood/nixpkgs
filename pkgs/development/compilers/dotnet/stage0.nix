@@ -53,7 +53,7 @@ let
 
     postConfigure = old.postConfigure or "" + ''
       [[ ! -v prebuiltPackages ]] || \
-        ln -sf "$prebuiltPackages"/share/nuget/packages/* prereqs/packages/prebuilt/
+        ln -sf "$prebuiltPackages"/share/nuget/packages/*/*/*.nupkg prereqs/packages/prebuilt/
     '';
 
     buildFlags =
