@@ -426,7 +426,7 @@ in stdenv.mkDerivation rec {
     popd
 
     local -r unpacked="$PWD/.unpacked"
-    for nupkg in $out/*.nupkg; do
+    for nupkg in $out/Private.SourceBuilt.Artifacts.*.${targetRid}/*.nupkg; do
         rm -rf "$unpacked"
         unzip -qd "$unpacked" "$nupkg"
         chmod -R +rw "$unpacked"
