@@ -28,7 +28,7 @@ in {
 
       mkdir "$packages"/share/nuget/packages
       # this roughly corresponds to the {sdk,aspnetcore}_packages in ../update.sh
-      mv "$src"/share/nuget/packages/*microsoft.{net.illink.tasks,netcore,dotnet,aspnetcore}.* \
+      mv "$src"/share/nuget/packages/*microsoft.{net.illink.tasks,netcore,dotnet,aspnetcore}* \
         "$packages"/share/nuget/packages/
 
       mkdir -p "$artifacts"/share/nuget/packags
