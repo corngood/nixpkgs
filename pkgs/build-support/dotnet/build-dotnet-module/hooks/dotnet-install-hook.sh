@@ -99,8 +99,8 @@ dotnetInstallHook() {
         fi
     fi
 
+    local -r unpacked="$pkgs/.unpacked"
     for nupkg in "$pkgs"/*.nupkg; do
-        local -r unpacked="$pkgs/.unpacked"
         rm -rf "$unpacked"
         unzip -qd "$unpacked" "$nupkg"
         chmod -R +rw "$unpacked"
@@ -110,6 +110,7 @@ dotnetInstallHook() {
         version=$(xq -r '.package.metadata.version|ascii_downcase' "$unpacked"/*.nuspec)
         mkdir -p $out/share/nuget/packages/"$id"
         mv "$unpacked" $out/share/nuget/packages/"$id"/"$version"
+        cp "$nupkg" $out/share/nuget/packages/"$id"/"$version"/"$id"."$version".nupkg
     done
 
     runHook postInstall

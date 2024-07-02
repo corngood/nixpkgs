@@ -421,6 +421,20 @@ in stdenv.mkDerivation rec {
     done
     popd
 
+    local -r unpacked="$PWD/.unpacked"
+    for nupkg in $out/Private.SourceBuilt.Artifacts.*.${targetRid}/*Microsoft.{NET.ILLink.Tasks,NETCore,DotNet,AspNetCore}.*.nupkg; do
+        rm -rf "$unpacked"
+        unzip -qd "$unpacked" "$nupkg"
+        chmod -R +rw "$unpacked"
+        echo {} > "$unpacked"/.nupkg.metadata
+        local id version
+        id=$(xq -r '.package.metadata.id|ascii_downcase' "$unpacked"/*.nuspec)
+        version=$(xq -r '.package.metadata.version|ascii_downcase' "$unpacked"/*.nuspec)
+        mkdir -p $out/share/nuget/packages/"$id"
+        mv "$unpacked" $out/share/nuget/packages/"$id"/"$version"
+        cp "$nupkg" $out/share/nuget/packages/"$id"/"$version"/"$id"."$version".nupkg
+    done
+
     runHook postInstall
   '';
 
