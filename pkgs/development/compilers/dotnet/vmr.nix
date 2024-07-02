@@ -25,6 +25,8 @@
 , xmlstarlet
 , nodejs
 , callPackage
+, unzip
+, yq
 
 , dotnetSdk
 , releaseManifestFile
@@ -89,6 +91,8 @@ in stdenv.mkDerivation rec {
     pkg-config
     python3
     xmlstarlet
+    unzip
+    yq
   ]
   ++ lib.optionals (lib.versionAtLeast version "9") [
     nodejs
@@ -422,7 +426,7 @@ in stdenv.mkDerivation rec {
     popd
 
     local -r unpacked="$PWD/.unpacked"
-    for nupkg in $out/Private.SourceBuilt.Artifacts.*.${targetRid}/*Microsoft.{NET.ILLink.Tasks,NETCore,DotNet,AspNetCore}.*.nupkg; do
+    for nupkg in $out/*.nupkg; do
         rm -rf "$unpacked"
         unzip -qd "$unpacked" "$nupkg"
         chmod -R +rw "$unpacked"
