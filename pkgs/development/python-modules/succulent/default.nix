@@ -1,16 +1,16 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, flask
-, lxml
-, pandas
-, pyyaml
-, poetry-core
-, pytestCheckHook
-, pythonRelaxDepsHook
-, pythonOlder
-, toml-adapt
-, xmltodict
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  flask,
+  lxml,
+  pandas,
+  pyyaml,
+  poetry-core,
+  pytestCheckHook,
+  pythonOlder,
+  toml-adapt,
+  xmltodict,
 }:
 
 buildPythonPackage rec {
@@ -27,13 +27,10 @@ buildPythonPackage rec {
     hash = "sha256-+S4ekvaQvbBxjUQkG+Bd9lYdZwHB3oq7Ay9kWquCcyE=";
   };
 
-  pythonRelaxDeps = [
-    "flask"
-  ];
+  pythonRelaxDeps = [ "flask" ];
 
   nativeBuildInputs = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = [
@@ -44,13 +41,9 @@ buildPythonPackage rec {
     xmltodict
   ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
-  pythonImportsCheck = [
-    "succulent"
-  ];
+  pythonImportsCheck = [ "succulent" ];
 
   meta = with lib; {
     description = "Collect POST requests";

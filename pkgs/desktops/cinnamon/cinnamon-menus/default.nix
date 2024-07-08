@@ -11,13 +11,13 @@
 
 stdenv.mkDerivation rec {
   pname = "cinnamon-menus";
-  version = "6.0.0";
+  version = "6.2.0";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
     repo = pname;
     rev = version;
-    hash = "sha256-zP1jA5Fwxh6QrM5YwJo7SFPWaxkJsv1D84dhIDP5xuI=";
+    hash = "sha256-HOipeUV9daPSsJ+SHPlsyEAg2SwKQkZBm1JUoNtDZAY=";
   };
 
   buildInputs = [
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://github.com/linuxmint/cinnamon-menus";
-    description = "A menu system for the Cinnamon project";
+    description = "Menu system for the Cinnamon project";
     license = [ licenses.gpl2 licenses.lgpl2 ];
     platforms = platforms.linux;
     maintainers = teams.cinnamon.members;

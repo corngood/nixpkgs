@@ -47,11 +47,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "go";
-  version = "1.21.10";
+  version = "1.21.12";
 
   src = fetchurl {
     url = "https://go.dev/dl/go${finalAttrs.version}.src.tar.gz";
-    hash = "sha256-kA4K/okAwe5lqKjE8MWjygLc+FwdHLE6ZSviLCE5k5Q=";
+    hash = "sha256-MOaK8nvB8d8jHjq3Tz0X07jVKgicebyqtXO08bgH7U8=";
   };
 
   strictDeps = true;
@@ -180,7 +180,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     changelog = "https://go.dev/doc/devel/release#go${lib.versions.majorMinor finalAttrs.version}";
-    description = "The Go Programming language";
+    description = "Go Programming language";
     homepage = "https://go.dev/";
     license = licenses.bsd3;
     maintainers = teams.golang.members;

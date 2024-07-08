@@ -19,7 +19,7 @@
 , pango
 , imagemagick
 , intltool
-, gnome
+, adwaita-icon-theme
 , harfbuzz
 , freetype
 , fribidi
@@ -131,7 +131,7 @@ stdenv.mkDerivation {
     libsigcxx
     libxmlxx
     mlt
-    gnome.adwaita-icon-theme
+    adwaita-icon-theme
     openexr
     fftw
   ];
@@ -144,7 +144,7 @@ stdenv.mkDerivation {
   };
 
   meta = with lib; {
-    description = "A 2D animation program";
+    description = "2D animation program";
     homepage = "http://www.synfig.org";
     license = licenses.gpl2Plus;
     maintainers = [ maintainers.goibhniu ];

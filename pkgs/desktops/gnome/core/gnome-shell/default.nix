@@ -14,7 +14,6 @@
 , networkmanager
 , gi-docgen
 , at-spi2-core
-, libstartup_notification
 , unzip
 , shared-mime-info
 , libgweather
@@ -43,7 +42,6 @@
 , gjs
 , mutter
 , evolution-data-server-gtk4
-, gtk3
 , gtk4
 , libadwaita
 , sassc
@@ -59,6 +57,10 @@
 , asciidoc
 , bash-completion
 , mesa
+, libGL
+, libXi
+, libX11
+, libxml2
 }:
 
 let
@@ -66,13 +68,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "gnome-shell";
-  version = "46.1";
+  version = "46.3.1";
 
   outputs = [ "out" "devdoc" ];
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-shell/${lib.versions.major finalAttrs.version}/gnome-shell-${finalAttrs.version}.tar.xz";
-    hash = "sha256-ZPmZhEwQHmO/KU1FsTjeVjGa0vMmKCchqtD6hgZTs2k=";
+    hash = "sha256-575fxu4sxSitJh3HpVyN5aMkEtPWhAoKB14PwSoH/4s=";
   };
 
   patches = [
@@ -101,13 +103,6 @@ stdenv.mkDerivation (finalAttrs: {
     (fetchpatch {
       url = "https://src.fedoraproject.org/rpms/gnome-shell/raw/dcd112d9708954187e7490564c2229d82ba5326f/f/0001-gdm-Work-around-failing-fingerprint-auth.patch";
       hash = "sha256-mgXty5HhiwUO1UV3/eDgWtauQKM0cRFQ0U7uocST25s=";
-    })
-
-    # screencast: Correct expected bus name for streams
-    # https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/3303
-    (fetchpatch {
-      url = "https://gitlab.gnome.org/GNOME/gnome-shell/-/commit/50a011a19dcc6997ea6173c07bb80b2d9888d363.patch";
-      hash = "sha256-ccEpdWgDxwnj7ouzFekpoln5Y2PtgRikWetwK+0U9Fg=";
     })
   ];
 
@@ -138,13 +133,11 @@ stdenv.mkDerivation (finalAttrs: {
     gdk-pixbuf
     librsvg
     networkmanager
-    libstartup_notification
     gjs
     mutter
     libpulseaudio
     evolution-data-server-gtk4
     libical
-    gtk3
     gtk4
     libadwaita
     gdm
@@ -158,6 +151,10 @@ stdenv.mkDerivation (finalAttrs: {
     gnome-desktop
     gnome-settings-daemon
     mesa
+    libGL # for egl, required by mutter-clutter
+    libXi # required by libmutter
+    libX11
+    libxml2
 
     # recording
     pipewire

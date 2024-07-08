@@ -17,7 +17,7 @@
 
 buildPythonPackage rec {
   pname = "pynws";
-  version = "1.8.0";
+  version = "1.8.2";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -26,7 +26,7 @@ buildPythonPackage rec {
     owner = "MatthewFlamm";
     repo = "pynws";
     rev = "refs/tags/v${version}";
-    hash = "sha256-KUCylHYng6mn2TWKf8C7k0IoerM22OIQ7pJMKi5SF3A=";
+    hash = "sha256-3QKdZ7hg7HfQ56xHbkhXCtlBq4JCwfXdZiTctI3OVl0=";
   };
 
   build-system = [

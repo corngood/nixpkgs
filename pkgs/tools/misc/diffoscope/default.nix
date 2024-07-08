@@ -96,11 +96,11 @@ in
 # Note: when upgrading this package, please run the list-missing-tools.sh script as described below!
 python.pkgs.buildPythonApplication rec {
   pname = "diffoscope";
-  version = "266";
+  version = "271";
 
   src = fetchurl {
     url = "https://diffoscope.org/archive/diffoscope-${version}.tar.bz2";
-    hash = "sha256-whEFBUFl8yFsZOtOWHbDm6Tx6i6UJYmQ5Fz7svLqGgs=";
+    hash = "sha256-YwNaYj0daYbs3rN/EcPz5LihJjZ6JZb33FSS6u98Gss=";
   };
 
   outputs = [
@@ -148,6 +148,7 @@ python.pkgs.buildPythonApplication rec {
   # > FAILED tests/comparators/test_macho_decompiler.py::test_radare2_diff - AssertionError
   #
   # We filter automatically all packages for the host platform (some dependencies are not supported on Darwin, aarch64, etc.).
+  # Packages which are marked broken for a platform are not automatically filtered to avoid accidentally removing them without noticing it.
   pythonPath = lib.filter (lib.meta.availableOn stdenv.hostPlatform) ([
     acl
     binutils-unwrapped-all-targets

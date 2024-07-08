@@ -1,21 +1,22 @@
-{ lib
-, buildPythonPackage
-, python
-, fetchFromGitHub
-, poetry-core
-, fastapi
-, injector
-, llama-index-core
-, llama-index-readers-file
-, huggingface-hub
-, python-multipart
-, pyyaml
-, transformers
-, uvicorn
-, watchdog
-, gradio
-, fetchurl
-, fetchpatch
+{
+  lib,
+  buildPythonPackage,
+  python,
+  fetchFromGitHub,
+  poetry-core,
+  fastapi,
+  injector,
+  llama-index-core,
+  llama-index-readers-file,
+  huggingface-hub,
+  python-multipart,
+  pyyaml,
+  transformers,
+  uvicorn,
+  watchdog,
+  gradio,
+  fetchurl,
+  fetchpatch,
 }:
 
 buildPythonPackage rec {
@@ -39,9 +40,9 @@ buildPythonPackage rec {
     })
   ];
 
-  build-system = [
-    poetry-core
-  ];
+  build-system = [ poetry-core ];
+
+  pythonRelaxDeps = [ "fastapi" ];
 
   dependencies = [
     fastapi
@@ -67,39 +68,17 @@ buildPythonPackage rec {
       huggingface-hub
       llama-index-embeddings-huggingface
     ];
-    embeddings-ollama = [
-      llama-index-embeddings-ollama
-    ];
-    embeddings-openai = [
-      llama-index-embeddings-openai
-    ];
-    embeddings-sagemaker = [
-      boto3
-    ];
-    llms-ollama = [
-      llama-index-llms-ollama
-    ];
-    llms-openai = [
-      llama-index-llms-openai
-    ];
-    llms-openai-like = [
-      llama-index-llms-openai-like
-    ];
-    llms-sagemaker = [
-      boto3
-    ];
-    ui = [
-      gradio
-    ];
-    vector-stores-chroma = [
-      llama-index-vector-stores-chroma
-    ];
-    vector-stores-postgres = [
-      llama-index-vector-stores-postgres
-    ];
-    vector-stores-qdrant = [
-      llama-index-vector-stores-qdrant
-    ];
+    embeddings-ollama = [ llama-index-embeddings-ollama ];
+    embeddings-openai = [ llama-index-embeddings-openai ];
+    embeddings-sagemaker = [ boto3 ];
+    llms-ollama = [ llama-index-llms-ollama ];
+    llms-openai = [ llama-index-llms-openai ];
+    llms-openai-like = [ llama-index-llms-openai-like ];
+    llms-sagemaker = [ boto3 ];
+    ui = [ gradio ];
+    vector-stores-chroma = [ llama-index-vector-stores-chroma ];
+    vector-stores-postgres = [ llama-index-vector-stores-postgres ];
+    vector-stores-qdrant = [ llama-index-vector-stores-qdrant ];
   };
 
   postInstall = ''
@@ -114,6 +93,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/zylon-ai/private-gpt";
     license = lib.licenses.asl20;
     mainProgram = "private-gpt";
-    maintainers = with lib.maintainers; [ drupol ];
+    maintainers = with lib.maintainers; [ ];
   };
 }

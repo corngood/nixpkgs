@@ -30,15 +30,6 @@ let
     # Override the version of some packages pinned in Home Assistant's setup.py and requirements_all.txt
 
     (self: super: {
-      aioaladdinconnect = super.aioaladdinconnect.overridePythonAttrs (oldAttrs: rec {
-        version = "0.1.58";
-        src = fetchPypi {
-          pname = "AIOAladdinConnect";
-          inherit version;
-          hash = "sha256-ymynaOKvnqqHIEuQc+5CagsaH5cHnQit8ileoUO6G+I=";
-        };
-      });
-
       aioelectricitymaps = super.aioelectricitymaps.overridePythonAttrs (oldAttrs: rec {
         version = "0.4.0";
         src = fetchFromGitHub {
@@ -100,16 +91,6 @@ let
             '"setuptools >= 35.0.2", "wheel >= 0.29.0", "poetry>=0.12"' \
             '"poetry-core"'
         '';
-      });
-
-      anova-wifi = super.anova-wifi.overridePythonAttrs (old: rec {
-        version = "0.10.3";
-        src = fetchFromGitHub {
-          owner = "Lash-L";
-          repo = "anova_wifi";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-tCmvp29KSCkc+g0w0odcB7vGjtDx6evac7XsHEF0syM=";
-        };
       });
 
       astral = super.astral.overridePythonAttrs (oldAttrs: rec {
@@ -179,16 +160,6 @@ let
         };
       });
 
-      homematicip = super.homematicip.overridePythonAttrs rec {
-        version = "1.1.0";
-        src = fetchFromGitHub {
-          owner = "hahn-th";
-          repo = "homematicip-rest-api";
-          rev = "refs/tags/${version}";
-          hash = "sha256-tx7/amXG3rLdUFgRPQcuf57qkBLAPxPWjLGSO7MrcWU=";
-        };
-      };
-
       intellifire4py = super.intellifire4py.overridePythonAttrs (oldAttrs: rec {
         version = "2.2.2";
         src = fetchFromGitHub {
@@ -209,62 +180,23 @@ let
         doCheck = false; # requires asynctest, which does not work on python 3.11
       });
 
-      jaraco-abode = super.jaraco-abode.overridePythonAttrs (oldAttrs: rec {
-        version = "3.3.0";
+      openhomedevice = super.openhomedevice.overridePythonAttrs (oldAttrs: rec {
+        version = "2.2";
         src = fetchFromGitHub {
           inherit (oldAttrs.src) owner repo;
-          rev = "refs/tags/v${version}";
-          hash = "sha256-LnbWzIST+GMtdsHDKg67WWt9GmHUcSuGZ5Spei3nEio=";
+          rev = "refs/tags/${version}";
+          hash = "sha256-GGp7nKFH01m1KW6yMkKlAdd26bDi8JDWva6OQ0CWMIw=";
         };
       });
 
-      jaraco-collections = super.jaraco-collections.overridePythonAttrs (oldAttrs: rec {
-        version = "3.4.0";
-        src = fetchPypi {
-          pname = "jaraco.collections";
-          inherit version;
-          hash = "sha256-NE0Udp1xbnSWr4eaxxs8br3UarxkvZ7CHRUkg2WqOsk=";
-        };
-      });
-
-      jaraco-functools = super.jaraco-functools.overridePythonAttrs (oldAttrs: rec {
-        version = "3.9.0";
-        src = fetchPypi {
-          pname = "jaraco.functools";
-          inherit version;
-          hash = "sha256-ixN7D+rMF/70us7gTAEcnobyNBCZyHCh0S0743sypjg=";
-        };
-      });
-
-      lmcloud = super.lmcloud.overridePythonAttrs (oldAttrs: rec {
-        version = "0.4.35";
+      pymelcloud = super.pymelcloud.overridePythonAttrs (oldAttrs: {
+        version = "2.5.9";
         src = fetchFromGitHub {
-          owner = "zweckj";
-          repo = "lmcloud";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-TUve21yamtEmEceK/V1w7IZjnMgKConMfSY/GlqFpp8=";
+          owner = "vilppuvuorinen";
+          repo = "pymelcloud";
+          rev = "33a827b6cd0b34f276790faa49bfd0994bb7c2e4"; # 2.5.x branch
+          sha256 = "sha256-Q3FIo9YJwtWPHfukEBjBANUQ1N1vr/DMnl1dgiN7vYg=";
         };
-      });
-
-      lxml = super.lxml.overridePythonAttrs (oldAttrs: rec {
-        version = "5.1.0";
-        pyprojet = true;
-
-        src = fetchFromGitHub {
-          owner = "lxml";
-          repo = "lxml";
-          rev = "refs/tags/lxml-${version}";
-          hash = "sha256-eWLYzZWatYDmhuBTZynsdytlNFKKmtWQ1XIyzVD8sDY=";
-        };
-
-        nativeBuildInputs = with self; [
-          cython
-          setuptools
-          libxml2.dev
-          libxslt.dev
-        ];
-
-        patches = [];
       });
 
       notifications-android-tv = super.notifications-android-tv.overridePythonAttrs (oldAttrs: rec {
@@ -296,6 +228,15 @@ let
           pname = "poolsense";
           inherit version;
           hash = "sha256-17MHrYRmqkH+1QLtgq2d6zaRtqvb9ju9dvPt9gB2xCc=";
+        };
+      });
+
+      psutil = super.psutil.overridePythonAttrs (oldAttrs: rec {
+        version = "5.9.8";
+        src = fetchPypi {
+          inherit (oldAttrs) pname;
+          inherit version;
+          hash = "sha256-a+Em4yJUht/yhqj7mgYkalJT9MfFO0depfWsk05kGUw=";
         };
       });
 
@@ -430,21 +371,26 @@ let
         };
         nativeBuildInputs = with self; [
           flit-core
-          pythonRelaxDepsHook
         ];
         pythonRelaxDeps = [
           "betterproto"
         ];
       };
 
-      tesla-powerwall = super.tesla-powerwall.overridePythonAttrs (oldAttrs: rec {
-        version = "0.5.1";
+      slack-sdk = super.slack-sdk.overridePythonAttrs (oldAttrs: rec {
+        version = "2.5.0";
         src = fetchFromGitHub {
-          owner = "jrester";
-          repo = "tesla_powerwall";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-if/FCfxAB48WGXZOMvCtdSOW2FWO43OrlcHZbXIPmGE=";
+          owner = "slackapi";
+          repo = "python-slackclient";
+          rev = "refs/tags/${version}";
+          hash = "sha256-U//HUe6e41wOOzoaDl4yXPnEASCzpGBIScHStWMN8tk=";
         };
+        postPatch = ''
+          substituteInPlace setup.py \
+            --replace-fail "pytest-runner" ""
+        '';
+        pythonImportsCheck = [ "slack" ];
+        doCheck = false; # Tests changed a lot for > 3
       });
 
       tuf = super.tuf.overridePythonAttrs rec {
@@ -539,12 +485,12 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2024.5.3";
+  hassVersion = "2024.7.1";
 
 in python.pkgs.buildPythonApplication rec {
   pname = "homeassistant";
   version = assert (componentPackages.version == hassVersion); hassVersion;
-  format = "pyproject";
+  pyproject = true;
 
   # check REQUIRED_PYTHON_VER in homeassistant/const.py
   disabled = python.pythonOlder "3.11";
@@ -557,17 +503,16 @@ in python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     rev = "refs/tags/${version}";
-    hash = "sha256-KNuBv3BSEkIBEN9rC4vqJcd8TE4ik/BlF3IB+ZTu4Pk=";
+    hash = "sha256-y3VYxlPit9LuC+9F+fQoJs3WD9LsvrMZMiSCqbzkgmk=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-0asL9TAzAASPq8ytA8HhyaOUgfVUzQPsZJCz1TUygf4=";
+    hash = "sha256-pFsv0guypnRPeZOg2WrG2HL27W903iANHkvdQ8dCJHo=";
   };
 
   build-system = with python.pkgs; [
-    pythonRelaxDepsHook
     setuptools
   ];
 
@@ -583,6 +528,7 @@ in python.pkgs.buildPythonApplication rec {
     "orjson"
     "pillow"
     "pyopenssl"
+    "requests"
     "sqlalchemy"
     "typing-extensions"
     "urllib3"
@@ -620,8 +566,8 @@ in python.pkgs.buildPythonApplication rec {
     aiohttp
     aiohttp-cors
     aiohttp-fast-url-dispatcher
-    aiohttp-isal
-    aiohttp-session
+    aiohttp-fast-zlib
+    aiozoneinfo
     astral
     async-interrupt
     atomicwrites-homeassistant
@@ -653,6 +599,7 @@ in python.pkgs.buildPythonApplication rec {
     ulid-transform
     urllib3
     voluptuous
+    voluptuous-openapi
     voluptuous-serialize
     yarl
     # REQUIREMENTS in homeassistant/auth/mfa_modules/totp.py and homeassistant/auth/mfa_modules/notify.py

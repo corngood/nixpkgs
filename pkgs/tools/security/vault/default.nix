@@ -6,16 +6,16 @@
 
 buildGoModule rec {
   pname = "vault";
-  version = "1.16.2";
+  version = "1.17.1";
 
   src = fetchFromGitHub {
     owner = "hashicorp";
     repo = "vault";
     rev = "v${version}";
-    hash = "sha256-OFYUM6NFNwpx356y+G1yAOOgpinK8qOkLBtUMFPFXK8=";
+    hash = "sha256-BpiMgLO75zImJJbFgoW6FauJIOin1oSLvm2qmKZONqY=";
   };
 
-  vendorHash = "sha256-pWteRqBGKHcqjN3wSxWuoy0YK7w2Zaz2BsiveG7UkVE=";
+  vendorHash = "sha256-gSQjd59drhG0ZkiKTNQX7NEPpv5hMRoNQqeHr5oOMAQ=";
 
   proxyVendor = true;
 
@@ -44,7 +44,7 @@ buildGoModule rec {
 
   meta = with lib; {
     homepage = "https://www.vaultproject.io/";
-    description = "A tool for managing secrets";
+    description = "Tool for managing secrets";
     changelog = "https://github.com/hashicorp/vault/blob/v${version}/CHANGELOG.md";
     license = licenses.bsl11;
     mainProgram = "vault";

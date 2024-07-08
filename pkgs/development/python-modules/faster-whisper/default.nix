@@ -1,42 +1,39 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonRelaxDepsHook
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
 
-# build-system
-, setuptools
+  # build-system
+  setuptools,
 
-# dependencies
-, av
-, ctranslate2
-, huggingface-hub
-, onnxruntime
-, tokenizers
+  # dependencies
+  av,
+  ctranslate2,
+  huggingface-hub,
+  onnxruntime,
+  tokenizers,
 
-# tests
-, pytestCheckHook
+  # tests
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "faster-whisper";
-  version = "1.0.2";
+  version = "1.0.3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "SYSTRAN";
     repo = "faster-whisper";
     rev = "refs/tags/v${version}";
-    hash = "sha256-O2RRwb+omgSpfckHh3oPu454g2ULT4gyolrg5olHcRc=";
+    hash = "sha256-C/O+wt3dykQJmH+VsVkpQwEAdyW8goMUMKR0Z3Y7jdo=";
   };
 
   build-system = [
     setuptools
-    pythonRelaxDepsHook
   ];
 
-  pythonRelaxDeps = [
-    "tokenizers"
-  ];
+  pythonRelaxDeps = [ "tokenizers" ];
 
   dependencies = [
     av
@@ -46,16 +43,12 @@ buildPythonPackage rec {
     tokenizers
   ];
 
-  pythonImportsCheck = [
-    "faster_whisper"
-  ];
+  pythonImportsCheck = [ "faster_whisper" ];
 
   # all tests require downloads
   doCheck = false;
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   preCheck = ''
     export HOME=$TMPDIR

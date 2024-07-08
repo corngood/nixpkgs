@@ -1,19 +1,19 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pytestCheckHook
-, pythonOlder
-, pythonRelaxDepsHook
-, pytest-runner
-, aiohttp
-, attrs
-, multidict
-, colorlog
-, pynacl
-, pytest-cov
-, pytest-randomly
-, pytest-asyncio
-, mock
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pytestCheckHook,
+  pythonOlder,
+  pytest-runner,
+  aiohttp,
+  attrs,
+  multidict,
+  colorlog,
+  pynacl,
+  pytest-cov,
+  pytest-randomly,
+  pytest-asyncio,
+  mock,
 }:
 buildPythonPackage rec {
   pname = "hikari";
@@ -36,9 +36,6 @@ buildPythonPackage rec {
     '';
   };
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
-  ];
 
   propagatedBuildInputs = [
     aiohttp
@@ -62,7 +59,7 @@ buildPythonPackage rec {
     mock
   ];
 
-  pythonImportChecks = [ "hikari" ];
+  pythonImportsCheck = [ "hikari" ];
 
   disabled = pythonOlder "3.7";
 

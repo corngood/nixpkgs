@@ -1,16 +1,16 @@
-{ lib
-, fetchFromGitHub
-, buildPythonPackage
-, poetry-core
-, jsonpath-ng
-, jinja2
-, python
-, python-docx
-, matplotlib
-, pyyaml
-, pytestCheckHook
-, pythonOlder
-, pythonRelaxDepsHook
+{
+  lib,
+  fetchFromGitHub,
+  buildPythonPackage,
+  poetry-core,
+  jsonpath-ng,
+  jinja2,
+  python,
+  python-docx,
+  matplotlib,
+  pyyaml,
+  pytestCheckHook,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
@@ -29,7 +29,6 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = [
@@ -41,25 +40,19 @@ buildPythonPackage rec {
     pyyaml
   ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
-  pythonRelaxDeps = [
-    "python-docx"
-  ];
+  pythonRelaxDeps = [ "python-docx" ];
 
   disabledTests = [
     # Broken, re-enable once https://github.com/microsoft/sarif-tools/pull/41 is merged
     "test_version"
   ];
 
-  pythonImportsCheck = [
-    "sarif"
-  ];
+  pythonImportsCheck = [ "sarif" ];
 
   meta = {
-    description = "A set of command line tools and Python library for working with SARIF files";
+    description = "Set of command line tools and Python library for working with SARIF files";
     homepage = "https://github.com/microsoft/sarif-tools";
     changelog = "https://github.com/microsoft/sarif-tools/releases/tag/v${version}";
     license = lib.licenses.mit;

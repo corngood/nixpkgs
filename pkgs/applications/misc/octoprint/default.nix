@@ -116,13 +116,13 @@ let
           self: super: {
             octoprint = self.buildPythonPackage rec {
               pname = "OctoPrint";
-              version = "1.10.0";
+              version = "1.10.2";
 
               src = fetchFromGitHub {
                 owner = "OctoPrint";
                 repo = "OctoPrint";
                 rev = version;
-                hash = "sha256-gM989Wh4HYU5/afCcZ6iRJWb4bkFZfnnxBmyklSZep4=";
+                hash = "sha256-vISMps2v18A7MkF24SyIcK5yOQsTxBQLnKybVd8R2FU=";
               };
 
               propagatedBuildInputs = with self; [
@@ -256,7 +256,7 @@ let
 
               meta = with lib; {
                 homepage = "https://octoprint.org/";
-                description = "The snappy web interface for your 3D printer";
+                description = "Snappy web interface for your 3D printer";
                 mainProgram = "octoprint";
                 license = licenses.agpl3Only;
                 maintainers = with maintainers; [ abbradar gebner WhittlesJr gador ];

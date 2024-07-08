@@ -1,5 +1,5 @@
 { lib, stdenv, fetchFromGitLab, cmake, ninja, pkg-config, wrapGAppsHook3
-, curl, fuse3
+, curl, fuse3, fetchpatch2
 , desktopToDarwinBundle
 , glib, gtk3, gettext, libxkbfile, libX11, python3
 , freerdp3, libssh, libgcrypt, gnutls, vte
@@ -9,7 +9,7 @@
 , openssl, gsettings-desktop-schemas, json-glib, libsodium, webkitgtk_4_1, harfbuzz
 , wayland
 # The themes here are soft dependencies; only icons are missing without them.
-, gnome
+, adwaita-icon-theme
 , withKf5Wallet ? stdenv.isLinux, libsForQt5
 , withLibsecret ? stdenv.isLinux
 , withVte ? true
@@ -26,11 +26,19 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-0z2fcBnChCBYPxyFm/xpAW0jHaUGA92NQgjt+lWFUnM=";
   };
 
+  patches = [
+    (fetchpatch2 {
+      name = "add-a-conditional-check-for-darwin-and-NetBSD.patch";
+      url = "https://gitlab.com/Remmina/Remmina/-/commit/3b681398c823e070c7f780166b9d9fc2158e66c1.diff";
+      hash = "sha256-Ovdrsl9bftXiuXV+sqvDP9VGuXQZzC5VKOmkYmBXhNA=";
+    })
+  ];
+
   nativeBuildInputs = [ cmake ninja pkg-config wrapGAppsHook3 ]
     ++ lib.optionals stdenv.isDarwin [ desktopToDarwinBundle ];
 
   buildInputs = [
-    curl fuse3
+    curl
     gsettings-desktop-schemas
     glib gtk3 gettext libxkbfile libX11
     freerdp3 libssh libgcrypt gnutls
@@ -39,10 +47,10 @@ stdenv.mkDerivation (finalAttrs: {
     libsoup_3 spice-protocol
     spice-gtk
     libepoxy at-spi2-core
-    openssl gnome.adwaita-icon-theme json-glib libsodium
+    openssl adwaita-icon-theme json-glib libsodium
     harfbuzz python3
     wayland
-  ] ++ lib.optionals stdenv.isLinux [ libappindicator-gtk3 libdbusmenu-gtk3 webkitgtk_4_1 ]
+  ] ++ lib.optionals stdenv.isLinux [ fuse3 libappindicator-gtk3 libdbusmenu-gtk3 webkitgtk_4_1 ]
     ++ lib.optionals withLibsecret [ libsecret ]
     ++ lib.optionals withKf5Wallet [ libsForQt5.kwallet ]
     ++ lib.optionals withVte [ vte ];

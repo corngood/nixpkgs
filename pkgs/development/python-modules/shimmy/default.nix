@@ -1,18 +1,19 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, setuptools
-, wheel
-, gymnasium
-, numpy
-, ale-py
-, bsuite
-, dm-control
-, gym
-, imageio
-, pettingzoo
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchFromGitHub,
+  setuptools,
+  wheel,
+  gymnasium,
+  numpy,
+  ale-py,
+  bsuite,
+  dm-control,
+  gym,
+  imageio,
+  pettingzoo,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -52,8 +53,15 @@ buildPythonPackage rec {
   ];
 
   disabledTestPaths = [
+    # Requires unpackaged labmaze
+    "tests/test_dm_control_multi_agent.py"
+
     # Requires unpackaged pyspiel
     "tests/test_openspiel.py"
+
+    # Broken since ale-py v0.9.0 due to API change
+    # https://github.com/Farama-Foundation/Shimmy/issues/120
+    "tests/test_atari.py"
   ];
 
   preCheck = ''
@@ -84,7 +92,7 @@ buildPythonPackage rec {
 
   meta = {
     changelog = "https://github.com/Farama-Foundation/Shimmy/releases/tag/v${version}";
-    description = "An API conversion tool for popular external reinforcement learning environments";
+    description = "API conversion tool for popular external reinforcement learning environments";
     homepage = "https://github.com/Farama-Foundation/Shimmy";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ GaetanLepage ];

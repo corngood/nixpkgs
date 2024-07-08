@@ -1,15 +1,15 @@
-{ stdenv
-, lib
-, buildPythonPackage
-, cryptography
-, dask
-, distributed
-, docrep
-, fetchPypi
-, pytest-asyncio
-, pytestCheckHook
-, pythonAtLeast
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  cryptography,
+  dask,
+  distributed,
+  docrep,
+  fetchPypi,
+  pytest-asyncio,
+  pytestCheckHook,
+  pythonAtLeast,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
@@ -75,12 +75,9 @@ buildPythonPackage rec {
     "test_wrong_parameter_error"
   ];
 
-  pythonImportsCheck = [
-    "dask_jobqueue"
-  ];
+  pythonImportsCheck = [ "dask_jobqueue" ];
 
   meta = with lib; {
-    broken = stdenv.isDarwin;
     description = "Deploy Dask on job schedulers like PBS, SLURM, and SGE";
     homepage = "https://github.com/dask/dask-jobqueue";
     license = licenses.bsd3;

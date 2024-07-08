@@ -7,14 +7,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "vunnel";
-  version = "0.23.0";
+  version = "0.23.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "anchore";
     repo = "vunnel";
     rev = "refs/tags/v${version}";
-    hash = "sha256-pfR3LxC1sSvLKIwq0P/9DcNkGVIIDfwMiSOpwJ7km9Y=";
+    hash = "sha256-wXBfrlb4i4G3Sm0SopvDVGcQ0/hRGtUdzUQYyUj8/Ps=";
   };
 
   pythonRelaxDeps = [
@@ -22,7 +22,6 @@ python3.pkgs.buildPythonApplication rec {
     "sqlalchemy"
   ];
 
-  nativeBuildInputs = with python3.pkgs; [ pythonRelaxDepsHook ];
 
   build-system = with python3.pkgs; [
     poetry-core

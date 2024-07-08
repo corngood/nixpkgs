@@ -1,14 +1,16 @@
-{ lib, stdenv
-, buildPythonPackage
-, fetchFromGitHub
-, six
-, setuptools-scm
-, xorg
-, python
-, mock
-, nose
-, pytestCheckHook
-, util-linux
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  fetchFromGitHub,
+  six,
+  setuptools-scm,
+  xorg,
+  python,
+  mock,
+  nose,
+  pytestCheckHook,
+  util-linux,
 }:
 
 buildPythonPackage rec {
@@ -23,17 +25,11 @@ buildPythonPackage rec {
     hash = "sha256-u06OWlMIOUzHOVS4hvm72jGgTSXWUqMvEQd8bTpFog0=";
   };
 
-  nativeBuildInputs = [
-    setuptools-scm
-  ];
+  nativeBuildInputs = [ setuptools-scm ];
 
-  buildInputs = [
-    xorg.libX11
-  ];
+  buildInputs = [ xorg.libX11 ];
 
-  propagatedBuildInputs = [
-    six
-  ];
+  propagatedBuildInputs = [ six ];
 
   doCheck = !stdenv.isDarwin;
 
@@ -43,7 +39,7 @@ buildPythonPackage rec {
     nose
     util-linux
     xorg.xauth
-    xorg.xorgserver
+    xorg.xvfb
   ];
 
   disabledTestPaths = [
@@ -58,5 +54,4 @@ buildPythonPackage rec {
     license = licenses.lgpl21Plus;
     maintainers = with maintainers; [ ];
   };
-
 }

@@ -1,30 +1,30 @@
-{ lib
-, buildPythonPackage
-, hypothesis
-, fetchpatch
-, fetchPypi
-, setuptools
-, setuptools-scm
-, cloudpickle
-, cython
-, jinja2
-, numpy
-, psutil
-, pynvml
-, pytestCheckHook
-, pythonOlder
-, rich
+{
+  lib,
+  buildPythonPackage,
+  hypothesis,
+  fetchPypi,
+  setuptools,
+  setuptools-scm,
+  cloudpickle,
+  cython,
+  jinja2,
+  numpy,
+  psutil,
+  pynvml,
+  pytestCheckHook,
+  pythonOlder,
+  rich,
 }:
 
 buildPythonPackage rec {
   pname = "scalene";
-  version = "1.5.41";
+  version = "1.5.42.2";
   pyproject = true;
   disabled = pythonOlder "3.9";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-akjxv9Qot2lGntZxkxfFqz65VboL1qduykfjyEg1Ivg=";
+    hash = "sha256-0ZGk0xFBFSeeg4vjNXu/ppGdEKGhUc2ql4R6oWG23aQ=";
   };
 
   nativeBuildInputs = [
@@ -43,9 +43,7 @@ buildPythonPackage rec {
 
   __darwinAllowLocalNetworking = true;
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   checkInputs = [
     hypothesis

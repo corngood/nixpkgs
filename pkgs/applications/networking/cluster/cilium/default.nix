@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "cilium-cli";
-  version = "0.16.7";
+  version = "0.16.11";
 
   src = fetchFromGitHub {
     owner = "cilium";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-+Uxn9yR3D38CuvFeBA62aWLtY4rPrBJoF3tUmgKvKpw=";
+    hash = "sha256-muIVjT6ssNejp5O8ju06h9e7ZVcfwXyHgQIa0IEP4Xg=";
   };
 
   vendorHash = null;

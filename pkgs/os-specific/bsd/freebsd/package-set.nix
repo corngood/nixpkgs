@@ -7,6 +7,7 @@
   versionData,
   buildFreebsd,
   patchesRoot,
+  writeText,
 }:
 
 self:
@@ -17,7 +18,7 @@ lib.packagesFromDirectoryRecursive {
 }
 // {
   inherit sourceData patchesRoot versionData;
-  patches = ./patches/${self.versionData.revision};
+  patches = ./patches + "/${self.versionData.revision}";
 
   # Keep the crawled portion of Nixpkgs finite.
   buildFreebsd = lib.dontRecurseIntoAttrs buildFreebsd;
@@ -39,6 +40,7 @@ lib.packagesFromDirectoryRecursive {
         ]
       )
     );
+    inherit lib writeText;
   };
 
   # The manual callPackages below should in principle be unnecessary, but are

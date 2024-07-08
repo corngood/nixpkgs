@@ -2,7 +2,7 @@
 , fetchFromGitHub
 , gitUpdater
 , glibcLocales
-, gnome
+, adwaita-icon-theme
 , gobject-introspection
 , gtk3
 , intltool
@@ -42,7 +42,7 @@ python3Packages.buildPythonApplication rec {
   buildInputs = [
     python3
     gtk3
-    gnome.adwaita-icon-theme
+    adwaita-icon-theme
   ];
 
   nativeCheckInputs = with python3Packages; [
@@ -87,7 +87,7 @@ python3Packages.buildPythonApplication rec {
   passthru.updateScript = gitUpdater {};
 
   meta = with lib; {
-    description = "A podcatcher written in python";
+    description = "Podcatcher written in python";
     longDescription = ''
       gPodder downloads and manages free audio and video content (podcasts)
       for you. Listen directly on your computer or on your mobile devices.

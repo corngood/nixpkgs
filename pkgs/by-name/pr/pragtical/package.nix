@@ -20,7 +20,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "pragtical";
-  version = "3.3.1";
+  version = "3.4.0";
   pluginManagerVersion = "1.2.9";
 
   src = fetchFromGitHub {
@@ -44,7 +44,7 @@ stdenv.mkDerivation (finalAttrs: {
       find subprojects -type d -name .git -prune -execdir rm -r {} +
     '';
 
-    hash = "sha256-T0IHpfMfx4P84RyBLtaYNead6a7cID2cUYwkyNnYMgc=";
+    hash = "sha256-6feS9ougTlunkIr1WRUYieR4O8vHN1++VdfX5DreWFg=";
   };
 
   nativeBuildInputs = [
@@ -73,7 +73,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     changelog = "https://github.com/pragtical/pragtical/blob/${finalAttrs.src.rev}/changelog.md";
-    description = "A practical and pragmatic code editor";
+    description = "Practical and pragmatic code editor";
     homepage = "https://pragtical.dev";
     license = lib.licenses.mit;
     mainProgram = "pragtical";

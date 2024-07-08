@@ -1,6 +1,7 @@
 { stdenv
 , lib
 , fetchFromGitHub
+, fetchpatch
 , cmake
 , pkg-config
 , doxygen
@@ -15,19 +16,29 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "dtk6core";
-  version = "6.0.15";
+  version = "6.0.16";
 
   src = fetchFromGitHub {
     owner = "linuxdeepin";
     repo = "dtk6core";
     rev = finalAttrs.version;
-    hash = "sha256-zUJFilafR0hNH/Owmuyh6BLBFPbBuFKcHv40fena0GM=";
+    hash = "sha256-m2unpWx8FBvZT8AmdFlzc5dp55kgtDsR62SHF8RwHhU=";
   };
 
   patches = [
     ./fix-pkgconfig-path.patch
     ./fix-pri-path.patch
+    (fetchpatch {
+      name = "fix-build-on-qt-6_7_1.patch";
+      url = "https://github.com/linuxdeepin/dtkcore/commit/10bd3842bbde41fbc61c35b81d280075d053119b.patch";
+      hash = "sha256-xZ3BhiMB6S5NJtPUEjtChCB9Jr1BI0mu7AMjyNMqt9w=";
+    })
   ];
+
+  postPatch = ''
+    substituteInPlace misc/DtkCoreConfig.cmake.in \
+      --subst-var-by PACKAGE_TOOL_INSTALL_DIR ${placeholder "out"}/libexec/dtk6/DCore/bin
+  '';
 
   nativeBuildInputs = [
     cmake

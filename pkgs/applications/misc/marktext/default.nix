@@ -31,8 +31,8 @@ appimageTools.wrapType2 rec {
   '';
 
   meta = with lib; {
-    description = "A simple and elegant markdown editor, available for Linux, macOS and Windows";
-    homepage = "https://marktext.app";
+    description = "Simple and elegant markdown editor, available for Linux, macOS and Windows";
+    homepage = "https://www.marktext.cc";
     license = licenses.mit;
     maintainers = with maintainers; [ nh2 eduarrrd ];
     platforms = [ "x86_64-linux" ];

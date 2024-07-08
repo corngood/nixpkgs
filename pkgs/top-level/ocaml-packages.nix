@@ -119,6 +119,8 @@ let
 
     bwd = callPackage ../development/ocaml-modules/bwd { };
 
+    bytestring = callPackage ../development/ocaml-modules/bytestring { };
+
     bz2 = callPackage ../development/ocaml-modules/bz2 { };
 
     ### C ###
@@ -231,6 +233,8 @@ let
 
     color = callPackage ../development/ocaml-modules/color { };
 
+    colors = callPackage ../development/ocaml-modules/colors { };
+
     conduit = callPackage ../development/ocaml-modules/conduit { };
 
     conduit-async = callPackage ../development/ocaml-modules/conduit/async.nix { };
@@ -240,6 +244,8 @@ let
     conduit-lwt-unix = callPackage ../development/ocaml-modules/conduit/lwt-unix.nix { };
 
     conduit-mirage = callPackage ../development/ocaml-modules/conduit/mirage.nix { };
+
+    config = callPackage ../development/ocaml-modules/config { };
 
     config-file = callPackage ../development/ocaml-modules/config-file { };
 
@@ -460,6 +466,8 @@ let
 
     eqaf = callPackage ../development/ocaml-modules/eqaf { };
 
+    eqaf-cstruct = callPackage ../development/ocaml-modules/eqaf/cstruct.nix { };
+
     erm_xml = callPackage ../development/ocaml-modules/erm_xml { };
 
     erm_xmpp = callPackage ../development/ocaml-modules/erm_xmpp { };
@@ -473,6 +481,8 @@ let
     extlib-1-7-7 = callPackage ../development/ocaml-modules/extlib/1.7.7.nix { };
 
     ezjsonm = callPackage ../development/ocaml-modules/ezjsonm { };
+
+    ezjsonm-encoding = callPackage ../development/ocaml-modules/ezjsonm-encoding { };
 
     ezxmlm = callPackage ../development/ocaml-modules/ezxmlm { };
 
@@ -566,7 +576,8 @@ let
 
     gapi-ocaml = callPackage ../development/ocaml-modules/gapi-ocaml { };
 
-    gd4o = callPackage ../development/ocaml-modules/gd4o { };
+    gd4o = throw "ocamlPackages.gd4o is not maintained, use ocamlPackages.gd instead";
+    gd = callPackage ../development/ocaml-modules/gd { inherit (pkgs) gd; };
 
     gen = callPackage ../development/ocaml-modules/gen { };
 
@@ -598,6 +609,12 @@ let
     github-data = callPackage ../development/ocaml-modules/github/data.nix {  };
     github-jsoo = callPackage ../development/ocaml-modules/github/jsoo.nix {  };
     github-unix = callPackage ../development/ocaml-modules/github/unix.nix {  };
+
+    gitlab = callPackage ../development/ocaml-modules/gitlab {  };
+    gitlab-jsoo = callPackage ../development/ocaml-modules/gitlab/jsoo.nix {  };
+    gitlab-unix = callPackage ../development/ocaml-modules/gitlab/unix.nix {  };
+
+    gluon = callPackage ../development/ocaml-modules/gluon { };
 
     gluten = callPackage ../development/ocaml-modules/gluten { };
     gluten-eio = callPackage ../development/ocaml-modules/gluten/eio.nix { };
@@ -949,6 +966,8 @@ let
 
     letsencrypt-mirage = callPackage ../development/ocaml-modules/letsencrypt/mirage.nix { };
 
+    libc = callPackage ../development/ocaml-modules/libc { };
+
     lilv = callPackage ../development/ocaml-modules/lilv {
       inherit (pkgs) lilv;
     };
@@ -1036,6 +1055,8 @@ let
     };
 
     mec = callPackage ../development/ocaml-modules/mec { };
+
+    memprof-limits = callPackage ../development/ocaml-modules/memprof-limits { };
 
     memtrace = callPackage ../development/ocaml-modules/memtrace { };
 
@@ -1292,6 +1313,7 @@ let
     ocamlformat_0_25_1 = ocamlformat.override { version = "0.25.1"; };
     ocamlformat_0_26_0 = ocamlformat.override { version = "0.26.0"; };
     ocamlformat_0_26_1 = ocamlformat.override { version = "0.26.1"; };
+    ocamlformat_0_26_2 = ocamlformat.override { version = "0.26.2"; };
 
     ocamlformat = callPackage ../development/ocaml-modules/ocamlformat/ocamlformat.nix {};
 
@@ -1632,6 +1654,8 @@ let
 
     ringo = callPackage ../development/ocaml-modules/ringo { };
 
+    rio = callPackage ../development/ocaml-modules/rio { };
+
     riot = callPackage ../development/ocaml-modules/riot { };
 
     rock = callPackage ../development/ocaml-modules/rock { };
@@ -1709,6 +1733,8 @@ let
     };
 
     spelll = callPackage ../development/ocaml-modules/spelll { };
+
+    spices = callPackage ../development/ocaml-modules/spices { };
 
     srt = callPackage ../development/ocaml-modules/srt {
       inherit (pkgs) srt;
@@ -2013,13 +2039,6 @@ in let inherit (pkgs) callPackage; in rec
   ocamlPackages_latest = ocamlPackages_5_2;
 
   ocamlPackages = ocamlPackages_5_1;
-
-  # This is a nasty way to replace toplevel janestreet attributes in the scope,
-  # so that modules outside of ocamlPackages that depend on JS OCaml libraries
-  # *and* non-JS OCaml libraries can pull in the same version of JS transitive
-  # dependencies. Remove this once ligo and stanc can be compiled against
-  # janestreet 0.16 libraries.
-  ocamlPackages_4_14_janeStreet_0_15 = ocamlPackages_4_14.overrideScope (self: super: super // super.janeStreet_0_15);
 
   # We still have packages that rely on unsafe-string, which is deprecated in OCaml 4.06.0.
   # Below are aliases for porting them to the latest versions of the OCaml 4 series.

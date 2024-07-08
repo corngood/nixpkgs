@@ -87,7 +87,7 @@ let
     extraOutputsToInstall = [ "lib" "out" ];
   };
 
-  version = "0.87.0";
+  version = "0.89.0";
 in
 stdenv.mkDerivation {
   pname = "nwjs";
@@ -98,10 +98,10 @@ stdenv.mkDerivation {
     in fetchurl {
       url = "https://dl.nwjs.io/v${version}/nwjs-${flavor}v${version}-linux-${bits}.tar.gz";
       hash = {
-        "sdk-ia32" = "sha256-We4tSI8rQbEIoxNgTP/IkL/sD7GegVQDAtXUSY4AoB0=";
-        "sdk-x64" = "sha256-pWsNVHNm1gVAy9ofZ6g1Im5TpzxM2bmJ6RENa21N4qM=";
-        "ia32" = "sha256-ExxzzErT3GBI1yLYycojDkzKZ2VuvsOjaingQiK1Kww=";
-        "x64" = "sha256-tKm3aTlfPuevdjqFFEVU6nvIixoBDUcnJPFyO1PNRqE=";
+        "sdk-ia32" = "sha256-gHZLxZRborfbwmblKQrgr6tf+Rwt1YqxrGELAHPM0so=";
+        "sdk-x64" = "sha256-NOQGS3jEdZumTwCmi0DUtnGlOaSAZi2rGYSLVioJDdg=";
+        "ia32" = "sha256-L3PGK2YZCUo+KfkakL9AjkPcnUWPFOn4S2GePi+rph0=";
+        "x64" = "sha256-epsbDjrpq4K7NnNDAcKoEJMcjfdehU2JjFcmA5exug8=";
       }."${flavor + bits}";
     };
 
@@ -138,7 +138,7 @@ stdenv.mkDerivation {
     '';
 
   meta = with lib; {
-    description = "An app runtime based on Chromium and node.js";
+    description = "App runtime based on Chromium and node.js";
     homepage = "https://nwjs.io/";
     platforms = [ "i686-linux" "x86_64-linux" ];
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];

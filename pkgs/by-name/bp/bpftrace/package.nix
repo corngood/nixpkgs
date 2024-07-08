@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch
+{ lib, stdenv, fetchFromGitHub
 , llvmPackages, elfutils, bcc
 , libbpf, libbfd, libopcodes
 , cereal, asciidoctor
@@ -9,13 +9,13 @@
 
 stdenv.mkDerivation rec {
   pname = "bpftrace";
-  version = "0.20.3";
+  version = "0.20.4";
 
   src = fetchFromGitHub {
     owner = "iovisor";
     repo  = "bpftrace";
     rev   = "v${version}";
-    hash  = "sha256-B4BxoZSPSpDWLUgcYgQEmuhVr2mX04hrFCLu04vp1so=";
+    hash  = "sha256-GJSUHMOp3vCWj8C+1mBHcnUgxLUWUz8Jd8wpq7u0q3s=";
   };
 
 
@@ -67,5 +67,6 @@ stdenv.mkDerivation rec {
     mainProgram = "bpftrace";
     license     = licenses.asl20;
     maintainers = with maintainers; [ rvl thoughtpolice martinetd mfrw ];
+    platforms   = platforms.linux;
   };
 }

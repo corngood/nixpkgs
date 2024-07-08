@@ -78,6 +78,7 @@ in rec {
       nginx
       nodejs
       openssh
+      opensshTest
       php
       postgresql
       python
@@ -124,7 +125,7 @@ in rec {
         "nixos.tests.firewall"
         "nixos.tests.ipv6"
         "nixos.tests.login"
-        "nixos.tests.misc.default"
+        "nixos.tests.misc"
         "nixos.tests.nat.firewall"
         "nixos.tests.nat.standalone"
         "nixos.tests.nfs4.simple"
@@ -139,6 +140,7 @@ in rec {
         "nixos.tests.simple"
         "nixpkgs.jdk"
         "nixpkgs.tests-stdenv-gcc-stageCompare"
+        "nixpkgs.opensshTest"
       ])
     ];
   };

@@ -1,68 +1,54 @@
-{ lib
-, stdenv
-, ansible-core
-, buildPythonPackage
-, fetchPypi
-, fetchpatch
-, glibcLocales
-, importlib-metadata
-, mock
-, openssh
-, pbr
-, pexpect
-, psutil
-, pytest-mock
-, pytest-timeout
-, pytest-xdist
-, pytestCheckHook
-, pythonOlder
-, python-daemon
-, pyyaml
-, setuptools
-, six
+{
+  lib,
+  stdenv,
+  ansible-core,
+  buildPythonPackage,
+  fetchPypi,
+  glibcLocales,
+  importlib-metadata,
+  mock,
+  openssh,
+  packaging,
+  pexpect,
+  pytest-mock,
+  pytest-timeout,
+  pytest-xdist,
+  pytestCheckHook,
+  pythonOlder,
+  python-daemon,
+  pyyaml,
+  setuptools,
+  setuptools-scm,
 }:
 
 buildPythonPackage rec {
   pname = "ansible-runner";
-  version = "2.3.6";
+  version = "2.4.0";
   pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.9";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-shdKEtytLcLzQuqCh2iY9WigtmxTVoYAv4BXcVj8uhw=";
+    hash = "sha256-gtArJUiDDzelNRe2XII8SvNxBpQGx9ITtckEHUXgxbY=";
   };
 
-  patches = [
-    (fetchpatch {
-      name = "fix-tests.patch";
-      url = "https://github.com/ansible/ansible-runner/commit/0d522c90cfc1f305e118705a1b3335ccb9c1633d.patch";
-      hash = "sha256-eTnQkftvjK0YHU+ovotRVSuVlvaVeXp5SvYk1DPCg88=";
-      excludes = [ ".github/workflows/ci.yml" "tox.ini" ];
-    })
-    (fetchpatch {
-      # python 3.12 compat
-      url = "https://github.com/ansible/ansible-runner/commit/dc248497bb2375a363222ce755bf3a31f21d5f64.patch";
-      hash = "sha256-QT28Iw0uENoO35rqZpYBcmJB/GNDEF4m86SKf6p0XQU=";
-    })
-  ];
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace '"setuptools>=45, <=69.0.2", "setuptools-scm[toml]>=6.2, <=8.0.4"' '"setuptools", "setuptools-scm"'
+  '';
 
   build-system = [
     setuptools
-    pbr
+    setuptools-scm
   ];
 
   dependencies = [
-    ansible-core
-    psutil
+    packaging
     pexpect
     python-daemon
     pyyaml
-    six
-  ] ++ lib.optionals (pythonOlder "3.10") [
-    importlib-metadata
-  ];
+  ] ++ lib.optionals (pythonOlder "3.10") [ importlib-metadata ];
 
   nativeCheckInputs = [
     ansible-core # required to place ansible CLI onto the PATH in tests
@@ -92,21 +78,20 @@ buildPythonPackage rec {
     "test_validate_pattern"
   ];
 
-  disabledTestPaths = [
-    # These tests unset PATH and then run executables like `bash` (see https://github.com/ansible/ansible-runner/pull/918)
-    "test/integration/test_runner.py"
-    "test/unit/test_runner.py"
-  ]
-  ++ lib.optionals stdenv.isDarwin [
-    # Integration tests on Darwin are not regularly passing in ansible-runner's own CI
-    "test/integration"
-    # These tests write to `/tmp` which is not writable on Darwin
-    "test/unit/config/test__base.py"
-  ];
+  disabledTestPaths =
+    [
+      # These tests unset PATH and then run executables like `bash` (see https://github.com/ansible/ansible-runner/pull/918)
+      "test/integration/test_runner.py"
+      "test/unit/test_runner.py"
+    ]
+    ++ lib.optionals stdenv.isDarwin [
+      # Integration tests on Darwin are not regularly passing in ansible-runner's own CI
+      "test/integration"
+      # These tests write to `/tmp` which is not writable on Darwin
+      "test/unit/config/test__base.py"
+    ];
 
-  pythonImportsCheck = [
-    "ansible_runner"
-  ];
+  pythonImportsCheck = [ "ansible_runner" ];
 
   meta = with lib; {
     description = "Helps when interfacing with Ansible";

@@ -6,6 +6,8 @@
 
   auth-header = callPackage ./auth-header {};
 
+  awtrix = callPackage ./awtrix {};
+
   better_thermostat = callPackage ./better_thermostat {};
 
   emporia_vue = callPackage ./emporia_vue {};
@@ -26,6 +28,8 @@
 
   localtuya = callPackage ./localtuya {};
 
+  midea_ac_lan = callPackage ./midea_ac_lan {};
+
   midea-air-appliances-lan = callPackage ./midea-air-appliances-lan {};
 
   miele = callPackage ./miele {};
@@ -43,6 +47,10 @@
   smartir = callPackage ./smartir {};
 
   smartthinq-sensors = callPackage ./smartthinq-sensors {};
+
+  spook = callPackage ./spook {};
+
+  tuya_local = callPackage ./tuya_local {};
 
   waste_collection_schedule = callPackage ./waste_collection_schedule {};
 

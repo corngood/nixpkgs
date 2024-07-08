@@ -1,18 +1,18 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, ipykernel
-, jupyter-core
-, jupyter-client
-, ipython-genutils
-, pygments
-, pyqt5
-, pytestCheckHook
-, pythonOlder
-, pyzmq
-, qtpy
-, setuptools
-, traitlets
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  ipykernel,
+  jupyter-core,
+  jupyter-client,
+  pygments,
+  pyqt5,
+  pytestCheckHook,
+  pythonOlder,
+  pyzmq,
+  qtpy,
+  setuptools,
+  traitlets,
 }:
 
 buildPythonPackage rec {
@@ -27,13 +27,10 @@ buildPythonPackage rec {
     hash = "sha256-a1+xEnSyl0Y3Bq+E3LvVySJzsfYZ5tJdCIdLCohRaYk=";
   };
 
-  build-system = [
-    setuptools
-  ];
+  build-system = [ setuptools ];
 
   dependencies = [
     ipykernel
-    ipython-genutils
     jupyter-core
     jupyter-client
     pygments
@@ -43,16 +40,12 @@ buildPythonPackage rec {
     traitlets
   ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   # : cannot connect to X server
   doCheck = false;
 
-  pythonImportsCheck = [
-    "qtconsole"
-  ];
+  pythonImportsCheck = [ "qtconsole" ];
 
   meta = with lib; {
     description = "Jupyter Qt console";

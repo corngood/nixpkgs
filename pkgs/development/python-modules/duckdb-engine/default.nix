@@ -1,22 +1,22 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pytestCheckHook
-, pythonOlder
-, duckdb
-, hypothesis
-, ipython-sql
-, pandas
-, poetry-core
-, pytest-remotedata
-, snapshottest
-, sqlalchemy
-, typing-extensions
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pytestCheckHook,
+  pythonOlder,
+  duckdb,
+  hypothesis,
+  pandas,
+  poetry-core,
+  pytest-remotedata,
+  snapshottest,
+  sqlalchemy,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "duckdb-engine";
-  version = "0.12.0";
+  version = "0.13.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -25,12 +25,10 @@ buildPythonPackage rec {
     repo = "duckdb_engine";
     owner = "Mause";
     rev = "refs/tags/v${version}";
-    hash = "sha256-cm0vbz0VZ2Ws6FDWJO16q4KZW2obs0CBNrfY9jmR+6A=";
+    hash = "sha256-XbO9LyweJ+pYQvEbdmiUJnVNr2BQAgwu9Imq7rAFEYg=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  nativeBuildInputs = [ poetry-core ];
 
   propagatedBuildInputs = [
     duckdb
@@ -41,18 +39,10 @@ buildPythonPackage rec {
     export HOME="$(mktemp -d)"
   '';
 
-  disabledTests = [
-    # test should be skipped based on sqlalchemy version but isn't and fails
-    "test_commit"
-  ];
-
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   checkInputs = [
     hypothesis
-    ipython-sql
     pandas
     pytest-remotedata
     snapshottest
@@ -60,12 +50,11 @@ buildPythonPackage rec {
   ];
 
   pytestFlagsArray = [
-    "-m" "'not remote_data'"
+    "-m"
+    "'not remote_data'"
   ];
 
-  pythonImportsCheck = [
-    "duckdb_engine"
-  ];
+  pythonImportsCheck = [ "duckdb_engine" ];
 
   meta = with lib; {
     description = "SQLAlchemy driver for duckdb";

@@ -1,22 +1,23 @@
 { lib, rustPlatform, fetchgit
 , pkg-config, protobuf, python3, wayland-scanner
 , libcap, libdrm, libepoxy, minijail, virglrenderer, wayland, wayland-protocols
+, pkgsCross
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "crosvm";
-  version = "124.0";
+  version = "126.0";
 
   src = fetchgit {
     url = "https://chromium.googlesource.com/chromiumos/platform/crosvm";
-    rev = "bc2900b9ccbdf37b780a63888ca94437fd7dd6af";
-    hash = "sha256-t/47u5BlSC5vbRc7OQSbGBF+wnhcDFOMjrRQc/p2HcQ=";
+    rev = "5533201f3ff3230d121e06100557d369c055e6dc";
+    hash = "sha256-Ufi8dIhNgXvD53PWLG2uj7CD37UZIegrqAQz3wTKTvE=";
     fetchSubmodules = true;
   };
 
   separateDebugInfo = true;
 
-  cargoHash = "sha256-7zx0k7HXequpwcURHx+Ml3cDhdvLkXTg+V71F6TO/d0=";
+  cargoHash = "sha256-E2lyBgptQs+/5JS2WJc4ietguXdK16DFEVzqylmX+Pk=";
 
   nativeBuildInputs = [
     pkg-config protobuf python3 rustPlatform.bindgenHook wayland-scanner
@@ -35,10 +36,15 @@ rustPlatform.buildRustPackage rec {
 
   buildFeatures = [ "virgl_renderer" ];
 
-  passthru.updateScript = ./update.py;
+  passthru = {
+    updateScript = ./update.py;
+    tests = {
+      musl = pkgsCross.musl64.crosvm;
+    };
+  };
 
   meta = with lib; {
-    description = "A secure virtual machine monitor for KVM";
+    description = "Secure virtual machine monitor for KVM";
     homepage = "https://crosvm.dev/";
     mainProgram = "crosvm";
     maintainers = with maintainers; [ qyliss ];

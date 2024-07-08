@@ -4,6 +4,7 @@
   anthropic,
   attr,
   buildPythonPackage,
+  dataclasses-json,
   fastapi,
   fetchFromGitHub,
   freezegun,
@@ -15,14 +16,13 @@
   pytest-asyncio,
   pytestCheckHook,
   pythonOlder,
-  pythonRelaxDepsHook,
   requests,
   uvicorn,
 }:
 
 buildPythonPackage rec {
   pname = "langsmith";
-  version = "0.1.57";
+  version = "0.1.80";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -31,17 +31,14 @@ buildPythonPackage rec {
     owner = "langchain-ai";
     repo = "langsmith-sdk";
     rev = "refs/tags/v${version}";
-    hash = "sha256-L725AfkmBEe44LkJ0y6PdDvbnbCf31LXL3YdnOshnqE=";
+    hash = "sha256-bkbJKg2ikdkTenAP+GD+Ss13nF8KrizLNM72oDgQgJM=";
   };
 
   sourceRoot = "${src.name}/python";
 
   pythonRelaxDeps = [ "orjson" ];
 
-  build-system = [
-    poetry-core
-    pythonRelaxDepsHook
-  ];
+  build-system = [ poetry-core ];
 
   dependencies = [
     orjson
@@ -51,6 +48,7 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     anthropic
+    dataclasses-json
     fastapi
     freezegun
     httpx
@@ -58,9 +56,7 @@ buildPythonPackage rec {
     pytest-asyncio
     pytestCheckHook
     uvicorn
-  ] ++ lib.optionals stdenv.isLinux [
-    attr
-  ];
+  ] ++ lib.optionals stdenv.isLinux [ attr ];
 
   disabledTests = [
     # These tests require network access
