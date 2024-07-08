@@ -2,10 +2,10 @@
 # Please dont edit it manually, your changes might get overwritten!
 
 { fetchNuGet }: [
-  (fetchNuGet { pname = "FosterFramework"; version = "0.1.18-alpha"; sha256 = "0jglck1ffdyp48sqmadlsxdddlyq45ydfzlxbrqdhszzi92ipq7a"; })
-  (fetchNuGet { pname = "SharpGLTF.Core"; version = "1.0.0-alpha0031"; sha256 = "0ln78mkhbcxqvwnf944hbgg24vbsva2jpih6q3x82d3h7rl1pkh6"; })
-  (fetchNuGet { pname = "SharpGLTF.Runtime"; version = "1.0.0-alpha0031"; sha256 = "0lvb3asi3v0n718qf9y367km7qpkb9wci38y880nqvifpzllw0jg"; })
-  (fetchNuGet { pname = "Sledge.Formats"; version = "1.2.2"; sha256 = "1y0l66m9rym0p1y4ifjlmg3j9lsmhkvbh38frh40rpvf1axn2dyh"; })
-  (fetchNuGet { pname = "Sledge.Formats.Map"; version = "1.1.5"; sha256 = "1bww60hv9xcyxpvkzz5q3ybafdxxkw6knhv97phvpkw84pd0jil6"; })
-  (fetchNuGet { pname = "System.Numerics.Vectors"; version = "4.5.0"; sha256 = "1kzrj37yzawf1b19jq0253rcs8hsq1l2q8g69d7ipnhzb0h97m59"; })
+  (fetchNuGet { pname = "FosterFramework"; version = "0.1.18-alpha"; hash = "sha256-6uAbRYr/a9hwXp1+13wh2NPWWte0qYo1Itc358Jk9Ek="; })
+  (fetchNuGet { pname = "SharpGLTF.Core"; version = "1.0.0-alpha0031"; hash = "sha256-Bs4baD5wNIH6wAbGK4Xaem0i3luQkOQs37izBWdFx1I="; })
+  (fetchNuGet { pname = "SharpGLTF.Runtime"; version = "1.0.0-alpha0031"; hash = "sha256-TwJO6b8ubmwBQh6NyHha8+JT5zHDJ4dROBbsEbUaa1M="; })
+  (fetchNuGet { pname = "Sledge.Formats"; version = "1.2.2"; hash = "sha256-0Ddhuwpu3wwIzA4NuPaEVdMkx6tUukh8uKD6nKoxFPg="; })
+  (fetchNuGet { pname = "Sledge.Formats.Map"; version = "1.1.5"; hash = "sha256-hkYJ2iWIz7vhPWlDOw2fvTenlh+4/D/37Z71tCEwnK8="; })
+  (fetchNuGet { pname = "System.Numerics.Vectors"; version = "4.5.0"; hash = "sha256-qdSTIFgf2htPS+YhLGjAGiLN8igCYJnCCo6r78+Q+c8="; })
 ]
