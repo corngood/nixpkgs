@@ -2,14 +2,14 @@
 # Please dont edit it manually, your changes might get overwritten!
 
 { fetchNuGet }: [
-  (fetchNuGet { pname = "Microsoft.NETCore.Platforms"; version = "5.0.0"; sha256 = "0mwpwdflidzgzfx2dlpkvvnkgkr2ayaf0s80737h4wa35gaj11rc"; })
-  (fetchNuGet { pname = "Microsoft.Win32.Registry"; version = "5.0.0"; sha256 = "102hvhq2gmlcbq8y2cb7hdr2dnmjzfp2k3asr1ycwrfacwyaak7n"; })
-  (fetchNuGet { pname = "protobuf-net"; version = "3.2.16"; sha256 = "0pwlqlq2p8my2sr8b0cvdav5cm8wpwf3s4gy7s1ba701ac2zyb9y"; })
-  (fetchNuGet { pname = "protobuf-net.Core"; version = "3.2.16"; sha256 = "00znhikq7valr3jaxg66cwli9hf75wkmmpf6rf8p790hf8lxq0c5"; })
-  (fetchNuGet { pname = "QRCoder"; version = "1.4.3"; sha256 = "1hmlqbdyq5n9bsmns5h0dwcxpd2jvqr9a2y6dyc9kbjmc8j1dpla"; })
-  (fetchNuGet { pname = "SteamKit2"; version = "2.5.0-beta.1"; sha256 = "0691285g4z12hv5kpv72l36h45086n14rw56x3dnixcvrjzg2q01"; })
-  (fetchNuGet { pname = "System.Collections.Immutable"; version = "7.0.0"; sha256 = "1n9122cy6v3qhsisc9lzwa1m1j62b8pi2678nsmnlyvfpk0zdagm"; })
-  (fetchNuGet { pname = "System.Runtime.CompilerServices.Unsafe"; version = "6.0.0"; sha256 = "0qm741kh4rh57wky16sq4m0v05fxmkjjr87krycf5vp9f0zbahbc"; })
-  (fetchNuGet { pname = "System.Security.AccessControl"; version = "5.0.0"; sha256 = "17n3lrrl6vahkqmhlpn3w20afgz09n7i6rv0r3qypngwi7wqdr5r"; })
-  (fetchNuGet { pname = "System.Security.Principal.Windows"; version = "5.0.0"; sha256 = "1mpk7xj76lxgz97a5yg93wi8lj0l8p157a5d50mmjy3gbz1904q8"; })
+  (fetchNuGet { pname = "Microsoft.NETCore.Platforms"; version = "5.0.0"; hash = "sha256-LIcg1StDcQLPOABp4JRXIs837d7z0ia6+++3SF3jl1c="; })
+  (fetchNuGet { pname = "Microsoft.Win32.Registry"; version = "5.0.0"; hash = "sha256-9kylPGfKZc58yFqNKa77stomcoNnMeERXozWJzDcUIA="; })
+  (fetchNuGet { pname = "protobuf-net"; version = "3.2.16"; hash = "sha256-Pi3/BVMBHLWCPv4RPRy/HFVWtmqbgYWyFr6iKzDFlF8="; })
+  (fetchNuGet { pname = "protobuf-net.Core"; version = "3.2.16"; hash = "sha256-hQHcKXIQpHORy8bdWicvx8EUKWfGvK7kyFTtg2eE9gM="; })
+  (fetchNuGet { pname = "QRCoder"; version = "1.4.3"; hash = "sha256-it4WJGJVrpmYb8YLlTLeUrTbGW8AFm2rXskW7NvCtMI="; })
+  (fetchNuGet { pname = "SteamKit2"; version = "2.5.0-beta.1"; hash = "sha256-AWDxvsyb9Wjb6KbwTII1CBQCzaDi7DvLhiJ88goSIRk="; })
+  (fetchNuGet { pname = "System.Collections.Immutable"; version = "7.0.0"; hash = "sha256-9an2wbxue2qrtugYES9awshQg+KfJqajhnhs45kQIdk="; })
+  (fetchNuGet { pname = "System.Runtime.CompilerServices.Unsafe"; version = "6.0.0"; hash = "sha256-bEG1PnDp7uKYz/OgLOWs3RWwQSVYm+AnPwVmAmcgp2I="; })
+  (fetchNuGet { pname = "System.Security.AccessControl"; version = "5.0.0"; hash = "sha256-ueSG+Yn82evxyGBnE49N4D+ngODDXgornlBtQ3Omw54="; })
+  (fetchNuGet { pname = "System.Security.Principal.Windows"; version = "5.0.0"; hash = "sha256-CBOQwl9veFkrKK2oU8JFFEiKIh/p+aJO+q9Tc2Q/89Y="; })
 ]
