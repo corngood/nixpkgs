@@ -239,7 +239,7 @@ stdenvNoCC.mkDerivation (args // {
       excludedSources =
         lib.concatStringsSep " " (map lib.escapeShellArg sdkDeps);
     in substituteAll {
-      name = "fetch-deps";
+      name = "${name}-fetch-deps";
       src = ./fetch-deps.sh;
       isExecutable = true;
       inherit pname defaultDepsFile runtimeIds storeSrc flags disableParallel
