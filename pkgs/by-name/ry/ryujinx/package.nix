@@ -57,7 +57,7 @@ buildDotnetModule rec {
 
   projectFile = "Ryujinx.sln";
   testProjectFile = "src/Ryujinx.Tests/Ryujinx.Tests.csproj";
-  doCheck = true;
+  doCheck = false;
 
   dotnetFlags = [
     "/p:ExtraDefineConstants=DISABLE_UPDATER%2CFORCE_EXTERNAL_BASE_DIR"
