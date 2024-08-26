@@ -4,6 +4,7 @@
 , dotnetCorePackages
 , marksman
 , testers
+, newtonsoft-json
 }:
 
 buildDotnetModule rec {
@@ -19,6 +20,8 @@ buildDotnetModule rec {
 
   projectFile = "Marksman/Marksman.fsproj";
   dotnetBuildFlags = [ "-p:VersionString=${version}" ];
+
+  buildInputs = [ newtonsoft-json ];
 
   __darwinAllowLocalNetworking = true;
 
