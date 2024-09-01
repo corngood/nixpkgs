@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>dotnet_deps</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="newtonsoft.json" Version="13.0.3" />
+    <PackageReference Include="nuget.dependencyresolver.core" Version="6.11.0" />
+    <PackageReference Include="nuget.protocol" Version="6.11.0" />
+  </ItemGroup>
+
+</Project>
