@@ -7,7 +7,6 @@
 , scons
 , python3
 , mkNugetDeps
-, mkNugetSource
 , writeText
 , vulkan-loader
 , libGL
@@ -35,6 +34,7 @@
 , withFontconfig ? true
 , withUdev ? true
 , withTouch ? true
+, deps ? ./deps.nix
 , dotnet-sdk
 , mono
 , dotnet-runtime
@@ -48,31 +48,12 @@ let
     if builtins.isString v
     then "${k}=${v}"
     else "${k}=${builtins.toJSON v}");
+
 in
 stdenv.mkDerivation rec {
   pname = "godot4-mono";
   version = "4.2.1-stable";
   commitHash = "b09f793f564a6c95dc76acc654b390e68441bd01";
-
-  nugetDeps = mkNugetDeps { name = "deps"; nugetDeps = import ./deps.nix; };
-
-  shouldConfigureNuget = true;
-
-  nugetSource =
-    mkNugetSource {
-      name = "${pname}-nuget-source";
-      description = "A Nuget source with dependencies for ${pname}";
-      deps = [ nugetDeps ];
-  };
-
-  nugetConfig = writeText "NuGet.Config" ''
-    <?xml version="1.0" encoding="utf-8"?>
-    <configuration>
-      <packageSources>
-        <add key="${pname}-deps" value="${nugetSource}/lib" />
-      </packageSources>
-    </configuration>
-  '';
 
   src = fetchFromGitHub {
     owner = "godotengine";
@@ -80,6 +61,8 @@ stdenv.mkDerivation rec {
     rev = commitHash;
     hash = "sha256-Q6Og1H4H2ygOryMPyjm6kzUB6Su6T9mJIp0alNAxvjQ";
   };
+
+  keepNugetConfig = (deps == null);
 
   nativeBuildInputs = [
     pkg-config
@@ -93,7 +76,9 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     scons
-  ];
+  ]
+  ++ lib.optional (deps != null)
+    (mkNugetDeps { name = "deps"; nugetDeps = import deps; });
 
   runtimeDependencies = [
     vulkan-loader
@@ -150,12 +135,6 @@ stdenv.mkDerivation rec {
     echo "Setting up buildhome."
     mkdir buildhome
     export HOME="$PWD"/buildhome
-
-    if [ -n "$shouldConfigureNuget" ]; then
-      echo "Configuring NuGet."
-      mkdir -p ~/.nuget/NuGet
-      ln -s "$nugetConfig" ~/.nuget/NuGet/NuGet.Config
-    fi
   '';
 
   buildPhase = ''
@@ -205,4 +184,3 @@ stdenv.mkDerivation rec {
     make-deps = callPackage ./make-deps.nix {};
   };
 }
-

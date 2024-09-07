@@ -1,17 +1,11 @@
 { pkgs, nuget-to-nix }:
 
-let godot4-mono = pkgs.callPackage ./default.nix {}; in
+let godot4-mono = pkgs.callPackage ./default.nix { deps = null; }; in
 
 godot4-mono.overrideAttrs (self: base: {
   pname = "godot4-mono-make-deps";
 
   nativeBuildInputs = base.nativeBuildInputs ++ [ nuget-to-nix ];
-
-  nugetDeps = null;
-  nugetSource = null;
-  nugetConfig = null;
-
-  shouldConfigureNuget = false;
 
   outputs = [ "out" ];
   buildPhase = " ";
