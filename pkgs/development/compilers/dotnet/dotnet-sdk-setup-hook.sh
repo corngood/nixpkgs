@@ -104,7 +104,7 @@ configureNuget() {
             xmlConfigArgs+=(-d '//configuration/*')
             xmlRootConfigArgs+=("${xmlSourceConfigArgs[@]}")
         else
-            if [[ -n ${mapNuGetDependencies-} ]]; then
+            if [[ -n ${mapNuGetDependencies-1} ]]; then
                 xmlConfigArgs+=(
                     -s /configuration -t elem -n __tmp
                     # If there's no packageSourceMapping, we need to add * patterns for
