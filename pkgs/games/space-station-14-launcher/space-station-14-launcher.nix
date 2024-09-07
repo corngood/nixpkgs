@@ -6,6 +6,7 @@
 , iconConvTools
 , copyDesktopItems
 , makeDesktopItem
+, avalonia
 , glew
 , SDL2
 , glfw
@@ -64,6 +65,8 @@ buildDotnetModule rec {
     "-p:RobustILLink=true"
     "-nologo"
   ];
+
+  buildInputs = [ avalonia ];
 
   nativeBuildInputs = [ wrapGAppsHook3 iconConvTools copyDesktopItems ];
 

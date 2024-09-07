@@ -8,7 +8,9 @@
   fetchFromGitHub,
   fontconfig,
   lib,
+  nexusmods-app,
   runCommand,
+  nugetPackages,
   pname ? "nexusmods-app",
 }:
 buildDotnetModule (finalAttrs: {
@@ -33,7 +35,20 @@ buildDotnetModule (finalAttrs: {
   projectFile = "src/NexusMods.App/NexusMods.App.csproj";
   testProjectFile = "NexusMods.App.sln";
 
-  buildInputs = [ avalonia ];
+  buildInputs =
+    nugetPackages.findDependencies (nugetPackages // avalonia.nugetPackages) [ {
+      packages = (map (id: { inherit id; }) [
+        "Avalonia"
+        "Avalonia.Controls.DataGrid"
+        "Avalonia.Desktop"
+        "Avalonia.Diagnostics"
+        "Avalonia.Headless"
+        "Avalonia.ReactiveUI"
+        "Avalonia.Themes.Fluent"
+        "Microsoft.CodeAnalysis.CSharp"
+        "Microsoft.CodeAnalysis.CSharp.Workspaces"
+      ]);
+    } ];
 
   nativeBuildInputs = [ copyDesktopItems ];
 

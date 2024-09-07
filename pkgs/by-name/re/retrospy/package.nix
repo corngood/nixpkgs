@@ -4,6 +4,7 @@
 , copyDesktopItems
 , makeDesktopItem
 , lib
+, avalonia
 , runCommandLocal
 }:
 let
@@ -33,6 +34,8 @@ buildDotnetModule {
   inherit version;
 
   inherit src;
+
+  buildInputs = [ avalonia ];
 
   nativeBuildInputs = [
     copyDesktopItems
@@ -74,4 +77,3 @@ buildDotnetModule {
     platforms = lib.platforms.linux;
   };
 }
-
