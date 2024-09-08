@@ -33,6 +33,8 @@ buildDotnetModule (finalAttrs: {
   projectFile = "src/NexusMods.App/NexusMods.App.csproj";
   testProjectFile = "NexusMods.App.sln";
 
+  buildInputs = [ avalonia ];
+
   nativeBuildInputs = [ copyDesktopItems ];
 
   nugetDeps = ./deps.nix;
