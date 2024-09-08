@@ -858,6 +858,7 @@ with pkgs;
   # Dotnet
 
   dotnetCorePackages = recurseIntoAttrs (callPackage ../development/compilers/dotnet {});
+  inherit (dotnetCorePackages) buildDotnetModule buildDotnetGlobalTool mkNugetSource mkNugetDeps;
 
   dotnet-sdk_6 = dotnetCorePackages.sdk_6_0;
   dotnet-sdk_7 = dotnetCorePackages.sdk_7_0;
@@ -876,7 +877,8 @@ with pkgs;
   dotnet-aspnetcore = dotnetCorePackages.aspnetcore_6_0;
 
   nuget-to-nix = callPackage ../build-support/dotnet/nuget-to-nix { };
-  inherit (dotnetCorePackages) buildDotnetModule buildDotnetGlobalTool mkNugetSource mkNugetDeps;
+
+  nugetPackages = (callPackage ./nuget-packages.nix { });
 
   fsautocomplete = callPackage ../development/tools/fsautocomplete { };
 

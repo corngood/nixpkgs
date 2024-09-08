@@ -120,6 +120,7 @@ configureNuget() {
     local x
 
     for x in "${!_nugetInputs[@]}"; do
+
         if [[ -d $x/share/nuget/packages ]]; then
             _linkPackages "$x/share/nuget/packages" "${NUGET_FALLBACK_PACKAGES%/}"
         fi
@@ -154,6 +155,17 @@ configureNuget() {
                 _linkPackages "$x/share/nuget/packages" "${NUGET_PACKAGES%/}"
             fi
         done
+    fi
+
+    if [[ -n ${makeEmptyNupkgInPackages-} ]]; then
+        (
+            shopt -s nullglob
+            for package in "$NUGET_PACKAGES"/*/*; do
+                version=$(basename "$package")
+                id=$(basename "$(dirname "$package")")
+                touch "$package/$id.$version.nupkg"
+            done
+        )
     fi
 
     runHook postConfigureNuGet

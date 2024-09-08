@@ -16,6 +16,7 @@
   makeFontsConf,
   nodejs,
   npmHooks,
+  nugetPackages,
   prefetch-npm-deps,
   runCommand,
   stdenvNoCC,
@@ -24,6 +25,7 @@
   mkNugetDeps,
 }:
 
+let allPackages =
 stdenvNoCC.mkDerivation (
   finalAttrs:
   dotnetCorePackages.addNuGetDeps
@@ -145,6 +147,18 @@ stdenvNoCC.mkDerivation (
             sdk_7_0_1xx
           ]
         )
+      ] ++ nugetPackages.findDependencies nugetPackages [ {
+        packages = [
+          # { id = "MicroCom.Runtime"; }
+          # { id = "SkiaSharp"; }
+        ];
+      } ] ++ [
+        (mkNugetDeps {
+          name = "unsafe";
+          nugetDeps = { fetchNuGet }: [
+            (fetchNuGet { pname = "System.Runtime.CompilerServices.Unsafe"; version = "5.0.0"; hash = "sha256-neARSpLPUzPxEKhJRwoBzhPxK+cKIitLx7WBYncsYgo="; })
+          ];
+        })
       ];
 
       FONTCONFIG_FILE =
@@ -178,6 +192,7 @@ stdenvNoCC.mkDerivation (
         cp artifacts/nuget/* "$out/share/nuget/source"
         runHook postInstall
       '';
+
       meta = {
         homepage = "https://avaloniaui.net/";
         license = [ lib.licenses.mit ];
@@ -190,6 +205,73 @@ stdenvNoCC.mkDerivation (
           binaryNativeCode # npm dependencies contain binaries
         ];
       };
-    }
-    finalAttrs
-)
+
+      passthru = {
+        nugetPackages = listToAttrs (map mkPackage
+          (builtins.fromJSON (builtins.readFile ./nuget-packages.json)));
+      };
+    } finalAttrs);
+
+  mkPackage =
+    {
+      id,
+      version,
+      hash,
+      dependencies,
+    }: nameValuePair id (stdenvNoCC.mkDerivation {
+      pname = id;
+      inherit version;
+      src = allPackages;
+      dontUnpack = true;
+      passthru.nugetDependencies = dependencies;
+      installPhase = ''
+        runHook preInstall
+        pkg="${toLower id}/${toLower version}"
+        for dir in share/nuget/{packages,source}/"$pkg"; do
+          mkdir -p "$out/$dir"
+          cp -r "$src/$dir/." "$out/$dir"
+        done
+        runHook postInstall
+      '';
+    });
+
+  inherit (lib)
+    listToAttrs
+    nameValuePair
+    recurseIntoAttrs
+    replaceStrings
+    toLower;
+
+root = mkPackage "avalonia" // {
+  packages = recurseIntoAttrs (
+    listToAttrs (
+      map (n:
+        nameValuePair (replaceStrings ["."] ["-"] n) (mkPackage ("avalonia." + n))) [
+      "browser"
+      "browser.blazor"
+      "controls.colorpicker"
+      "controls.datagrid"
+      "controls.itemsrepeater"
+      "desktop"
+      "diagnostics"
+      "direct2d1"
+      "fonts.inter"
+      "freedesktop"
+      "headless"
+      "headless.nunit"
+      "headless.vnc"
+      "headless.xunit"
+      "linuxframebuffer"
+      "markup.xaml.loader"
+      "native"
+      "reactiveui"
+      "remote.protocol"
+      "skia"
+      "themes.fluent"
+      "themes.simple"
+      "win32"
+      "x11"
+    ]));
+};
+
+  in allPackages

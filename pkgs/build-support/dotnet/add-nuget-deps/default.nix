@@ -11,6 +11,7 @@
 
 { nugetDeps
 , overrideFetchAttrs ? x: {}
+, installable ? false
 }: fnOrAttrs: finalAttrs:
 let
   attrs =
