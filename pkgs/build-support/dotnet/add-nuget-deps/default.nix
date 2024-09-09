@@ -41,6 +41,7 @@ in attrs // {
     fetch-deps = let
       pkg' = finalPackage.overrideAttrs (old: {
         buildInputs = attrs.buildInputs or [];
+        nativeBuildInputs = old.nativeBuildInputs or [] ++ [ cacert ];
         keepNugetConfig = true;
         dontBuild = true;
         doCheck = false;
