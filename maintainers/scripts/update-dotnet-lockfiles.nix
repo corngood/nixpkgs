@@ -1,7 +1,7 @@
 /*
   To run:
 
-      nix-shell maintainers/scripts/update-dotnet-lockfiles.nix
+      $(nix-build maintainers/scripts/update-dotnet-lockfiles.nix)
 
   This script finds all the derivations in nixpkgs that have a 'fetch-deps'
   attribute, and runs all of them sequentially. This is useful to test changes
@@ -43,30 +43,11 @@ let
   helpText = ''
     Please run:
 
-        % nix-shell maintainers/scripts/update-dotnet-lockfiles.nix
+        % $(nix-build maintainers/scripts/update-dotnet-lockfiles.nix)
   '';
 
   fetchScripts = map (p: p.fetch-deps) packages;
 
-in pkgs.stdenv.mkDerivation {
-  name = "nixpkgs-update-dotnet-lockfiles";
-  buildCommand = ''
-    echo ""
-    echo "----------------------------------------------------------------"
-    echo ""
-    echo "Not possible to update packages using \`nix-build\`"
-    echo ""
-    echo "${helpText}"
-    echo "----------------------------------------------------------------"
-    exit 1
-  '';
-  shellHook = ''
-    unset shellHook # do not contaminate nested shells
+in pkgs.writeShellScript "update-dotnet-lockfiles.sh" (''
     set -e
-    for x in $fetchScripts; do
-      $x
-    done
-    exit
-  '';
-  inherit fetchScripts;
-}
+  '' + lib.concatMapStringsSep "\n" lib.escapeShellArg fetchScripts)
