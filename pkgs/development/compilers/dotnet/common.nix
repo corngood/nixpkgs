@@ -1,4 +1,3 @@
-# TODO: switch to stdenvNoCC
 {
   stdenv,
   stdenvNoCC,
