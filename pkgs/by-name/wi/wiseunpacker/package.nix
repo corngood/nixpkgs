@@ -3,6 +3,9 @@
   buildDotnetModule,
   dotnetCorePackages,
   lib,
+  writeShellScript,
+  nix-update-script,
+  nixfmt,
 }:
 let
   version = "1.3.3";
@@ -31,6 +34,13 @@ buildDotnetModule rec {
   nugetDeps = ./deps.nix;
 
   projectFile = "Test/Test.csproj";
+
+  passthru.updateScript = writeShellScript "update-${pname}" ''
+    set -euo pipefail
+    ${lib.escapeShellArg (nix-update-script {})}
+    $(nix-build -A "$UPDATE_NIX_ATTR_PATH".fetch-deps --no-out-link)
+    ${lib.escapeShellArg nixfmt}/bin/nixfmt ${lib.escapeShellArg (toString nugetDeps)}
+  '';
 
   meta = with lib; {
     homepage = "https://github.com/mnadareski/WiseUnpacker/";
