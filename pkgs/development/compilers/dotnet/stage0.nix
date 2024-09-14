@@ -75,7 +75,34 @@ let
             "-p:SkipErrorOnPrebuilts=true"
           ];
 
-        passthru = old.passthru or { } // {
+        passthru = old.passthru or { } // rec {
+          fetch-drv = vmr.overrideAttrs (old: {
+            nativeBuildInputs = old.nativeBuildInputs ++ [
+              nix
+              cacert
+              nuget-to-nix
+            ];
+            postPatch =
+              old.postPatch or ""
+              + ''
+                xmlstarlet ed \
+                  --inplace \
+                  -s //Project -t elem -n Import \
+                  -i \$prev -t attr -n Project -v "${./record-downloaded-packages.proj}" \
+                  repo-projects/Directory.Build.targets
+                # make nuget-client use the standard arcade package-cache dir, which
+                # is where we scan for dependencies
+                xmlstarlet ed \
+                  --inplace \
+                  -s //Project -t elem -n ItemGroup \
+                  -s \$prev -t elem -n EnvironmentVariables \
+                  -i \$prev -t attr -n Include -v 'NUGET_PACKAGES=$(ProjectDirectory)artifacts/sb/package-cache/' \
+                  repo-projects/nuget-client.proj
+              '';
+            buildFlags = [ "--online" ] ++ old.buildFlags;
+            prebuiltPackages = null;
+          });
+
           fetch-deps =
             let
               inherit (vmr) targetRid updateScript;
@@ -83,34 +110,7 @@ let
                 map (system: dotnetCorePackages.systemToDotnetRid system) vmr.meta.platforms
               );
 
-              pkg = vmr.overrideAttrs (old: {
-                nativeBuildInputs = old.nativeBuildInputs ++ [
-                  nix
-                  cacert
-                  nuget-to-nix
-                ];
-                postPatch =
-                  old.postPatch or ""
-                  + ''
-                    xmlstarlet ed \
-                      --inplace \
-                      -s //Project -t elem -n Import \
-                      -i \$prev -t attr -n Project -v "${./record-downloaded-packages.proj}" \
-                      repo-projects/Directory.Build.targets
-                    # make nuget-client use the standard arcade package-cache dir, which
-                    # is where we scan for dependencies
-                    xmlstarlet ed \
-                      --inplace \
-                      -s //Project -t elem -n ItemGroup \
-                      -s \$prev -t elem -n EnvironmentVariables \
-                      -i \$prev -t attr -n Include -v 'NUGET_PACKAGES=$(ProjectDirectory)artifacts/sb/package-cache/' \
-                      repo-projects/nuget-client.proj
-                  '';
-                buildFlags = [ "--online" ] ++ old.buildFlags;
-                prebuiltPackages = null;
-              });
-
-              drv = builtins.unsafeDiscardOutputDependency pkg.drvPath;
+              drv = builtins.unsafeDiscardOutputDependency fetch-drv.drvPath;
             in
             writeShellScript "fetch-dotnet-sdk-deps" ''
               ${nix}/bin/nix-shell --pure --run 'source /dev/stdin' "${drv}" << 'EOF'

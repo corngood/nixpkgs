@@ -19,7 +19,7 @@ let
     dotnetSdk = stage0.sdk;
   }).overrideAttrs (old: {
     passthru = old.passthru or {} // {
-      inherit (stage0.vmr) fetch-deps;
+      inherit (stage0.vmr) fetch-deps fetch-drv;
     };
   });
 
