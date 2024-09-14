@@ -40,7 +40,7 @@ let
 
 in writeScript "update-dotnet-vmr.sh" ''
   #! ${nix}/bin/nix-shell
-  #! nix-shell -i ${runtimeShell} --pure ${drv}
+  #! nix-shell -i ${runtimeShell} --pure ${drv} --keep UPDATE_NIX_ATTR_PATH
   set -euo pipefail
 
   query=$(cat <<EOF
@@ -122,4 +122,6 @@ in writeScript "update-dotnet-vmr.sh" ''
 
       cp release.json "${toString releaseManifestFile}"
   )
+
+  $(nix-build -A "$UPDATE_NIX_ATTR_PATH".fetch-deps --no-out-link)
 ''
