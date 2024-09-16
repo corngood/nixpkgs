@@ -450,6 +450,8 @@ stdenv.mkDerivation rec {
   passthru = {
     inherit releaseManifest buildRid targetRid;
     icu = _icu;
+    # ilcompiler is currently broken: https://github.com/dotnet/source-build/issues/1215
+    hasILCompiler = lib.versionAtLeast version "9";
   };
 
   meta = with lib; {
