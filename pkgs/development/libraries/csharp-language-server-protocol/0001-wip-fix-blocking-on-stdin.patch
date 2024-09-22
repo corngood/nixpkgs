@@ -1,0 +1,64 @@
+From 8d7692b36ad7c3fdf0e54da94e46970a696b1d12 Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Mon, 19 Jun 2023 22:27:48 -0300
+Subject: [PATCH] wip: fix blocking on stdin
+
+https://github.com/OmniSharp/csharp-language-server-protocol/issues/986
+---
+ src/JsonRpc/DefaultRequestInvoker.cs | 31 ++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
+
+diff --git a/src/JsonRpc/DefaultRequestInvoker.cs b/src/JsonRpc/DefaultRequestInvoker.cs
+index f4657dc9..0a553ed5 100644
+--- a/src/JsonRpc/DefaultRequestInvoker.cs
++++ b/src/JsonRpc/DefaultRequestInvoker.cs
+@@ -79,21 +79,10 @@ public override void Dispose()
+                                observer => {
+                                    // ITS A RACE!
+                                    var sub = Observable.Amb(
+-                                                            contentModifiedToken.Select(
+-                                                                _ => {
+-                                                                    _logger.LogTrace(
+-                                                                        "Request {Id} was abandoned due to content be modified", request.Id
+-                                                                    );
+-                                                                    return new ErrorResponse(
+-                                                                        new ContentModified(request.Id, request.Method)
+-                                                                    );
+-                                                                }
+-                                                            ),
+-                                                            Observable.Timer(_options.RequestTimeout, scheduler).Select(
+-                                                                _ => new ErrorResponse(new RequestCancelled(request.Id, request.Method))
+-                                                            ),
+                                                             Observable.FromAsync(
+                                                                 async ct => {
++                                                                    await Task.Yield();
++
+                                                                     using var timer = _logger.TimeDebug(
+                                                                         "Processing request {Method} {ResponseId}", request.Method,
+                                                                         request.Id
+@@ -134,6 +123,22 @@ public override void Dispose()
+                                                                         return new InternalError(request.Id, request.Method, e.ToString());
+                                                                     }
+                                                                 }
++                                                                , ThreadPoolScheduler.Instance
++                                                            ),
++                                                            contentModifiedToken.Select(
++                                                                _ => {
++                                                                    _logger.LogTrace(
++                                                                        "Request {Id} was abandoned due to content be modified", request.Id
++                                                                    );
++                                                                    return new ErrorResponse(
++                                                                        new ContentModified(request.Id, request.Method)
++                                                                    );
++                                                                }
++                                                            ),
++                                                            Observable.Timer(_options.RequestTimeout, scheduler).Select(
++                                                                _ => {
++                                                                    return new ErrorResponse(new RequestCancelled(request.Id, request.Method));
++                                                                }
+                                                             )
+                                                         )
+                                                        .Subscribe(observer);
+-- 
+2.41.0
+

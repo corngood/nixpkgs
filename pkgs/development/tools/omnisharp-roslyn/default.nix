@@ -5,6 +5,7 @@
 , stdenv
 , runCommand
 , expect
+, csharp-language-server-protocol
 }:
 let
   inherit (dotnetCorePackages) sdk_8_0 runtime_6_0;
@@ -26,6 +27,10 @@ let finalPackage = buildDotnetModule rec {
   dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_6_0 sdk_8_0 ];
   dotnet-runtime = sdk_8_0;
 
+  projectReferences = [
+    csharp-language-server-protocol
+  ];
+
   dotnetInstallFlags = [ "--framework net6.0" ];
   dotnetBuildFlags = [ "--framework net6.0" "--no-self-contained" ];
   dotnetFlags = [
@@ -36,6 +41,10 @@ let finalPackage = buildDotnetModule rec {
     "-property:InformationalVersion=${version}"
     "-property:RuntimeFrameworkVersion=${runtime_6_0.version}"
     "-property:RollForward=LatestMajor"
+  ];
+
+  patches = [
+    ./0001-wip-implement-cancellation-of-completion-requests.patch
   ];
 
   postPatch = ''
