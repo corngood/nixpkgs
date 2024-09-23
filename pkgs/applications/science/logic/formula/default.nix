@@ -17,7 +17,7 @@ buildDotnetModule rec {
   postFixup = if stdenv.hostPlatform.isLinux then ''
     mv $out/bin/CommandLine $out/bin/formula
   '' else lib.optionalString stdenv.hostPlatform.isDarwin ''
-    makeWrapper ${dotnetCorePackages.runtime_6_0}/bin/dotnet $out/bin/formula \
+    makeWrapper ${dotnetCorePackages.runtime_6_0-bin}/bin/dotnet $out/bin/formula \
       --add-flags "$out/lib/formula-dotnet/CommandLine.dll" \
       --prefix DYLD_LIBRARY_PATH : $out/lib/formula-dotnet/runtimes/macos/native
   '';

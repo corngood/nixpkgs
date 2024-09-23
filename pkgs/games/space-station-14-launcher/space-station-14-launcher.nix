@@ -56,7 +56,7 @@ buildDotnetModule rec {
   };
 
   # SDK 6.0 required for Robust.LoaderApi
-  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_8_0 sdk_6_0 ];
+  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_8_0 sdk_6_0-bin ];
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
 
   dotnetFlags = [

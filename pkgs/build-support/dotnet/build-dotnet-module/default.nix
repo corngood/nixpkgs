@@ -82,9 +82,9 @@ let
       # Whether to explicitly enable UseAppHost when building. This is redundant if useDotnetFromEnv is enabled
       useAppHost ? true,
       # The dotnet SDK to use.
-      dotnet-sdk ? dotnetCorePackages.sdk_6_0,
+      dotnet-sdk ? dotnetCorePackages.sdk_6_0-bin,
       # The dotnet runtime to use.
-      dotnet-runtime ? dotnetCorePackages.runtime_6_0,
+      dotnet-runtime ? dotnetCorePackages.runtime_6_0-bin,
       ...
     }@args:
     let

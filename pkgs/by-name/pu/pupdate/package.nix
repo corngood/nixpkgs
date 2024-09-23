@@ -45,8 +45,8 @@ buildDotnetModule rec {
     "-p:PackageRuntime=${dotnetCorePackages.systemToDotnetRid stdenv.hostPlatform.system} -p:TrimMode=partial"
   ];
 
-  dotnet-sdk = dotnetCorePackages.sdk_7_0;
-  dotnet-runtime = dotnetCorePackages.runtime_7_0;
+  dotnet-sdk = dotnetCorePackages.sdk_7_0-bin;
+  dotnet-runtime = dotnetCorePackages.runtime_7_0-bin;
 
   passthru = {
     updateScript = nix-update-script { };
