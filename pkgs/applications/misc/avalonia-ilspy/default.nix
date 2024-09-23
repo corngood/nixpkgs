@@ -74,8 +74,8 @@ buildDotnetModule rec {
     ln -s $out/bin/ILSpy $out/Applications/ILSpy.app/Contents/MacOS/ILSpy
   '';
 
-  dotnet-sdk = dotnetCorePackages.sdk_6_0;
-  dotnet-runtime = dotnetCorePackages.runtime_6_0;
+  dotnet-sdk = dotnetCorePackages.sdk_6_0-bin;
+  dotnet-runtime = dotnetCorePackages.runtime_6_0-bin;
 
   projectFile = "ILSpy/ILSpy.csproj";
   nugetDeps = ./deps.nix;

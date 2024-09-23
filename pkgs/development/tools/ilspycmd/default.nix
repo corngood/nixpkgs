@@ -26,8 +26,8 @@ buildDotnetModule rec {
   # bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
   env.LOCALE_ARCHIVE = lib.optionalString stdenv.hostPlatform.isLinux "${glibcLocales}/lib/locale/locale-archive";
 
-  dotnet-sdk = dotnetCorePackages.sdk_6_0;
-  dotnet-runtime = dotnetCorePackages.runtime_6_0;
+  dotnet-sdk = dotnetCorePackages.sdk_6_0-bin;
+  dotnet-runtime = dotnetCorePackages.runtime_6_0-bin;
 
   projectFile = "ICSharpCode.ILSpyCmd/ICSharpCode.ILSpyCmd.csproj";
   nugetDeps = ./deps.nix;

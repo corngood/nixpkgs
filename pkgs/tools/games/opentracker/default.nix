@@ -28,7 +28,7 @@ buildDotnetModule rec {
 
   patches = [./remove-project.patch];
 
-  dotnet-runtime = dotnetCorePackages.runtime_6_0;
+  dotnet-runtime = dotnetCorePackages.runtime_6_0-bin;
 
   nugetDeps = ./deps.nix;
 
