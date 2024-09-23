@@ -27,8 +27,8 @@ mkShell {
   name = "dotnet-env";
   packages = [
     (with dotnetCorePackages; combinePackages [
-      sdk_6_0
-      sdk_7_0
+      sdk_6_0-bin
+      sdk_7_0-bin
     ])
   ];
 }
@@ -146,8 +146,8 @@ in buildDotnetModule rec {
 
   buildInputs = [ referencedProject ]; # `referencedProject` must contain `nupkg` in the folder structure.
 
-  dotnet-sdk = dotnetCorePackages.sdk_6_0;
-  dotnet-runtime = dotnetCorePackages.runtime_6_0;
+  dotnet-sdk = dotnetCorePackages.sdk_6_0-bin;
+  dotnet-runtime = dotnetCorePackages.runtime_6_0-bin;
 
   executables = [ "foo" ]; # This wraps "$out/lib/$pname/foo" to `$out/bin/foo`.
   executables = []; # Don't install any executables.

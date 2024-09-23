@@ -7,7 +7,7 @@
 , expect
 }:
 let
-  inherit (dotnetCorePackages) sdk_8_0 runtime_6_0;
+  inherit (dotnetCorePackages) sdk_8_0 runtime_6_0-bin;
 in
 let finalPackage = buildDotnetModule rec {
   pname = "omnisharp-roslyn";
@@ -23,7 +23,7 @@ let finalPackage = buildDotnetModule rec {
   projectFile = "src/OmniSharp.Stdio.Driver/OmniSharp.Stdio.Driver.csproj";
   nugetDeps = ./deps.nix;
 
-  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_6_0 sdk_8_0 ];
+  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_6_0-bin sdk_8_0 ];
   dotnet-runtime = sdk_8_0;
 
   dotnetInstallFlags = [ "--framework net6.0" ];
@@ -34,7 +34,7 @@ let finalPackage = buildDotnetModule rec {
     "-property:AssemblyVersion=${version}.0"
     "-property:FileVersion=${version}.0"
     "-property:InformationalVersion=${version}"
-    "-property:RuntimeFrameworkVersion=${runtime_6_0.version}"
+    "-property:RuntimeFrameworkVersion=${runtime_6_0-bin.version}"
     "-property:RollForward=LatestMajor"
   ];
 
@@ -73,8 +73,8 @@ let finalPackage = buildDotnetModule rec {
     '';
   in {
     # Make sure we can run OmniSharp with any supported SDK version, as well as without
-    with-net6-sdk = with-sdk dotnetCorePackages.sdk_6_0;
-    with-net7-sdk = with-sdk dotnetCorePackages.sdk_7_0;
+    with-net6-sdk = with-sdk dotnetCorePackages.sdk_6_0-bin;
+    with-net7-sdk = with-sdk dotnetCorePackages.sdk_7_0-bin;
     with-net8-sdk = with-sdk dotnetCorePackages.sdk_8_0;
     no-sdk = with-sdk null;
   };

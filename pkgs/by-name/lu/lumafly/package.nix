@@ -25,7 +25,7 @@ buildDotnetModule rec {
 
   nugetDeps = ./deps.nix;
 
-  dotnet-sdk = dotnetCorePackages.sdk_7_0;
+  dotnet-sdk = dotnetCorePackages.sdk_7_0-bin;
 
   selfContainedBuild = true;
 

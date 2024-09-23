@@ -23,8 +23,8 @@ buildDotnetModule rec {
   executables = [ "CertDump" ];
   xBuildFiles = [ "CertDump/CertDump.csproj" ];
 
-  dotnet-runtime = dotnetCorePackages.aspnetcore_7_0;
-  dotnet-sdk = dotnetCorePackages.sdk_7_0;
+  dotnet-runtime = dotnetCorePackages.aspnetcore_7_0-bin;
+  dotnet-sdk = dotnetCorePackages.sdk_7_0-bin;
 
   dotnetFlags = [
     "-property:ImportByWildcardBeforeSolution=false"

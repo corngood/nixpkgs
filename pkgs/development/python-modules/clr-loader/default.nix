@@ -36,13 +36,13 @@ buildPythonPackage {
 
   format = "pyproject";
 
-  buildInputs = dotnetCorePackages.sdk_6_0.packages ++ dotnet-build.nugetDeps;
+  buildInputs = dotnetCorePackages.sdk_6_0-bin.packages ++ dotnet-build.nugetDeps;
 
   nativeBuildInputs = [
     setuptools
     setuptools-scm
     wheel
-    dotnetCorePackages.sdk_6_0
+    dotnetCorePackages.sdk_6_0-bin
   ];
 
   propagatedBuildInputs = [ cffi ];

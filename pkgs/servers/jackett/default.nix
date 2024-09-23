@@ -22,7 +22,7 @@ buildDotnetModule rec {
   projectFile = "src/Jackett.Server/Jackett.Server.csproj";
   nugetDeps = ./deps.nix;
 
-  dotnet-runtime = dotnetCorePackages.aspnetcore_6_0;
+  dotnet-runtime = dotnetCorePackages.aspnetcore_6_0-bin;
 
   dotnetInstallFlags = [ "-p:TargetFramework=net6.0" ];
 

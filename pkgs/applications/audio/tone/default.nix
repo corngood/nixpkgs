@@ -19,7 +19,7 @@ buildDotnetModule rec {
     "-p:PublishSingleFile=false"
   ];
 
-  dotnet-sdk = dotnetCorePackages.sdk_6_0;
+  dotnet-sdk = dotnetCorePackages.sdk_6_0-bin;
   runtimeDeps = [ ffmpeg-full ];
 
   meta = with lib; {
