@@ -19,24 +19,31 @@
   nugetPackageHook,
   xmlstarlet,
 }:
-type: args:
+type: unwrapped:
 stdenvNoCC.mkDerivation (
-  finalAttrs:
-  args
-  // {
+  finalAttrs: {
+    pname = "${unwrapped.pname}-wrapped";
+    inherit (unwrapped) version meta;
+
+    src = unwrapped;
+    dontUnpack = true;
+
     doInstallCheck = true;
 
-    # TODO: this should probably be postInstallCheck
-    # TODO: send output to /dev/null
-    installCheckPhase =
-      args.installCheckPhase or ""
-      + ''
-        $out/bin/dotnet --info
-      '';
+    installPhase = ''
+      runHook preInstall
+      mkdir -p "$out"/bin
+      ln -s "$src"/bin/* "$out"/bin
+      runHook postInstall
+    '';
 
-    setupHooks =
-      args.setupHooks or [ ]
-      ++ [
+    installCheckPhase = ''
+      runHook preInstallCheck
+      $out/bin/dotnet --info
+      runHook postInstallCheck
+    '';
+
+    setupHooks = [
         ./dotnet-setup-hook.sh
       ]
       ++ lib.optional (type == "sdk") (substituteAll {
@@ -45,10 +52,9 @@ stdenvNoCC.mkDerivation (
       });
 
     propagatedBuildInputs =
-      (args.propagatedBuildInputs or [ ])
-      ++ lib.optional (type == "sdk") nugetPackageHook;
+      lib.optional (type == "sdk") nugetPackageHook;
 
-    nativeBuildInputs = (args.nativeBuildInputs or [ ]) ++ [ installShellFiles ];
+    nativeBuildInputs = [ installShellFiles ];
 
     postInstall = ''
       # completions snippets taken from https://learn.microsoft.com/en-us/dotnet/core/tools/enable-tab-autocomplete
@@ -58,7 +64,8 @@ stdenvNoCC.mkDerivation (
         --fish ${./completions/dotnet.fish}
     '';
 
-    passthru = {
+    passthru = unwrapped.passthru // {
+      inherit unwrapped;
       tests =
         let
           mkDotnetTest =
@@ -114,7 +121,7 @@ stdenvNoCC.mkDerivation (
                 (
                   lib.optionalString (runtime != null) ''
                     # TODO: use runtime here
-                    export DOTNET_ROOT=${runtime}
+                    export DOTNET_ROOT=${runtime.unwrapped}
                   ''
                   + run
                 );
@@ -127,6 +134,7 @@ stdenvNoCC.mkDerivation (
             [[ "$output" =~ Hello,?\ World! ]] && touch "$out"
           '';
         in
+          unwrapped.passthru.tests or {} //
         {
           version = testers.testVersion (
             {
@@ -233,8 +241,7 @@ stdenvNoCC.mkDerivation (
               run = checkConsoleOutput "$src/bin/test";
             };
           }
-        )
-        // args.passthru.tests or { };
-    } // args.passthru or { };
+        );
+    };
   }
 )
