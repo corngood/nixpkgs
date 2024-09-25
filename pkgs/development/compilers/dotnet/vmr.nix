@@ -92,8 +92,6 @@ stdenv.mkDerivation rec {
 
   buildInputs =
     [
-      # this gets copied into the tree, but we still want the hooks to run
-      bootstrapSdk
       # the propagated build inputs in llvm.dev break swift compilation
       llvm.out
       zlib

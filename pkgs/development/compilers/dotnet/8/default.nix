@@ -4,5 +4,5 @@
   releaseManifestFile = ./release.json;
   releaseInfoFile = ./release-info.json;
   depsFile = ./deps.nix;
-  bootstrapSdk = dotnetCorePackages.sdk_8_0_1xx-bin;
+  bootstrapSdk = dotnetCorePackages.sdk_8_0_1xx-bin.unwrapped;
 }
