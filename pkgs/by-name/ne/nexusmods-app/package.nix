@@ -8,6 +8,7 @@
   fetchFromGitHub,
   imagemagick,
   lib,
+  nexusmods-app,
   runCommand,
   xdg-utils,
   pname ? "nexusmods-app",

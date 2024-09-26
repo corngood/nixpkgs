@@ -17,11 +17,6 @@
     sha256 = "12ibz472083iiz5zskd1ivigggbl0d9yv3nazgw17s97nmnl2lpj";
   })
   (fetchNuGet {
-    pname = "Avalonia.BuildServices";
-    version = "0.0.29";
-    sha256 = "05mm7f0jssih3gbzqfgjnfq5cnqa85ihsg0z1897ciihv8qd3waq";
-  })
-  (fetchNuGet {
     pname = "Avalonia.Controls.ColorPicker";
     version = "11.0.4";
     sha256 = "1sqdcaknqazq4mw2x1jb6pfmfnyhpkd4xh6fl4ld85qikzzj7796";

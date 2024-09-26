@@ -9,6 +9,7 @@
   icoutils,
   wrapGAppsHook3,
   makeDesktopItem,
+  avalonia,
 }:
 
 buildDotnetModule rec {
@@ -41,6 +42,7 @@ buildDotnetModule rec {
 
   buildInputs = [
     gtk3
+    avalonia
   ];
 
   nativeBuildInputs = [
