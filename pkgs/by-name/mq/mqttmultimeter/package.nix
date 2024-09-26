@@ -5,6 +5,7 @@
   dotnet-runtime_8,
   buildDotnetModule,
   fetchFromGitHub,
+  avalonia,
   libglvnd,
   makeDesktopItem,
   copyDesktopItems,
@@ -33,7 +34,10 @@ buildDotnetModule rec {
     copyDesktopItems
   ];
 
-  buildInputs = [ (lib.getLib stdenv.cc.cc) ];
+  buildInputs = [
+    (lib.getLib stdenv.cc.cc)
+    avalonia
+  ];
 
   postInstall = ''
     rm -rf $out/lib/${lib.toLower pname}/runtimes/{*musl*,win*}

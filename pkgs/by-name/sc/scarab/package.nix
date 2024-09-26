@@ -7,6 +7,7 @@
   icoutils,
   makeDesktopItem,
   dotnetCorePackages,
+  avalonia,
 }:
 
 buildDotnetModule rec {
@@ -29,6 +30,8 @@ buildDotnetModule rec {
   runtimeDeps = [
     bc
   ];
+
+  buildInputs = [ avalonia ];
 
   nativeBuildInputs = [
     copyDesktopItems

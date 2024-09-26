@@ -1,6 +1,7 @@
 {
   buildDotnetModule,
   fetchFromGitHub,
+  avalonia,
   lib,
   openal,
   dotnetCorePackages,
@@ -22,6 +23,8 @@ buildDotnetModule rec {
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
   nugetDeps = ./deps.json;
   executables = [ "Knossos.NET" ];
+
+  buildInputs = [ avalonia ];
 
   runtimeDeps = [ openal ];
 

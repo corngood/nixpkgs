@@ -2,6 +2,7 @@
 , buildDotnetModule
 , dotnetCorePackages
 , fetchzip
+, avalonia
 , libX11
 , libgdiplus
 , ffmpeg
@@ -38,6 +39,8 @@ buildDotnetModule rec {
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
 
   nugetDeps = ./deps.json;
+
+  buildInputs = [ avalonia ];
 
   runtimeDeps = [
     libX11

@@ -5,6 +5,7 @@
 
   dotnetCorePackages,
 
+  avalonia,
   xdg-utils,
 }:
 
@@ -38,6 +39,10 @@ buildDotnetModule rec {
     dotnet nuget add source https://api.nuget.org/v3/index.json \
       -n nuget.org --configfile nuget.config
   '';
+
+  dotnetRestoreFlags = [ "-p:NoWarn=NU1603" ];
+
+  buildInputs = [ avalonia ];
 
   # Required for OneClick
   makeWrapperArgs = [

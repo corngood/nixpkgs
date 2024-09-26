@@ -6,6 +6,7 @@
 , dbus
 , fontconfig
 , portaudio
+, avalonia
 }:
 
 buildDotnetModule rec {
@@ -36,6 +37,7 @@ buildDotnetModule rec {
     portaudio
   ];
 
+  dotnetRestoreFlags = [ "-p:NoWarn=NU1603" ];
   dotnetInstallFlags = [ "-p:PublishReadyToRun=false" ];
 
   # socket cannot bind to localhost on darwin for tests
@@ -51,6 +53,10 @@ buildDotnetModule rec {
       '/usr/bin/fc-match' \
       '${lib.getExe' fontconfig "fc-match"}'
   '';
+
+  buildInputs = [
+    avalonia
+  ];
 
   # need to make sure proprietary worldline resampler is copied
   postInstall = let

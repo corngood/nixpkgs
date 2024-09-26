@@ -6,6 +6,7 @@
   dotnetCorePackages,
   wrapGAppsHook3,
 
+  avalonia,
   glew,
   gtk3,
 }:
@@ -39,6 +40,8 @@ buildDotnetModule rec {
     "LibationCli/LibationCli.csproj"
     "HangoverAvalonia/HangoverAvalonia.csproj"
   ];
+
+  buildInputs = [ avalonia ];
 
   nativeBuildInputs = [ wrapGAppsHook3 ];
 
