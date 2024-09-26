@@ -2,6 +2,7 @@
 , fetchFromGitHub
 , buildDotnetModule
 , dotnetCorePackages
+, avalonia
 , libsecret
 , git
 , git-credential-manager
@@ -29,6 +30,8 @@ buildDotnetModule rec {
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
   dotnetInstallFlags = [ "--framework" "net8.0" ];
   executables = [ "git-credential-manager" ];
+
+  buildInputs = [ avalonia ];
 
   runtimeDeps =
     lib.optional withLibsecretSupport libsecret;

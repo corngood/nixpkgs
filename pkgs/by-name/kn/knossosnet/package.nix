@@ -1,6 +1,7 @@
 {
   buildDotnetModule
   , fetchFromGitHub
+  , avalonia
   , lib
   , openal
 }:
@@ -20,6 +21,8 @@ buildDotnetModule rec {
 
   nugetDeps = ./deps.nix;
   executables = [ "Knossos.NET" ];
+
+  buildInputs = [ avalonia ];
 
   runtimeDeps = [ openal ];
 

@@ -7,6 +7,7 @@
   dotnetCorePackages,
   fetchFromGitHub,
   lib,
+  nexusmods-app,
   runCommand,
   pname ? "nexusmods-app",
 }:
