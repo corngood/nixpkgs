@@ -31,7 +31,7 @@ buildEnv {
   ];
   ignoreCollisions = true;
   postBuild = ''
-    cp -R "${cli.unwrapped}"/{dotnet,share} $out/
+    cp -R "${cli.unwrapped}"/dotnet $out/
     cp -R "${cli}"/nix-support "$out"/
     mkdir "$out"/bin
     ln -s "$out"/dotnet "$out"/bin/dotnet

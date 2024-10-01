@@ -398,6 +398,7 @@ stdenv.mkDerivation rec {
     CLR_CC=$(command -v clang) \
     CLR_CXX=$(command -v clang++) \
     PATH=$PWD/.dotnet:$PATH \
+    HOME=$(mktemp -d) \
       ./build.sh $buildFlags
 
     runHook postBuild
