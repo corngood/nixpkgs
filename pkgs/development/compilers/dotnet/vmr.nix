@@ -26,6 +26,7 @@
   callPackage,
   unzip,
   yq,
+  installShellFiles,
 
   bootstrapSdk,
   releaseManifestFile,
@@ -82,6 +83,7 @@ stdenv.mkDerivation rec {
       xmlstarlet
       unzip
       yq
+      installShellFiles
     ]
     ++ lib.optionals (lib.versionAtLeast version "9") [
       nodejs
@@ -432,6 +434,8 @@ stdenv.mkDerivation rec {
           mv "$unpacked" "$nupkg"
           # TODO: should we fix executable flags here? see dotnetInstallHook
       done
+
+      installManPage src/sdk/documentation/manpages/sdk/*
 
       runHook postInstall
     '';
