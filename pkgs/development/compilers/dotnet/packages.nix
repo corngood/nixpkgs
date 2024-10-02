@@ -19,7 +19,7 @@ let
         args
         // {
           outputs = args.outputs or [ "out" ] ++ [ "man" ];
-          postInstall = args.postInstall or "" + ''
+          postFixup = args.postFixup or "" + ''
             ln -s ${vmr.man} $man
           '';
         }
