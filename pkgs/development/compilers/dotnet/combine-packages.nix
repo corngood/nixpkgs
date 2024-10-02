@@ -29,6 +29,7 @@ assert lib.assertMsg ((builtins.length dotnetPackages) > 0) ''
     "shared"
     "templates"
   ];
+  ignoreCollisions = true;
   nativeBuildInputs = [ makeWrapper ];
   postBuild = ''
     mkdir -p "$out"/share/dotnet
