@@ -36,6 +36,7 @@ assert lib.assertMsg ((builtins.length dotnetPackages) > 0) ''
     cp -R "${cli}"/nix-support "$out"/
     mkdir "$out"/bin
     ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
+  '' + lib.optionalString (cli ? man) ''
     ln -s ${cli.man} $man
   '';
   passthru = {
@@ -53,6 +54,5 @@ assert lib.assertMsg ((builtins.length dotnetPackages) > 0) ''
   ({
     outputs = [
       "out"
-      "man"
-    ];
+    ] ++ lib.optional (cli ? man) "man";
   })
