@@ -37,6 +37,9 @@ buildEnv {
     mkdir "$out"/bin
     ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
   '';
+  postFixup = ''
+    ln -s ${cli.man} $man
+  '';
   passthru = {
     inherit (cli) icu;
 
