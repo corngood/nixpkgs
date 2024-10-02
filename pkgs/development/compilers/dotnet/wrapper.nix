@@ -28,14 +28,19 @@ stdenvNoCC.mkDerivation (
     src = unwrapped;
     dontUnpack = true;
 
-    doInstallCheck = true;
+    outputs = [ "out" ] ++ lib.optional (unwrapped ? man) "man";
 
     installPhase = ''
       runHook preInstall
       mkdir -p "$out"/bin "$out"/share/dotnet
       ln -s "$src"/bin/* "$out"/bin
+    '' + lib.optionalString (unwrapped ? man) ''
+      ln -s ${unwrapped.man} "$man"
+    '' + ''
       runHook postInstall
     '';
+
+    doInstallCheck = true;
 
     installCheckPhase = ''
       runHook preInstallCheck
