@@ -406,6 +406,8 @@ stdenv.mkDerivation rec {
     runHook postBuild
   '';
 
+  outputs = [ "out" "man" ];
+
   installPhase =
     let
       assets = if (lib.versionAtLeast version "9") then "assets" else targetArch;
