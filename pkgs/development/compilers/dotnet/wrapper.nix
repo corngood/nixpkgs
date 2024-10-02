@@ -32,7 +32,7 @@ stdenvNoCC.mkDerivation (
 
     installPhase = ''
       runHook preInstall
-      mkdir -p "$out"/bin
+      mkdir -p "$out"/bin "$out"/share/dotnet
       ln -s "$src"/bin/* "$out"/bin
       runHook postInstall
     '';

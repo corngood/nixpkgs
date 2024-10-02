@@ -114,10 +114,11 @@ let
     installPhase = ''
       runHook preInstall
 
-      cp -r "$src"/dotnet-sdk-${version}-${targetRid} "$out"
-      chmod +w "$out"
+      mkdir -p "$out"/share/dotnet
+      cp -r "$src"/dotnet-sdk-${version}-${targetRid} "$out"/share/dotnet
+      chmod +w "$out"/share/dotnet
       mkdir "$out"/bin
-      ln -s "$out"/dotnet "$out"/bin/dotnet
+      ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
 
       mkdir -p "$artifacts"
       cp -r "$src"/Private.SourceBuilt.Artifacts.*.${targetRid}/* "$artifacts"/
@@ -159,10 +160,11 @@ let
     installPhase = ''
       runHook preInstall
 
-      cp -r "$src/dotnet-runtime-${version}-${targetRid}" "$out"
-      chmod +w "$out"
+      mkdir -p "$out"/share/dotnet
+      cp -r "$src/dotnet-runtime-${version}-${targetRid}" "$out"/share/dotnet
+      chmod +w "$out"/share/dotnet
       mkdir "$out"/bin
-      ln -s "$out"/dotnet "$out"/bin/dotnet
+      ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
 
       runHook postInstall
     '';
@@ -184,13 +186,14 @@ let
     installPhase = ''
       runHook preInstall
 
-      cp -r "$src/dotnet-runtime-${releaseManifest.runtimeVersion}-${targetRid}" "$out"
-      chmod +w "$out"
+      mkdir -p "$out"/share/dotnet
+      cp -r "$src/dotnet-runtime-${version}-${targetRid}" "$out"/share/dotnet
+      chmod +w "$out"/share/dotnet
       mkdir "$out"/bin
-      ln -s "$out"/dotnet "$out"/bin/dotnet
+      ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
 
-      chmod +w "$out"/shared
-      cp -Tr "$src/aspnetcore-runtime-${version}-${targetRid}" "$out"
+      cp -Tr "$src/aspnetcore-runtime-${version}-${targetRid}" "$out"/share/dotnet/shared
+      chmod +w "$out"/share/dotnet/shared
 
       runHook postInstall
     '';
