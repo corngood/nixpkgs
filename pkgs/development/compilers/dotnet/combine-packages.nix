@@ -37,7 +37,8 @@ buildEnv {
     mkdir "$out"/bin
     ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
   '';
-  postFixup = ''
+  outputs = [ "out" ] ++ lib.optional (cli ? man) "man";
+  postFixup = lib.optionalString (cli ? man) ''
     ln -s ${cli.man} $man
   '';
   passthru = {
