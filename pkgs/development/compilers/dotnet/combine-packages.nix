@@ -18,7 +18,7 @@ assert lib.assertMsg ((builtins.length dotnetPackages) > 0) ''
         `with dotnetCorePackages; combinePackages [
             sdk_6_0 aspnetcore_7_0
          ];`'';
-buildEnv {
+(buildEnv {
   name = "dotnet-core-combined";
   paths = map (x: x.unwrapped) dotnetPackages;
   pathsToLink = map (x: "/share/dotnet/${x}") [
@@ -37,6 +37,8 @@ buildEnv {
     cp -R "${cli}"/nix-support "$out"/
     mkdir "$out"/bin
     ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
+  '' + lib.optionalString (cli ? man) ''
+    ln -s ${cli.man} $man
   '';
   passthru = {
     inherit (cli) icu;
@@ -49,4 +51,9 @@ buildEnv {
   };
 
   inherit (cli) meta;
-}
+}).overrideAttrs
+  ({
+    outputs = [
+      "out"
+    ] ++ lib.optional (cli ? man) "man";
+  })

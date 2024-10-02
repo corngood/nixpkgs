@@ -28,21 +28,6 @@ stdenvNoCC.mkDerivation (
     src = unwrapped;
     dontUnpack = true;
 
-    doInstallCheck = true;
-
-    installPhase = ''
-      runHook preInstall
-      mkdir -p "$out"/bin "$out"/share/dotnet
-      ln -s "$src"/bin/* "$out"/bin
-      runHook postInstall
-    '';
-
-    installCheckPhase = ''
-      runHook preInstallCheck
-      $out/bin/dotnet --info
-      runHook postInstallCheck
-    '';
-
     setupHooks = [
         ./dotnet-setup-hook.sh
       ]
@@ -56,6 +41,15 @@ stdenvNoCC.mkDerivation (
 
     nativeBuildInputs = [ installShellFiles ];
 
+    outputs = [ "out" ] ++ lib.optional (unwrapped ? man) "man";
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p "$out"/bin "$out"/share/dotnet
+      ln -s "$src"/bin/* "$out"/bin
+      runHook postInstall
+    '';
+
     postInstall = ''
       # completions snippets taken from https://learn.microsoft.com/en-us/dotnet/core/tools/enable-tab-autocomplete
       installShellCompletion --cmd dotnet \
@@ -64,6 +58,17 @@ stdenvNoCC.mkDerivation (
         --fish ${./completions/dotnet.fish}
     '';
 
+    doInstallCheck = true;
+
+    installCheckPhase = ''
+      runHook preInstallCheck
+      $out/bin/dotnet --info
+      runHook postInstallCheck
+    '';
+
+    postFixup = lib.optionalString (unwrapped ? man) ''
+      ln -s ${unwrapped.man} "$man"
+    '';
     passthru = unwrapped.passthru // {
       inherit unwrapped;
       tests =

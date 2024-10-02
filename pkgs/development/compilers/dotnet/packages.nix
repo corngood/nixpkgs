@@ -13,7 +13,19 @@
 
 let
   mkWrapper = callPackage ./wrapper.nix { };
-  mkCommon = type: args: mkWrapper type (stdenvNoCC.mkDerivation args);
+  mkCommon =
+    type: args:
+    mkWrapper type (
+      stdenvNoCC.mkDerivation (
+        args
+        // {
+          outputs = args.outputs or [ "out" ] ++ [ "man" ];
+          postFixup = args.postFixup or "" + ''
+            ln -s ${vmr.man} $man
+          '';
+        }
+      )
+    );
   inherit (vmr) targetRid releaseManifest;
 
   # TODO: do this properly
@@ -156,8 +168,6 @@ let
     src = vmr;
     dontUnpack = true;
 
-    outputs = [ "out" ];
-
     installPhase = ''
       runHook preInstall
 
@@ -181,8 +191,6 @@ let
 
     src = vmr;
     dontUnpack = true;
-
-    outputs = [ "out" ];
 
     installPhase = ''
       runHook preInstall
