@@ -126,7 +126,7 @@ let
     installPhase = ''
       runHook preInstall
 
-      mkdir -p "$out"/share/dotnet
+      mkdir -p "$out"/share
       cp -r "$src"/dotnet-sdk-${version}-${targetRid} "$out"/share/dotnet
       chmod +w "$out"/share/dotnet
       mkdir "$out"/bin
@@ -170,7 +170,7 @@ let
     installPhase = ''
       runHook preInstall
 
-      mkdir -p "$out"/share/dotnet
+      mkdir -p "$out"/share
       cp -r "$src/dotnet-runtime-${version}-${targetRid}" "$out"/share/dotnet
       chmod +w "$out"/share/dotnet
       mkdir "$out"/bin
@@ -194,7 +194,7 @@ let
     installPhase = ''
       runHook preInstall
 
-      mkdir -p "$out"/share/dotnet
+      mkdir -p "$out"/share
       cp -r "$src/dotnet-runtime-${version}-${targetRid}" "$out"/share/dotnet
       chmod +w "$out"/share/dotnet
       mkdir "$out"/bin
