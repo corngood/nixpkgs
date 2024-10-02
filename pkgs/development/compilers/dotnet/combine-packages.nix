@@ -37,10 +37,7 @@ buildEnv {
     mkdir "$out"/bin
     ln -s "$out"/share/dotnet/dotnet "$out"/bin/dotnet
   '';
-  outputs = [ "out" ] ++ lib.optional (cli ? man) "man";
-  postFixup = lib.optionalString (cli ? man) ''
-    ln -s ${cli.man} $man
-  '';
+  extraOutputsToInstall = [ "man" ];
   passthru = {
     inherit (cli) icu;
 
