@@ -158,7 +158,7 @@ mkWrapper type (stdenv.mkDerivation rec {
 
   # Tell autoPatchelf about runtime dependencies.
   # (postFixup phase is run before autoPatchelfHook.)
-  postFixup = lib.optionalString stdenv.targetPlatform.isLinux ''
+  postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     patchelf \
       --add-needed libicui18n.so \
       --add-needed libicuuc.so \
