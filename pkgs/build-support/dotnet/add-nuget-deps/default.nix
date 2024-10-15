@@ -8,6 +8,7 @@
   cacert,
   fetchNupkg,
   callPackage,
+  buildPackages,
 }:
 
 {
@@ -65,8 +66,8 @@ attrs
           innerScript = substituteAll {
             src = ./fetch-deps.sh;
             isExecutable = true;
-            inherit cacert;
-            nugetToNix = nuget-to-nix;
+            inherit (buildPackages) cacert;
+            nugetToNix = buildPackages.nuget-to-nix;
           };
 
           defaultDepsFile =
@@ -81,7 +82,7 @@ attrs
               ''$(mktemp -t "${finalAttrs.pname or finalPackage.name}-deps-XXXXXX.nix")'';
 
         in
-        writeShellScript "${finalPackage.name}-fetch-deps" ''
+        buildPackages.writeShellScript "${finalPackage.name}-fetch-deps" ''
           set -eu
 
           echo 'fetching dependencies for' ${lib.escapeShellArg finalPackage.name} >&2
@@ -101,7 +102,7 @@ attrs
 
           cd "$TMPDIR"
 
-          NIX_BUILD_SHELL=${lib.escapeShellArg runtimeShell} ${nix}/bin/nix-shell \
+          NIX_BUILD_SHELL=${lib.escapeShellArg buildPackages.runtimeShell} ${buildPackages.nix}/bin/nix-shell \
             --pure --keep NUGET_HTTP_CACHE_PATH --run 'source '${lib.escapeShellArg innerScript}' '"''${depsFile@Q}" "${drv}"
         '';
     };
