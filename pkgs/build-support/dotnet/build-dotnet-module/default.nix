@@ -93,7 +93,7 @@ let
 
       platforms =
         if args ? meta.platforms then
-          lib.intersectLists args.meta.platforms dotnet-sdk.meta.platforms
+          args.meta.platforms
         else
           dotnet-sdk.meta.platforms;
 
@@ -146,9 +146,8 @@ let
         dotnetFixupHook
 
         cacert
-        makeWrapper
         dotnet-sdk
-      ];
+      ] ++ (lib.optional (executables != []) makeWrapper);
 
       buildInputs = args.buildInputs or [ ] ++ dotnet-sdk.packages ++ projectReferences;
 

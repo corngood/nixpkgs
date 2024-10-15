@@ -5,7 +5,6 @@
 , zlib
 , openssl
 , makeSetupHook
-, zip
   # Passed from ../default.nix
 , dotnet-sdk
 , dotnet-runtime
@@ -42,9 +41,6 @@
   dotnetInstallHook = makeSetupHook
     {
       name = "dotnet-install-hook";
-      substitutions = {
-        inherit zip;
-      };
     }
     ./dotnet-install-hook.sh;
 
@@ -53,7 +49,6 @@
       name = "dotnet-fixup-hook";
       substitutions = {
         dotnetRuntime = dotnet-runtime;
-        wrapperPath = lib.makeBinPath [ which coreutils ];
       };
     }
     ./dotnet-fixup-hook.sh;
