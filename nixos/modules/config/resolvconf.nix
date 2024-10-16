@@ -158,7 +158,7 @@ in
 
         script = ''
           ${lib.getExe cfg.package} -u
-          files=(${lib.escapeShellArgs cfg.outputFiles})
+          files=(/run/resolvconf ${lib.escapeShellArgs cfg.outputFiles})
           chgrp -R resolvconf "''${files[@]}"
           chmod -R g=u "''${files[@]}"
         '';
