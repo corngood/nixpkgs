@@ -114,6 +114,14 @@ in
         '';
       };
 
+      outputFiles = lib.mkOption {
+        type = lib.types.listOf lib.types.path;
+        default = [ "/etc/resolv.conf" ];
+        description = ''
+          Files written by resolvconf updates
+        '';
+      };
+
     };
 
   };
@@ -150,8 +158,9 @@ in
 
         script = ''
           ${lib.getExe cfg.package} -u
-          chgrp -R resolvconf /etc/resolv.conf /run/resolvconf
-          chmod -R g=u /etc/resolv.conf /run/resolvconf
+          files=(/run/resolvconf ${lib.escapeShellArgs cfg.outputFiles})
+          chgrp -R resolvconf "''${files[@]}"
+          chmod -R g=u "''${files[@]}"
         '';
       };
 
