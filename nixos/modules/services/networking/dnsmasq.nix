@@ -134,7 +134,7 @@ in
         dnsmasq_resolv=/etc/dnsmasq-resolv.conf
       '';
 
-      outputFiles = [
+      subscriberFiles = [
         "/etc/dnsmasq-conf.conf"
         "/etc/dnsmasq-resolv.conf"
       ];
