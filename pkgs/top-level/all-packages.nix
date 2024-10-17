@@ -28150,8 +28150,6 @@ with pkgs;
 
   ax25-tools = callPackage ../applications/radio/ax25-tools { };
 
-  azpainter = callPackage ../applications/graphics/azpainter { };
-
   bambootracker = libsForQt5.callPackage ../applications/audio/bambootracker {
     stdenv = if stdenv.hostPlatform.isDarwin then
       darwin.apple_sdk_11_0.stdenv
@@ -32318,8 +32316,6 @@ with pkgs;
   secrets-extractor = callPackage ../tools/security/secrets-extractor { };
 
   secretscanner = callPackage ../tools/security/secretscanner { };
-
-  setconf = python3.pkgs.callPackage ../tools/misc/setconf { };
 
   semiphemeral = callPackage ../tools/misc/semiphemeral { };
 
