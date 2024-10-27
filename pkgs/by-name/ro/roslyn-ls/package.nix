@@ -10,14 +10,7 @@
 }:
 let
   pname = "roslyn-ls";
-  dotnet-sdk =
-    with dotnetCorePackages;
-    combinePackages [
-      sdk_6_0
-      sdk_7_0
-      sdk_8_0
-      sdk_9_0
-    ];
+  dotnet-sdk = dotnetCorePackages.sdk_9_0;
   # need sdk on runtime as well
   dotnet-runtime = dotnetCorePackages.sdk_9_0;
   rid = dotnetCorePackages.systemToDotnetRid stdenvNoCC.targetPlatform.system;
@@ -59,6 +52,11 @@ buildDotnetModule rec {
     "-p:UsingToolMicrosoftNetCompilers=false"
     "-p:TargetRid=${rid}"
   ];
+
+  buildInputs = with dotnetCorePackages;
+    sdk_6_0.packages ++
+    sdk_7_0.packages ++
+    sdk_8_0.packages;
 
   # two problems solved here:
   # 1. --no-build removed -> BuildHost project within roslyn is running Build target during publish

@@ -26,9 +26,12 @@ buildDotnetModule rec {
 
   executables = [ "naps2" ];
 
-  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_6_0 sdk_8_0 ];
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
   selfContainedBuild = true;
+
+  buildInputs = dotnetCorePackages.sdk_6_0.packages;
+
   runtimeDeps = [
     gtk3
     gdk-pixbuf

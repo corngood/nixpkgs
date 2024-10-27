@@ -34,19 +34,15 @@ buildDotnetModule (finalAttrs: rec {
       --replace TargetFrameworks TargetFramework \
   '';
 
-  dotnet-sdk =
-    with dotnetCorePackages;
-    combinePackages [
-      sdk_6_0
-      sdk_7_0
-      sdk_8_0
-    ];
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.sdk_8_0;
 
   projectFile = "src/FsAutoComplete/FsAutoComplete.fsproj";
   executables = [ "fsautocomplete" ];
 
   useDotnetFromEnv = true;
+
+  buildInputs = dotnetCorePackages.sdk_6_0.packages;
 
   passthru.tests.version = testers.testVersion { package = finalAttrs.finalPackage; };
 

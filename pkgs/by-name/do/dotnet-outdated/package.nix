@@ -4,7 +4,7 @@
 , dotnetCorePackages
 }:
 let
-  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_6_0 sdk_7_0 sdk_8_0 ];
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
 
 in buildDotnetModule rec {
   pname = "dotnet-outdated";
@@ -25,6 +25,10 @@ in buildDotnetModule rec {
 
   projectFile = "src/DotNetOutdated/DotNetOutdated.csproj";
   executables = "dotnet-outdated";
+
+  buildInputs =
+    dotnetCorePackages.sdk_6_0.packages ++
+    dotnetCorePackages.sdk_7_0.packages;
 
   dotnetInstallFlags = [ "--framework" "net8.0" ];
 

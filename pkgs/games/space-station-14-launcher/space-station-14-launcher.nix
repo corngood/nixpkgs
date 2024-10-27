@@ -56,7 +56,7 @@ buildDotnetModule rec {
   };
 
   # SDK 6.0 required for Robust.LoaderApi
-  dotnet-sdk = with dotnetCorePackages; combinePackages [ sdk_8_0 sdk_6_0 ];
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
 
   dotnetFlags = [
@@ -64,6 +64,8 @@ buildDotnetModule rec {
     "-p:RobustILLink=true"
     "-nologo"
   ];
+
+  buildInputs = dotnetCorePackages.sdk_6_0.packages;
 
   nativeBuildInputs = [ wrapGAppsHook3 iconConvTools copyDesktopItems ];
 

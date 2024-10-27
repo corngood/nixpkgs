@@ -9,7 +9,7 @@
 }:
 
 let
-  inherit (dotnetCorePackages) sdk_8_0 runtime_6_0;
+  inherit (dotnetCorePackages) sdk_6_0 sdk_8_0 runtime_6_0;
 in
 let
   finalPackage = buildDotnetModule rec {
@@ -26,12 +26,7 @@ let
     projectFile = "src/OmniSharp.Stdio.Driver/OmniSharp.Stdio.Driver.csproj";
     nugetDeps = ./deps.nix;
 
-    dotnet-sdk =
-      with dotnetCorePackages;
-      combinePackages [
-        sdk_6_0
-        sdk_8_0
-      ];
+    dotnet-sdk = sdk_8_0;
     dotnet-runtime = sdk_8_0;
 
     dotnetInstallFlags = [ "--framework net6.0" ];
@@ -59,6 +54,8 @@ let
           --replace '<RuntimeIdentifiers>win7-x64;win7-x86;win10-arm64</RuntimeIdentifiers>' '<RuntimeIdentifiers>linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>'
       done
     '';
+
+    buildInputs = sdk_6_0.packages;
 
     useDotnetFromEnv = true;
     executables = [ "OmniSharp" ];
