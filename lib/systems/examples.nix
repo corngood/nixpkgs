@@ -388,6 +388,11 @@ rec {
     useLLVM = true;
   };
 
+  x86_64-cygwin = {
+    config = "x86_64-pc-cygwin";
+    libc = "cygwin"; # cygwin (posix) toolchain
+  };
+
   # BSDs
 
   aarch64-freebsd = {
