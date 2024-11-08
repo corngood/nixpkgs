@@ -591,6 +591,7 @@ stdenvNoCC.mkDerivation {
         echo addToSearchPath "LINK_DLL_FOLDERS" "${cc_solib}/lib" > $out
         echo addToSearchPath "LINK_DLL_FOLDERS" "${cc_solib}/lib64" >> $out
         echo addToSearchPath "LINK_DLL_FOLDERS" "${cc_solib}/lib32" >> $out
+        echo addToSearchPath "LINK_DLL_FOLDERS" "${libc_bin}/bin" > $out
       '';
     }
   );
