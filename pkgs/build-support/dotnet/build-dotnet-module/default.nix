@@ -154,7 +154,13 @@ let
         dotnet-sdk
       ];
 
-      buildInputs = args.buildInputs or [ ] ++ dotnet-sdk.packages ++ projectReferences;
+      buildInputs =
+        args.buildInputs or [ ]
+        ++ dotnet-sdk.packages
+        ++ lib.concatLists (
+          lib.attrValues (lib.getAttrs finalAttrs.dotnetRuntimeIds dotnet-sdk.targetPackages)
+        )
+        ++ projectReferences;
 
       # Parse the version attr into a format acceptable for the Version msbuild property
       # The actual version attr is saved in InformationalVersion, which accepts an arbitrary string
@@ -203,46 +209,49 @@ let
 
 in
 fnOrAttrs:
-stdenvNoCC.mkDerivation (
-  finalAttrs:
+(
   let
-    args = if lib.isFunction fnOrAttrs then fnOrAttrs (args' // finalAttrs) else fnOrAttrs;
-    args' = transformArgs finalAttrs args;
-    inherit (args')
-      nugetDeps
-      runtimeId
-      meta
-      dotnet-sdk
-      ;
-    args'' = removeAttrs args' [
-      "nugetDeps"
-      "runtimeId"
-      "installPath"
-      "executables"
-      "projectFile"
-      "projectReferences"
-      "runtimeDeps"
-      "disabledTests"
-      "testProjectFile"
-      "buildType"
-      "selfContainedBuild"
-      "useDotnet"
-      "useAppHost"
-      "dotnet-sdk"
-    ];
-  in
-  if nugetDeps != null then
-    addNuGetDeps {
-      inherit nugetDeps;
-      overrideFetchAttrs =
-        old:
-        lib.optionalAttrs ((args'.runtimeId or null) == null) rec {
-          dotnetRuntimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) meta.platforms;
-          buildInputs =
-            old.buildInputs
-            ++ lib.concatLists (lib.attrValues (lib.getAttrs dotnetRuntimeIds dotnet-sdk.targetPackages));
+    drv = stdenvNoCC.mkDerivation (
+      finalAttrs:
+      let
+        args = if lib.isFunction fnOrAttrs then fnOrAttrs (args' // finalAttrs) else fnOrAttrs;
+        args' = transformArgs finalAttrs args;
+        args'' = removeAttrs args' [
+          "nugetDeps"
+          "runtimeId"
+          "installPath"
+          "executables"
+          "projectFile"
+          "projectReferences"
+          "runtimeDeps"
+          "disabledTests"
+          "testProjectFile"
+          "buildType"
+          "selfContainedBuild"
+          "useDotnet"
+          "useAppHost"
+          "dotnet-sdk"
+        ];
+      in
+      args''
+      // {
+        passthru = args''.passthru or { } // {
+          dotnetAttrs = args';
         };
-    } args'' finalAttrs
-  else
-    args''
+      }
+    );
+    drv' = (addNuGetDeps { inherit (drv.dotnetAttrs) nugetDeps; } drv);
+  in
+  drv'.overrideAttrs (
+    self: base: {
+      passthru = base.passthru or { } // {
+        fetch-drv = base.passthru.fetch-drv.overrideAttrs (
+          self: base:
+          lib.optionalAttrs ((base.dotnetAttrs.runtimeId or null) == null) rec {
+            dotnetRuntimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) self.meta.platforms;
+          }
+        );
+      };
+    }
+  )
 )

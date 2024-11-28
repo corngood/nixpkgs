@@ -6,7 +6,7 @@
 let
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
 
-in buildDotnetModule rec {
+in buildDotnetModule (finalAttrs: rec {
   pname = "dotnet-outdated";
   version = "4.6.4";
 
@@ -28,7 +28,9 @@ in buildDotnetModule rec {
 
   buildInputs =
     dotnetCorePackages.sdk_6_0.packages ++
-    dotnetCorePackages.sdk_7_0.packages;
+    dotnetCorePackages.sdk_7_0.packages ++
+    lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.dotnetRuntimeIds dotnetCorePackages.sdk_6_0.targetPackages)) ++
+    lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.dotnetRuntimeIds dotnetCorePackages.sdk_7_0.targetPackages));
 
   dotnetInstallFlags = [ "--framework" "net8.0" ];
 
@@ -45,4 +47,4 @@ in buildDotnetModule rec {
     maintainers = with maintainers; [ emilioziniades ];
     mainProgram = "dotnet-outdated";
   };
-}
+})

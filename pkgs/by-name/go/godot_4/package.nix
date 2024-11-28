@@ -60,7 +60,7 @@ let
 
   arch = stdenv.hostPlatform.linuxArch;
 
-  attrs = finalAttrs: rec {
+  drv = stdenv.mkDerivation (finalAttrs: rec {
     pname = "godot4${suffix}";
     version = "4.3-stable";
     commitHash = "77dcf97d82cbfe4e4615475fa52ca03da645dbd8";
@@ -141,7 +141,10 @@ let
       pkg-config
     ];
 
-    buildInputs = lib.optionals withMono dotnet-sdk_6.packages;
+    buildInputs = lib.optionals withMono (
+      dotnet-sdk_6.packages
+      ++ lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.runtimeIds dotnet-sdk_6.targetPackages))
+    );
 
     nativeBuildInputs =
       [
@@ -258,20 +261,24 @@ let
       ];
       mainProgram = "godot4${suffix}";
     };
-  };
+  });
 
 in
-stdenv.mkDerivation (
-  if withMono then
-    dotnetCorePackages.addNuGetDeps {
-      nugetDeps = ./deps.nix;
-      overrideFetchAttrs = old: rec {
-        runtimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) old.meta.platforms;
-        buildInputs =
-          old.buildInputs
-          ++ lib.concatLists (lib.attrValues (lib.getAttrs runtimeIds dotnet-sdk_6.targetPackages));
-      };
-    } attrs
-  else
-    attrs
-)
+if withMono then
+  (dotnetCorePackages.addNuGetDeps {
+    nugetDeps = ./deps.nix;
+  } drv).overrideAttrs
+    (
+      self: base: {
+        passthru = base.passthru or { } // {
+          fetch-drv = base.passthru.fetch-drv.overrideAttrs (
+            self: base:
+            lib.optionalAttrs ((base.dotnetAttrs.runtimeId or null) == null) rec {
+              runtimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) self.meta.platforms;
+            }
+          );
+        };
+      }
+    )
+else
+  drv

@@ -33,19 +33,12 @@ let
   npmDepsFile = ./npm-deps.nix;
 
 in
-stdenvNoCC.mkDerivation (
-  finalAttrs:
-  dotnetCorePackages.addNuGetDeps
-    {
-      nugetDeps = ./deps.nix;
-      overrideFetchAttrs = old: rec {
-        runtimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) old.meta.platforms;
-        buildInputs =
-          old.buildInputs
-          ++ lib.concatLists (lib.attrValues (lib.getAttrs runtimeIds dotnet-sdk.targetPackages));
-      };
-    }
-    rec {
+(dotnetCorePackages.addNuGetDeps
+  {
+    nugetDeps = ./deps.nix;
+  }
+  (
+    stdenvNoCC.mkDerivation (finalAttrs: rec {
       pname = "Avalonia";
       version = "11.0.11";
 
@@ -162,7 +155,9 @@ stdenvNoCC.mkDerivation (
         nodejs
         dotnet-sdk
       ];
-      buildInputs = dotnet-sdk.packages;
+      buildInputs =
+        dotnet-sdk.packages
+        ++ lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.runtimeIds dotnet-sdk.targetPackages));
 
       buildTarget = "Package";
 
@@ -197,6 +192,18 @@ stdenvNoCC.mkDerivation (
         platforms = dotnet-sdk.meta.platforms;
         broken = stdenvNoCC.hostPlatform.isDarwin;
       };
+    })
+  )
+).overrideAttrs
+  (
+    self: base: {
+      passthru = base.passthru or { } // {
+        fetch-drv = base.passthru.fetch-drv.overrideAttrs (
+          self: base:
+          lib.optionalAttrs ((base.dotnetAttrs.runtimeId or null) == null) rec {
+            runtimeIds = map (system: dotnetCorePackages.systemToDotnetRid system) self.meta.platforms;
+          }
+        );
+      };
     }
-    finalAttrs
-)
+  )
