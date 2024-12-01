@@ -198,11 +198,11 @@ mkWrapper type (
       // lib.optionalAttrs (type == "sdk") {
         inherit targetPackages runtime aspnetcore;
 
-        packagesForTargets = runtimeIds:
+        packagesForTargets =
+          runtimeIds:
           commonPackages
           ++ hostPackages.${hostRid}
-          ++ lib.concatLists (lib.attrValues (lib.getAttrs runtimeIds finalAttrs.finalPackage.targetPackages));
-        packages = finalAttrs.finalPackage.packagesForTargets (lib.singleton targetRid);
+          ++ lib.concatLists (lib.attrValues (lib.getAttrs runtimeIds targetPackages));
 
         updateScript =
           let

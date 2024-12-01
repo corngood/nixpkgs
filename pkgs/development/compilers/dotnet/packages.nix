@@ -159,9 +159,10 @@ let
     passthru = {
       inherit (vmr) icu targetRid hasILCompiler;
 
+      packagesForTargets =
+        runtimeIds: packages ++ lib.concatLists (lib.attrValues (lib.getAttrs runtimeIds targetPackages));
+
       inherit
-        packages
-        targetPackages
         runtime
         aspnetcore
         ;

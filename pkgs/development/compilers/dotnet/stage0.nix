@@ -30,7 +30,7 @@ let
       p.override {
         installable = true;
       }
-    ) bootstrapSdk.packages;
+    ) (bootstrapSdk.packagesForTargets (lib.singleton vmr.targetRid));
   };
 
   vmr =

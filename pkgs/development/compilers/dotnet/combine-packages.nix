@@ -46,10 +46,8 @@ assert lib.assertMsg ((builtins.length dotnetPackages) > 0) ''
     inherit (cli) icu;
 
     versions = lib.catAttrs "version" dotnetPackages;
-    packages = lib.concatLists (lib.catAttrs "packages" dotnetPackages);
-    targetPackages = lib.zipAttrsWith (_: lib.concatLists) (
-      lib.catAttrs "targetPackages" dotnetPackages
-    );
+    packagesForTargets =
+      rids: lib.concatLists (map (f: f rids) (lib.catAttrs "packagesForTargets" dotnetPackages));
   };
 
   inherit (cli) meta;
