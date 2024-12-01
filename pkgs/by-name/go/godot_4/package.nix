@@ -141,6 +141,10 @@ let
       pkg-config
     ];
 
+    runtimeIds = lib.optional withMono (
+      dotnetCorePackages.systemToDotnetRid stdenv.hostPlatform.system
+    );
+
     buildInputs = lib.optionals withMono (
       dotnet-sdk_6.packages
       ++ lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.runtimeIds dotnet-sdk_6.targetPackages))
