@@ -156,10 +156,7 @@ let
 
       buildInputs =
         args.buildInputs or [ ]
-        ++ dotnet-sdk.packages
-        ++ lib.concatLists (
-          lib.attrValues (lib.getAttrs finalAttrs.dotnetRuntimeIds dotnet-sdk.targetPackages)
-        )
+        ++ dotnet-sdk.packagesForTargets finalAttrs.dotnetRuntimeIds
         ++ projectReferences;
 
       # Parse the version attr into a format acceptable for the Version msbuild property

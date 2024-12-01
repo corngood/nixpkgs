@@ -156,8 +156,7 @@ in
         dotnet-sdk
       ];
       buildInputs =
-        dotnet-sdk.packages
-        ++ lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.runtimeIds dotnet-sdk.targetPackages));
+        dotnet-sdk.packagesForTargets finalAttrs.runtimeIds;
 
       buildTarget = "Package";
 

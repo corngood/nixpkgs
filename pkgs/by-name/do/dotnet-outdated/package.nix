@@ -27,10 +27,8 @@ in buildDotnetModule (finalAttrs: rec {
   executables = "dotnet-outdated";
 
   buildInputs =
-    dotnetCorePackages.sdk_6_0.packages ++
-    dotnetCorePackages.sdk_7_0.packages ++
-    lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.dotnetRuntimeIds dotnetCorePackages.sdk_6_0.targetPackages)) ++
-    lib.concatLists (lib.attrValues (lib.getAttrs finalAttrs.dotnetRuntimeIds dotnetCorePackages.sdk_7_0.targetPackages));
+    (dotnetCorePackages.sdk_6_0.packagesForTargets finalAttrs.dotnetRuntimeIds) ++
+    (dotnetCorePackages.sdk_7_0.packagesForTargets finalAttrs.dotnetRuntimeIds);
 
   dotnetInstallFlags = [ "--framework" "net8.0" ];
 

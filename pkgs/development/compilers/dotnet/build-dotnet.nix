@@ -98,7 +98,7 @@ let
 
 in
 mkWrapper type (
-  stdenv.mkDerivation rec {
+  stdenv.mkDerivation (finalAttrs: {
     inherit pname version;
 
     strictDeps = true;
@@ -196,8 +196,13 @@ mkWrapper type (
         inherit icu hasILCompiler;
       }
       // lib.optionalAttrs (type == "sdk") {
-        packages = commonPackages ++ hostPackages.${hostRid} ++ targetPackages.${targetRid};
         inherit targetPackages runtime aspnetcore;
+
+        packagesForTargets = runtimeIds:
+          commonPackages
+          ++ hostPackages.${hostRid}
+          ++ lib.concatLists (lib.attrValues (lib.getAttrs runtimeIds finalAttrs.finalPackage.targetPackages));
+        packages = finalAttrs.finalPackage.packagesForTargets (lib.singleton targetRid);
 
         updateScript =
           let
@@ -231,5 +236,5 @@ mkWrapper type (
         binaryNativeCode
       ];
     };
-  }
+  })
 )
