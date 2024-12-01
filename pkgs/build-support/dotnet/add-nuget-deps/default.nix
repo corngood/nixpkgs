@@ -29,20 +29,20 @@ let
 
 in
 drv.overrideAttrs (
-  self: old: {
-    buildInputs = old.buildInputs or [ ] ++ deps;
+  self: base: {
+    buildInputs = base.buildInputs or [ ] ++ deps;
 
     passthru =
-      old.passthru or { }
+      base.passthru or { }
       // {
         nugetDeps = deps;
       }
       // lib.optionalAttrs (nugetDeps == null || lib.isPath nugetDeps) rec {
         fetch-drv =
           let
-            pkg' = drv.overrideAttrs (old: {
-              buildInputs = old.buildInputs or [ ];
-              nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [ cacert ];
+            pkg' = drv.overrideAttrs (base: {
+              buildInputs = base.buildInputs or [ ];
+              nativeBuildInputs = base.nativeBuildInputs or [ ] ++ [ cacert ];
               keepNugetConfig = true;
               dontBuild = true;
               doCheck = false;
@@ -52,7 +52,7 @@ drv.overrideAttrs (
               doDist = false;
             });
           in
-          pkg'; # .overrideAttrs overrideFetchAttrs;
+          pkg';
         fetch-deps =
           let
             drvPath = builtins.unsafeDiscardOutputDependency self.passthru.fetch-drv.drvPath;
