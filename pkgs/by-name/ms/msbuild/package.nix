@@ -11,15 +11,22 @@ let
 
   inherit (stdenv.hostPlatform.extensions) sharedLibrary;
 
-  mkPackage = attrs: stdenv.mkDerivation (finalAttrs:
-    dotnetCorePackages.addNuGetDeps
-      {
-        nugetDeps = ./deps.nix;
-        overrideFetchAttrs = a: {
-          dontBuild = false;
-        };
-      }
-      attrs finalAttrs);
+  mkPackage =
+    attrs:
+    (dotnetCorePackages.addNuGetDeps {
+      nugetDeps = ./deps.nix;
+    } (stdenv.mkDerivation attrs)).overrideAttrs
+      (
+        self: base: {
+          passthru = base.passthru or { } // {
+            fetch-drv = base.passthru.fetch-drv.overrideAttrs (
+              self: base: {
+                dontBuild = false;
+              }
+            );
+          };
+        }
+      );
 
 in
 
