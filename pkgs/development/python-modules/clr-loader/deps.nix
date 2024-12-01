@@ -2,20 +2,6 @@
 # Please dont edit it manually, your changes might get overwritten!
 
 { fetchNuGet }: [
-  (fetchNuGet { pname = "Microsoft.AspNetCore.App.Ref"; version = "6.0.36"; hash = "sha256-9jDkWbjw/nd8yqdzVTagCuqr6owJ/DUMi4BlUZT4hWU="; })
-  (fetchNuGet { pname = "Microsoft.AspNetCore.App.Runtime.linux-arm64"; version = "6.0.36"; hash = "sha256-JQULJyF0ivLoUU1JaFfK/HHg+/qzpN7V2RR2Cc+WlQ4="; })
-  (fetchNuGet { pname = "Microsoft.AspNetCore.App.Runtime.linux-x64"; version = "6.0.36"; hash = "sha256-zUsVIpV481vMLAXaLEEUpEMA9/f1HGOnvaQnaWdzlyY="; })
-  (fetchNuGet { pname = "Microsoft.AspNetCore.App.Runtime.osx-arm64"; version = "6.0.36"; hash = "sha256-2seqZcz0JeUjkzh3QcGa9TcJ4LUafpFjTRk+Nm8T6T0="; })
-  (fetchNuGet { pname = "Microsoft.AspNetCore.App.Runtime.osx-x64"; version = "6.0.36"; hash = "sha256-yxLafxiBKkvfkDggPk0P9YZIHBkDJOsFTO7/V9mEHuU="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Host.linux-arm64"; version = "6.0.36"; hash = "sha256-9lC/LYnthYhjkWWz2kkFCvlA5LJOv11jdt59SDnpdy0="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Host.linux-x64"; version = "6.0.36"; hash = "sha256-VFRDzx7LJuvI5yzKdGmw/31NYVbwHWPKQvueQt5xc10="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Host.osx-arm64"; version = "6.0.36"; hash = "sha256-DaSWwYACJGolEBuMhzDVCj/rQTdDt061xCVi+gyQnuo="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Host.osx-x64"; version = "6.0.36"; hash = "sha256-FrRny9EI6HKCKQbu6mcLj5w4ooSRrODD4Vj2ZMGnMd4="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Ref"; version = "6.0.36"; hash = "sha256-9LZgVoIFF8qNyUu8kdJrYGLutMF/cL2K82HN2ywwlx8="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Runtime.linux-arm64"; version = "6.0.36"; hash = "sha256-k3rxvUhCEU0pVH8KgEMtkPiSOibn+nBh+0zT2xIfId8="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Runtime.linux-x64"; version = "6.0.36"; hash = "sha256-U8wJ2snSDFqeAgDVLXjnniidC7Cr5aJ1/h/BMSlyu0c="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Runtime.osx-arm64"; version = "6.0.36"; hash = "sha256-UfLcrL2Gj/OLz0s92Oo+OCJeDpZFAcQLPLiSNND8D5Y="; })
-  (fetchNuGet { pname = "Microsoft.NETCore.App.Runtime.osx-x64"; version = "6.0.36"; hash = "sha256-0xIJYFzxdMcnCj3wzkFRQZSnQcPHzPHMzePRIOA3oJs="; })
   (fetchNuGet { pname = "Microsoft.NETCore.Platforms"; version = "1.1.0"; hash = "sha256-FeM40ktcObQJk4nMYShB61H/E8B7tIKfl9ObJ0IOcCM="; })
   (fetchNuGet { pname = "Microsoft.NETFramework.ReferenceAssemblies"; version = "1.0.0"; hash = "sha256-6faPQ4jaFY3OGGVk3lZKW+DEZaIOBZ/wHqbiDTsRR1k="; })
   (fetchNuGet { pname = "Microsoft.NETFramework.ReferenceAssemblies.net461"; version = "1.0.0"; hash = "sha256-oS7sUMzKBkLmhggqbI6eBqb1OPAipH0TDTaDaBixcwM="; })
