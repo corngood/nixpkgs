@@ -1,0 +1,25 @@
+From 8ed6c90daf7c35568f2229e31d762dd4d1adab5f Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Thu, 6 Feb 2025 13:34:04 -0400
+Subject: [PATCH 3/3] remove d2d unit tests
+
+---
+ dirs.proj | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/dirs.proj b/dirs.proj
+index 5403847fa..3b208ccb4 100644
+--- a/dirs.proj
++++ b/dirs.proj
+@@ -32,4 +32,8 @@
+   <ItemGroup>
+     <PackageReference Include="Microsoft.VisualStudio.SlnGen" Version="8.5.17" PrivateAssets="all" />
+   </ItemGroup>
++
++  <ItemGroup>
++    <ProjectReference Remove="tests/Avalonia.Direct2D1.UnitTests/Avalonia.Direct2D1.UnitTests.csproj" />
++  </ItemGroup>
+ </Project>
+-- 
+2.47.1
+

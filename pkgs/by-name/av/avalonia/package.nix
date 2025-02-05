@@ -25,10 +25,18 @@ let
 
   dotnet-sdk =
     with dotnetCorePackages;
-    combinePackages [
-      sdk_7_0_1xx-bin
-      runtime_6_0-bin
-    ];
+    sdk_8_0
+    // {
+      inherit
+        (combinePackages [
+          sdk_8_0
+          sdk_7_0
+          sdk_6_0
+        ])
+        packages
+        targetPackages
+        ;
+    };
 
   npmDepsFile = ./npm-deps.nix;
 
@@ -47,14 +55,14 @@ stdenvNoCC.mkDerivation (
     }
     rec {
       pname = "Avalonia";
-      version = "11.0.11";
+      version = "11.2.3";
 
       src = fetchFromGitHub {
         owner = "AvaloniaUI";
         repo = "Avalonia";
         rev = version;
         fetchSubmodules = true;
-        hash = "sha256-Du8DEsZKl7rnVH9YZKAWTCpEQ/5HrNlgacgK/46kx/o=";
+        hash = "sha256-JLRolqNwLMUbmzskgqHYAQxelMy3tC5PcuKIpxOV5VE=";
       };
 
       patches = [
@@ -63,6 +71,9 @@ stdenvNoCC.mkDerivation (
         # [ERR] Compile: [...]/Microsoft.NET.Sdk.targets(148,5): error MSB4018: The "GenerateDepsFile" task failed unexpectedly. [/build/source/src/tools/DevAnalyzers/DevAnalyzers.csproj]
         # [ERR] Compile: [...]/Microsoft.NET.Sdk.targets(148,5): error MSB4018: System.IO.IOException: The process cannot access the file '/build/source/src/tools/DevAnalyzers/bin/Release/netstandard2.0/DevAnalyzers.deps.json' because it is being used by another process. [/build/source/src/tools/DevAnalyzers/DevAnalyzers.csproj]
         ./0002-disable-parallel-compile.patch
+        # remove projects that fail to restore with RID
+        # https://github.com/AvaloniaUI/Avalonia/issues/9603
+        ./0003-remove-d2d-unit-tests.patch
       ];
 
       # this needs to be match the version being patched above
@@ -130,7 +141,7 @@ stdenvNoCC.mkDerivation (
       #  ---> System.ArgumentException: Could not find package 'Microsoft.DotNet.ApiCompat.Tool' using:
       #  - Project assets file '/build/source/nukebuild/obj/project.assets.json'
       #  - NuGet packages config '/build/source/nukebuild/_build.csproj'
-      makeEmptyNupkgInPackages = true;
+      linkNuGetPackagesAndSources = true;
 
       FONTCONFIG_FILE =
         let

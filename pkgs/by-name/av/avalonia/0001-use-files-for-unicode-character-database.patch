@@ -1,4 +1,4 @@
-From f4c599a48d153d15ccb1879ff511617c8e310515 Mon Sep 17 00:00:00 2001
+From 2de68c07481404fe3981cf1cfee3f3d74ac84c85 Mon Sep 17 00:00:00 2001
 From: David McFarland <corngood@gmail.com>
 Date: Sat, 10 Aug 2024 23:14:12 -0300
 Subject: [PATCH 1/2] use files for unicode character database
@@ -74,10 +74,10 @@ index 3db9a32b6..b8df1f446 100644
  using Avalonia.Media.TextFormatting.Unicode;
  using Xunit;
 diff --git a/tests/Avalonia.Base.UnitTests/Media/TextFormatting/UnicodeDataGenerator.cs b/tests/Avalonia.Base.UnitTests/Media/TextFormatting/UnicodeDataGenerator.cs
-index f05a1e574..7e698ae0a 100644
+index 93e75a824..97086647a 100644
 --- a/tests/Avalonia.Base.UnitTests/Media/TextFormatting/UnicodeDataGenerator.cs
 +++ b/tests/Avalonia.Base.UnitTests/Media/TextFormatting/UnicodeDataGenerator.cs
-@@ -1,16 +1,40 @@
+@@ -1,15 +1,39 @@
  ﻿using System;
  using System.Collections.Generic;
  using System.IO;
@@ -85,7 +85,6 @@ index f05a1e574..7e698ae0a 100644
  using System.Text.RegularExpressions;
 +using System.Threading.Tasks;
  using Avalonia.Media.TextFormatting.Unicode;
- using Xunit;
  
  namespace Avalonia.Base.UnitTests.Media.TextFormatting
  {
@@ -133,5 +132,5 @@ index 110e57cbd..7073ea508 100644
  namespace Avalonia.Base.UnitTests.Media.TextFormatting
  {
 -- 
-2.42.2
+2.47.1
 
