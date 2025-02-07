@@ -1,4 +1,5 @@
 {
+  buildDotnetModule,
   dotnetCorePackages,
   fetchFromGitHub,
   fetchNpmDeps,
@@ -194,6 +195,26 @@ stdenvNoCC.mkDerivation (
       passthru = {
         updateScript = ./update.bash;
         inherit npmDepsFile;
+
+        tests.samples = buildDotnetModule {
+          name = "avalonia-samples";
+
+          src = fetchFromGitHub {
+            owner = "AvaloniaUI";
+            repo = "Avalonia.Samples";
+            rev = "7151cfc4f4ead37361d8d617a7d2f14009f724f5";
+            fetchSubmodules = true;
+            hash = "sha256-s6T+YMUR+ZA059o2bW/87wi0CimkUQdDGqQnC+jcPQU=";
+          };
+
+          dotnet-sdk = dotnetCorePackages.sdk_8_0;
+          dotnetFlags = [ "-p:RollForward=Major" "-p:TargetFramework=net8" ];
+
+          nugetDeps = ./deps-samples.json;
+          projectFile = "src/Avalonia.Samples/MVVM/BasicMvvmSample/BasicMvvmSample.csproj";
+
+          buildInputs = [ finalAttrs.finalPackage ];
+        };
       };
 
       meta = {
