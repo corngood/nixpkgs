@@ -19,27 +19,28 @@
   npmHooks,
   runCommand,
   stdenvNoCC,
+  writeText,
 }:
 
 let
   inherit (dotnetCorePackages) systemToDotnetRid;
 
-  dotnet-sdk =
-    with dotnetCorePackages;
-    sdk_8_0
-    // {
-      inherit
-        (combinePackages [
-          sdk_8_0
-          sdk_7_0
-          sdk_6_0
-        ])
-        packages
-        targetPackages
-        ;
-    };
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
 
   npmDepsFile = ./npm-deps.nix;
+
+  versionProps = writeText "avalonia.props" ''
+    <Project>
+      <ItemGroup>
+        <PackageReference Update="Avalonia" Version="11.2.3" />
+        <PackageReference Update="Avalonia.Desktop" Version="11.2.3" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Update="Avalonia.Diagnostics" Version="11.2.3" />
+        <PackageReference Update="Avalonia.ReactiveUI" Version="11.2.3" />
+        <PackageReference Update="Avalonia.Themes.Fluent" Version="11.2.3" />
+      </ItemGroup>
+    </Project>
+  '';
 
 in
 stdenvNoCC.mkDerivation (
@@ -163,6 +164,7 @@ stdenvNoCC.mkDerivation (
 
       configurePhase = ''
         runHook preConfigure
+        export AvsSkipBuildingLegacyTargetFrameworks=true SkipBuildingSamples=true
         for project in nukebuild/_build.csproj dirs.proj; do
           for rid in $runtimeIds; do
             dotnet restore --runtime "$rid" "$project"
@@ -209,7 +211,11 @@ stdenvNoCC.mkDerivation (
           };
 
           dotnet-sdk = dotnetCorePackages.sdk_8_0;
-          dotnetFlags = [ "-p:RollForward=Major" "-p:TargetFramework=net8" ];
+          dotnetFlags = [
+            "-p:RollForward=Major"
+            "-p:TargetFramework=net8.0"
+            "-p:CustomBeforeMicrosoftCommonTargets=${versionProps}"
+          ];
 
           nugetDeps = ./deps-samples.json;
           projectFile = "src/Avalonia.Samples/MVVM/BasicMvvmSample/BasicMvvmSample.csproj";
