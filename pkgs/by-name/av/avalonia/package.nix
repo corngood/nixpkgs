@@ -103,7 +103,8 @@ stdenvNoCC.mkDerivation (
           dotnet nuget add source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8-transport/nuget/v3/index.json
 
           # Tricky way to run npmConfigHook multiple times (borrowed from pagefind)
-          (
+          # Skip when build is disabled to make fetch-deps faster
+          [[ -n "''${dontBuild:-}" ]] || (
             local postPatchHooks=() # written to by npmConfigHook
             source ${npmHooks.npmConfigHook}/nix-support/setup-hook
         ''
