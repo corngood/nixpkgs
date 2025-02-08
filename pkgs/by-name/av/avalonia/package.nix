@@ -31,13 +31,11 @@ let
 
   versionProps = writeText "avalonia.props" ''
     <Project>
-      <ItemGroup>
-        <PackageReference Update="Avalonia" Version="11.2.3" />
-        <PackageReference Update="Avalonia.Desktop" Version="11.2.3" />
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Update="Avalonia.Diagnostics" Version="11.2.3" />
-        <PackageReference Update="Avalonia.ReactiveUI" Version="11.2.3" />
-        <PackageReference Update="Avalonia.Themes.Fluent" Version="11.2.3" />
+      <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
+        <PackageReference Update="Avalonia*" Version="11.2.3" />
+      </ItemGroup>
+      <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+        <PackageVersion Update="Avalonia*" Version="11.2.3" />
       </ItemGroup>
     </Project>
   '';
@@ -197,7 +195,7 @@ stdenvNoCC.mkDerivation (
 
       passthru = {
         updateScript = ./update.bash;
-        inherit npmDepsFile;
+        inherit npmDepsFile versionProps;
 
         tests.samples = buildDotnetModule {
           name = "avalonia-samples";

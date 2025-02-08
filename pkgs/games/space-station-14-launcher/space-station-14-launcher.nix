@@ -22,10 +22,21 @@
 , zlib
 , glib
 , gdk-pixbuf
+, writeText
 }:
 let
   version = "0.29.1";
   pname = "space-station-14-launcher";
+
+  versionProps = writeText "versions.props" ''
+    <Project>
+      <ItemGroup>
+        <PackageVersion Update="ReactiveUI" Version="20.1.1" />
+        <PackageVersion Update="DynamicData" Version="8.4.1" />
+      </ItemGroup>
+      <Import Project="${avalonia.versionProps}"/>
+    </Project>
+  '';
 in
 buildDotnetModule rec {
   inherit pname version;
@@ -63,6 +74,7 @@ buildDotnetModule rec {
     "-p:FullRelease=true"
     "-p:RobustILLink=true"
     "-nologo"
+    "-p:CustomBeforeMicrosoftCommonTargets=${versionProps}"
   ];
 
   buildInputs = [ avalonia ];
