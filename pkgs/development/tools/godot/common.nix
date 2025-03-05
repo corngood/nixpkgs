@@ -253,10 +253,22 @@ let
       # Export templates version should be kept in sync with Godot version.
       # https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html#export-templates
       export-templates = fetchzip {
-        pname = "export_templates";
+        pname = "godot-export-templates";
+        version = version;
         extension = "zip";
         url = "https://github.com/godotengine/godot/releases/download/${version}/Godot_v${version}_export_templates.tpz";
         hash = exportTemplatesHash;
+
+        meta = {
+          inherit (meta)
+            changelog
+            description
+            homepage
+            license
+            maintainers
+            ;
+          sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
+        };
       };
     };
 
