@@ -33,6 +33,7 @@ rec {
   godot3-mono-server = callPackage ./3/mono/server.nix { };
 
   godot_4_3 = mkGodot "4.3";
+  godot_4_4 = mkGodot "4.4";
   godot_4 = godot_4_3;
   godot = godot_4;
 }
