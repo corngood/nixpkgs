@@ -3442,7 +3442,9 @@ with pkgs;
 
   gnutar = callPackage ../tools/archivers/gnutar { };
 
-  inherit (callPackage ../development/tools/godot { })
+  godotPackages = callPackage ../development/tools/godot { };
+
+  inherit (godotPackages)
     godot3
     godot3-export-templates
     godot3-headless
@@ -3453,10 +3455,17 @@ with pkgs;
     godot3-mono-headless
     godot3-mono-debug-server
     godot3-mono-server
-    godot_4
-    godot_4-mono
-    godot_4-export-templates
     ;
+
+  godot_4_3 = godotPackages.godot_4_3.godot;
+  godot_4_3-mono = godotPackages.godot_4_3.godot-mono;
+  godot_4_3-export-templates = godotPackages.godot_4_3.godot.export-templates;
+  godot_4 = godotPackages.godot_4.godot;
+  godot_4-mono = godotPackages.godot_4.godot-mono;
+  godot_4-export-templates = godotPackages.godot_4.godot.export-templates;
+  godot = godotPackages.godot.godot;
+  godot-mono = godotPackages.godot.godot-mono;
+  godot-export-templates = godotPackages.godot.godot.export-templates;
 
   goattracker = callPackage ../applications/audio/goattracker { };
 
