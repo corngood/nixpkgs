@@ -34,6 +34,6 @@ rec {
 
   godot_4_3 = mkGodot "4.3";
   godot_4_4 = mkGodot "4.4";
-  godot_4 = godot_4_3;
+  godot_4 = godot_4_4;
   godot = godot_4;
 }
