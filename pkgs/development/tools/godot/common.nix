@@ -237,7 +237,8 @@ let
           }"
       ''
       + ''
-        runHook postInstall
+        ln -s godot4${suffix} "$out"/bin/godot
+        runHook post Install
       '';
 
     passthru = {
