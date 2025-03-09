@@ -4,14 +4,23 @@
   buildPackages,
   dbus,
   dotnetCorePackages,
+  embree,
+  enet,
   fetchFromGitHub,
   fontconfig,
+  freetype,
+  glslang,
+  graphite2,
+  harfbuzz,
   hash,
+  icu,
   installShellFiles,
   lib,
   libdecor,
   libGL,
   libpulseaudio,
+  libtheora,
+  libwebp,
   libX11,
   libXcursor,
   libXext,
@@ -22,7 +31,12 @@
   libXrandr,
   libXrender,
   makeWrapper,
+  mbedtls,
+  miniupnpc,
+  openxr-loader,
+  pcre2,
   pkg-config,
+  recastnavigation,
   runCommand,
   scons,
   speechd-minimal,
@@ -49,6 +63,8 @@
   # https://github.com/godotengine/godot/pull/73504
   withWayland ? true,
   withX11 ? true,
+  wslay,
+  zstd,
 }:
 assert lib.asserts.assertOneOf "withPrecision" withPrecision [
   "single"
@@ -139,18 +155,59 @@ let
       module_mono_enabled = withMono;
 
       linkflags = "-Wl,--build-id";
+
+      # libraries that aren't available in nixpkgs
+      builtin_msdfgen = true;
+      builtin_rvo2_2d = true;
+      builtin_rvo2_3d = true;
+      builtin_xatlas = true;
+
+      # using system clipper2 is currently not implemented
+      builtin_clipper2 = true;
     };
 
     enableParallelBuilding = true;
 
     strictDeps = true;
 
+    patches = [
+      # this stops scons from hiding e.g. NIX_CFLAGS_COMPILE
+      ./SConstruct-inherit-external-environment.patch
+      ./Linux-fix-missing-library-with-builtin_glslang-false.patch
+      ./SConstruct-disable-builtin_-by-default.patch
+    ];
+
+    postPatch = ''
+      # disable all builtin libraries by default
+      perl -pi -e '{ $r |= s:(opts.Add\(BoolVariable\("builtin_.*, )True(\)\)):\1False\2: } END { exit ($r != 1) }' SConstruct
+
+      substituteInPlace platform/linuxbsd/detect.py \
+        --replace-fail /usr/include/recastnavigation ${lib.escapeShellArg (lib.getDev recastnavigation)}/include/recastnavigation
+    '';
+
     depsBuildBuild = lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
       buildPackages.stdenv.cc
       pkg-config
     ];
 
-    buildInputs = lib.optionals withMono dotnet-sdk.packages;
+    buildInputs = [
+      embree
+      enet
+      freetype
+      glslang
+      graphite2
+      (harfbuzz.override { withIcu = true; })
+      icu
+      libtheora
+      libwebp
+      mbedtls
+      miniupnpc
+      openxr-loader
+      pcre2
+      recastnavigation
+      wslay
+      zstd
+    ] ++ lib.optionals withMono dotnet-sdk.packages;
 
     nativeBuildInputs =
       [
