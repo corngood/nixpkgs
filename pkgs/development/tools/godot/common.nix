@@ -9,6 +9,7 @@
   fetchFromGitHub,
   fontconfig,
   freetype,
+  glib,
   glslang,
   graphite2,
   harfbuzz,
@@ -24,7 +25,6 @@
   libX11,
   libXcursor,
   libXext,
-  libXfixes,
   libXi,
   libXinerama,
   libxkbcommon,
@@ -48,6 +48,7 @@
   vulkan-loader,
   wayland,
   wayland-scanner,
+  withAlsa ? true,
   withDbus ? true,
   withFontconfig ? true,
   withMono ? false,
@@ -143,6 +144,7 @@ let
       debug_symbols = true;
 
       # Options from 'platform/linuxbsd/detect.py'
+      alsa = withAlsa;
       dbus = withDbus; # Use D-Bus to handle screensaver and portal desktop settings
       fontconfig = withFontconfig; # Use fontconfig for system fonts support
       pulseaudio = withPulseaudio; # Use PulseAudio
@@ -164,6 +166,8 @@ let
 
       # using system clipper2 is currently not implemented
       builtin_clipper2 = true;
+
+      use_sowrap = false;
     };
 
     enableParallelBuilding = true;
@@ -183,6 +187,26 @@ let
 
       substituteInPlace platform/linuxbsd/detect.py \
         --replace-fail /usr/include/recastnavigation ${lib.escapeShellArg (lib.getDev recastnavigation)}/include/recastnavigation
+
+      substituteInPlace thirdparty/glad/egl.c \
+        --replace-fail \
+          'static const char *NAMES[] = {"libEGL.so.1", "libEGL.so"}' \
+          'static const char *NAMES[] = {"${lib.getLib libGL}/lib/libEGL.so"}'
+
+      substituteInPlace thirdparty/glad/gl.c \
+        --replace-fail \
+          'static const char *NAMES[] = {"libGLESv2.so.2", "libGLESv2.so"}' \
+          'static const char *NAMES[] = {"${lib.getLib libGL}/lib/libGLESv2.so"}' \
+
+      substituteInPlace thirdparty/glad/gl{,x}.c \
+        --replace-fail \
+          '"libGL.so.1"' \
+          '"${lib.getLib libGL}/lib/libGL.so"'
+
+      substituteInPlace thirdparty/volk/volk.c \
+        --replace-fail \
+          'dlopen("libvulkan.so.1"' \
+          'dlopen("${lib.getLib vulkan-loader}/lib/libvulkan.so"'
     '';
 
     depsBuildBuild = lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
@@ -190,28 +214,56 @@ let
       pkg-config
     ];
 
-    buildInputs = [
-      embree
-      enet
-      freetype
-      glslang
-      graphite2
-      (harfbuzz.override { withIcu = true; })
-      icu
-      libtheora
-      libwebp
-      mbedtls
-      miniupnpc
-      openxr-loader
-      pcre2
-      recastnavigation
-      wslay
-      zstd
-    ] ++ lib.optionals withMono dotnet-sdk.packages;
+    buildInputs =
+      [
+        embree
+        enet
+        freetype
+        glslang
+        graphite2
+        (harfbuzz.override { withIcu = true; })
+        icu
+        libtheora
+        libwebp
+        mbedtls
+        miniupnpc
+        openxr-loader
+        pcre2
+        recastnavigation
+        wslay
+        zstd
+      ]
+      ++ lib.optionals withMono dotnet-sdk.packages
+      ++ lib.optional withAlsa alsa-lib
+      ++ lib.optional (withX11 || withWayland) libxkbcommon
+      ++ lib.optionals withX11 [
+        libX11
+        libXcursor
+        libXext
+        libXi
+        libXinerama
+        libXrandr
+        libXrender
+      ]
+      ++ lib.optionals withWayland [
+        # libdecor
+        wayland
+      ]
+      ++ lib.optionals withDbus [
+        dbus
+      ]
+      ++ lib.optionals withFontconfig [
+        fontconfig
+      ]
+      ++ lib.optional withPulseaudio libpulseaudio
+      ++ lib.optionals withSpeechd [
+        speechd-minimal
+        glib
+      ]
+      ++ lib.optional withUdev udev;
 
     nativeBuildInputs =
       [
-        autoPatchelfHook
         installShellFiles
         pkg-config
         scons
@@ -232,39 +284,6 @@ let
       echo "Building C#/.NET Assemblies"
       python modules/mono/build_scripts/build_assemblies.py --godot-output-dir bin --precision=${withPrecision}
     '';
-
-    runtimeDependencies =
-      [
-        alsa-lib
-        libGL
-        vulkan-loader
-      ]
-      ++ lib.optionals withX11 [
-        libX11
-        libXcursor
-        libXext
-        libXfixes
-        libXi
-        libXinerama
-        libxkbcommon
-        libXrandr
-        libXrender
-      ]
-      ++ lib.optionals withWayland [
-        libdecor
-        wayland
-      ]
-      ++ lib.optionals withDbus [
-        dbus
-        dbus.lib
-      ]
-      ++ lib.optionals withFontconfig [
-        fontconfig
-        fontconfig.lib
-      ]
-      ++ lib.optionals withPulseaudio [ libpulseaudio ]
-      ++ lib.optionals withSpeechd [ speechd-minimal ]
-      ++ lib.optionals withUdev [ udev ];
 
     installPhase =
       ''
@@ -313,7 +332,6 @@ let
 
             runtimeDependencies = map lib.getLib [
               alsa-lib
-              libGL
               libpulseaudio
               libX11
               libXcursor
