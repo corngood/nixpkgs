@@ -3,6 +3,13 @@
   python3Packages,
   fetchFromGitHub,
   stdenv,
+  withBoto3 ? false,
+  withTransmission ? false,
+  withQBittorrent ? false,
+  withDeluge ? false,
+  withTelegram ? false,
+  withCloudscraper ? false,
+  withLibTorrent ? false,
 }:
 
 python3Packages.buildPythonApplication rec {
@@ -24,55 +31,55 @@ python3Packages.buildPythonApplication rec {
     hatch-requirements-txt
   ];
 
-  dependencies = with python3Packages; [
-    # See https://github.com/Flexget/Flexget/blob/master/pyproject.toml
-    # and https://github.com/Flexget/Flexget/blob/develop/requirements.txt
-    apscheduler
-    beautifulsoup4
-    colorama
-    feedparser
-    guessit
-    html5lib
-    jinja2
-    jsonschema
-    loguru
-    psutil
-    pydantic
-    pynzb
-    pyrss2gen
-    python-dateutil
-    pyyaml
-    rarfile
-    rebulk
-    requests
-    rich
-    rpyc
-    sqlalchemy
-    zstandard
-    pillow
-
-    # WebUI requirements
-    cherrypy
-    flask-compress
-    flask-cors
-    flask-login
-    flask-restx
-    flask
-    packaging
-    pyparsing
-    werkzeug
-    zxcvbn
-    pendulum
-
+  dependencies =
+    with python3Packages;
+    [
+      # See https://github.com/Flexget/Flexget/blob/master/pyproject.toml
+      # and https://github.com/Flexget/Flexget/blob/develop/requirements.txt
+      apscheduler
+      beautifulsoup4
+      colorama
+      feedparser
+      guessit
+      html5lib
+      jinja2
+      jsonschema
+      loguru
+      psutil
+      pydantic
+      pynzb
+      pyrss2gen
+      python-dateutil
+      pyyaml
+      rarfile
+      rebulk
+      requests
+      rich
+      rpyc
+      sqlalchemy
+      zstandard
+      pillow
+      # WebUI requirements
+      cherrypy
+      flask-compress
+      flask-cors
+      flask-login
+      flask-restx
+      flask
+      packaging
+      pyparsing
+      werkzeug
+      zxcvbn
+      pendulum
+    ]
     # Plugins requirements
-    transmission-rpc
-    qbittorrent-api
-    deluge-client
-    cloudscraper
-    python-telegram-bot
-    boto3
-    libtorrent-rasterbar
-  ];
+    ++ lib.optional withBoto3 boto3
+    ++ lib.optional withTransmission transmission-rpc
+    ++ lib.optional withQBittorrent qbittorrent-api
+    ++ lib.optional withDeluge deluge-client
+    ++ lib.optional withCloudscraper cloudscraper
+    ++ lib.optional withTelegram python-telegram-bot
+    ++ lib.optional withLibTorrent libtorrent-rasterbar;
 
   pythonImportsCheck = [
     "flexget"
@@ -108,55 +115,59 @@ python3Packages.buildPythonApplication rec {
 
   doCheck = !stdenv.isDarwin;
 
-  disabledTests = [
-    # reach the Internet
-    "TestExistsMovie"
-    "TestImdb"
-    "TestImdbLookup"
-    "TestImdbParser"
-    "TestInputHtml"
-    "TestInputSites"
-    "TestNfoLookupWithMovies"
-    "TestNpoWatchlistInfo"
-    "TestNpoWatchlistLanguageTheTVDBLookup"
-    "TestNpoWatchlistPremium"
-    "TestPlex"
-    "TestRadarrListActions"
-    "TestRssOnline"
-    "TestSeriesRootAPI"
-    "TestSftpDownload"
-    "TestSftpList"
-    "TestSonarrListActions"
-    "TestSubtitleList"
-    "TestTMDBMovieLookupAPI"
-    "TestTVDBEpisodeABSLookupAPI"
-    "TestTVDBEpisodeAirDateLookupAPI"
-    "TestTVDBEpisodeLookupAPI"
-    "TestTVDBExpire"
-    "TestTVDBFavorites"
-    "TestTVDBLanguages"
-    "TestTVDBList"
-    "TestTVDBLookup"
-    "TestTVDBLookup"
-    "TestTVDBSeriesActorsLookupAPI"
-    "TestTVDBSeriesLookupAPI"
-    "TestTVDSearchIMDBLookupAPI"
-    "TestTVDSearchNameLookupAPI"
-    "TestTVDSearchZAP2ITLookupAPI"
-    "TestTVMAzeSeriesLookupAPI"
-    "TestTVMazeSeasonLookup"
-    "TestTVMazeShowLookup"
-    "TestTVMazeUnicodeLookup"
-    "TestTaskParsing::test_selected_parser_cleared"
-    "TestTheTVDBLanguages"
-    "TestTheTVDBList"
-    "TestTmdbLookup"
-    "TestURLRewriters"
-    "TestURLRewriters::test_ettv"
-    # others
-    "TestRegexp"
-    "TestYamlLists"
-  ];
+  disabledTests =
+    [
+      # reach the Internet
+      "TestExistsMovie"
+      "TestImdb"
+      "TestImdbLookup"
+      "TestImdbParser"
+      "TestInputHtml"
+      "TestInputSites"
+      "TestNfoLookupWithMovies"
+      "TestNpoWatchlistInfo"
+      "TestNpoWatchlistLanguageTheTVDBLookup"
+      "TestNpoWatchlistPremium"
+      "TestPlex"
+      "TestRadarrListActions"
+      "TestRssOnline"
+      "TestSeriesRootAPI"
+      "TestSftpDownload"
+      "TestSftpList"
+      "TestSonarrListActions"
+      "TestSubtitleList"
+      "TestTMDBMovieLookupAPI"
+      "TestTVDBEpisodeABSLookupAPI"
+      "TestTVDBEpisodeAirDateLookupAPI"
+      "TestTVDBEpisodeLookupAPI"
+      "TestTVDBExpire"
+      "TestTVDBFavorites"
+      "TestTVDBLanguages"
+      "TestTVDBList"
+      "TestTVDBLookup"
+      "TestTVDBLookup"
+      "TestTVDBSeriesActorsLookupAPI"
+      "TestTVDBSeriesLookupAPI"
+      "TestTVDSearchIMDBLookupAPI"
+      "TestTVDSearchNameLookupAPI"
+      "TestTVDSearchZAP2ITLookupAPI"
+      "TestTVMAzeSeriesLookupAPI"
+      "TestTVMazeSeasonLookup"
+      "TestTVMazeShowLookup"
+      "TestTVMazeUnicodeLookup"
+      "TestTaskParsing::test_selected_parser_cleared"
+      "TestTheTVDBLanguages"
+      "TestTheTVDBList"
+      "TestTmdbLookup"
+      "TestURLRewriters"
+      "TestURLRewriters::test_ettv"
+      # others
+      "TestRegexp"
+      # "TestYamlLists"
+    ]
+    ++ lib.optional (!withBoto3) "TestNotifySNS"
+    ++ lib.optional (!withTransmission) "TestTransmissionTorrentPlugin"
+    ++ lib.optional (!withTelegram) "TestTelegramNotifier";
 
   meta = {
     homepage = "https://flexget.com/";
