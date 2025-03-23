@@ -51,6 +51,10 @@ stdenv.mkDerivation rec {
 
   doCheck = false; # fails, doesn't work well too, btw
 
+  postInstall = ''
+    ln -s $out/bin/curlftpfs $out/bin/mount.fuse.curlftpfs
+  '';
+
   meta = with lib; {
     description = "Filesystem for accessing FTP hosts based on FUSE and libcurl";
     mainProgram = "curlftpfs";
