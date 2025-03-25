@@ -357,7 +357,7 @@ let
               mv "$out"/libexec/GodotSharp/Tools/nupkgs "$out"/share/nuget/source
 
               wrapProgram $out/libexec/${binary} \
-                --set DOTNET_ROOT ${dotnet-sdk} \
+                --set DOTNET_ROOT ${dotnet-sdk}/share/dotnet \
                 --prefix PATH : "${
                   lib.makeBinPath [
                     dotnet-sdk
