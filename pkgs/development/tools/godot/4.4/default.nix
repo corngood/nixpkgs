@@ -5,7 +5,7 @@
     exportTemplatesHash = "sha256-eo0UreSJ/U0i8XgZMCH+iodqnlEGjtTd4m2sOuTFmog=";
   };
   mono = {
-    exportTemplatesHash = "sha256-QFdwWrowa6Q9ruWdnXIkea7qTea3DlkEtD7QpyQ00000";
+    exportTemplatesHash = "sha256-tk0WS5axndcXWhuj86blg+nU3FB7PRMzVj8ka1gRgj4=";
     nugetDeps = ./deps.json;
   };
 }
