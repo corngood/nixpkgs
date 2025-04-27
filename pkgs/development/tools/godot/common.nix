@@ -207,6 +207,7 @@ let
 
       patches =
         [
+          ./find-export-templates-in-XDG_DATA_DIRS.patch
           ./Linux-fix-missing-library-with-builtin_glslang-false.patch
         ]
         ++ lib.optionals (lib.versionOlder version "4.4") [
@@ -492,6 +493,7 @@ let
 
                     nativeBuildInputs = [
                       pkg
+                      final.export-template
                     ] ++ lib.optional withMono dotnet-sdk;
 
                     src = project-src;
@@ -504,14 +506,8 @@ let
                       [[ $message == "Project \`UnnamedProject.csproj\` added to the solution." ]]
                     '';
 
-                    exportTemplate = pkg.export-template;
-
                     buildPhase = ''
                       runHook preBuild
-
-                      export HOME=$(mktemp -d)
-                      mkdir -p $HOME/.local/share/godot/
-                      ln -s "${final.export-template}"/share/godot/export_templates "$HOME"/.local/share/godot/
 
                       godot${suffix} --headless --build-solutions -s create-scene.gd
 

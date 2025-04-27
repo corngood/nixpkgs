@@ -1,0 +1,556 @@
+From 119596a3f8b37635cd5b11bace2b4b36978d8ba5 Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Sat, 26 Apr 2025 23:41:54 -0300
+Subject: [PATCH] find export templates in XDG_DATA_DIRS
+
+---
+ core/core_bind.cpp                        |  4 +-
+ core/os/os.cpp                            |  7 +++-
+ core/os/os.h                              |  3 +-
+ drivers/unix/os_unix.cpp                  |  2 +-
+ editor/editor_node.cpp                    |  4 +-
+ editor/editor_paths.cpp                   | 51 ++++++++++++++---------
+ editor/editor_paths.h                     |  9 ++--
+ editor/export/editor_export_platform.cpp  | 34 ++++++++++-----
+ editor/export/export_template_manager.cpp | 10 ++---
+ editor/project_manager/project_list.cpp   |  2 +-
+ platform/android/os_android.cpp           |  2 +-
+ platform/android/os_android.h             |  2 +-
+ platform/linuxbsd/os_linuxbsd.cpp         | 13 +++++-
+ platform/linuxbsd/os_linuxbsd.h           |  3 +-
+ platform/macos/os_macos.h                 |  2 +-
+ platform/macos/os_macos.mm                |  2 +-
+ platform/web/os_web.cpp                   |  2 +-
+ platform/web/os_web.h                     |  2 +-
+ platform/windows/os_windows.cpp           |  4 +-
+ platform/windows/os_windows.h             |  2 +-
+ tests/core/os/test_os.h                   |  2 +-
+ 21 files changed, 105 insertions(+), 57 deletions(-)
+
+diff --git a/core/core_bind.cpp b/core/core_bind.cpp
+index acd589783e..744e4522f7 100644
+--- a/core/core_bind.cpp
++++ b/core/core_bind.cpp
+@@ -570,8 +570,8 @@ String OS::get_config_dir() const {
+ }
+ 
+ String OS::get_data_dir() const {
+-	// Exposed as `get_data_dir()` instead of `get_data_path()` for consistency with other exposed OS methods.
+-	return ::OS::get_singleton()->get_data_path();
++	// Exposed as `get_data_dir()` instead of `get_data_home()` for consistency with other exposed OS methods.
++	return ::OS::get_singleton()->get_data_home();
+ }
+ 
+ String OS::get_cache_dir() const {
+diff --git a/core/os/os.cpp b/core/os/os.cpp
+index 46e519304e..6c5d07aad7 100644
+--- a/core/os/os.cpp
++++ b/core/os/os.cpp
+@@ -278,10 +278,15 @@ String OS::get_godot_dir_name() const {
+ }
+ 
+ // OS equivalent of XDG_DATA_HOME
+-String OS::get_data_path() const {
++String OS::get_data_home() const {
+ 	return ".";
+ }
+ 
++// OS equivalent of XDG_DATA_DIRS
++Vector<String> OS::get_data_dirs() const {
++	return Vector<String>();
++}
++
+ // OS equivalent of XDG_CONFIG_HOME
+ String OS::get_config_path() const {
+ 	return ".";
+diff --git a/core/os/os.h b/core/os/os.h
+index c8ac5c8eac..2cf08537ba 100644
+--- a/core/os/os.h
++++ b/core/os/os.h
+@@ -284,7 +284,8 @@ public:
+ 	String get_safe_dir_name(const String &p_dir_name, bool p_allow_paths = false) const;
+ 	virtual String get_godot_dir_name() const;
+ 
+-	virtual String get_data_path() const;
++	virtual String get_data_home() const;
++	virtual Vector<String> get_data_dirs() const;
+ 	virtual String get_config_path() const;
+ 	virtual String get_cache_path() const;
+ 	virtual String get_temp_path() const;
+diff --git a/drivers/unix/os_unix.cpp b/drivers/unix/os_unix.cpp
+index a70be9326e..59a7cc70d8 100644
+--- a/drivers/unix/os_unix.cpp
++++ b/drivers/unix/os_unix.cpp
+@@ -960,7 +960,7 @@ void OS_Unix::unset_environment(const String &p_var) const {
+ }
+ 
+ String OS_Unix::get_user_data_dir(const String &p_user_dir) const {
+-	return get_data_path().path_join(p_user_dir);
++	return get_data_home().path_join(p_user_dir);
+ }
+ 
+ String OS_Unix::get_executable_path() const {
+diff --git a/editor/editor_node.cpp b/editor/editor_node.cpp
+index 5a8c561992..8eccb45f32 100644
+--- a/editor/editor_node.cpp
++++ b/editor/editor_node.cpp
+@@ -3160,7 +3160,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
+ 			editor_settings_dialog->popup_edit_settings();
+ 		} break;
+ 		case EDITOR_OPEN_DATA_FOLDER: {
+-			OS::get_singleton()->shell_show_in_file_manager(EditorPaths::get_singleton()->get_data_dir(), true);
++			OS::get_singleton()->shell_show_in_file_manager(EditorPaths::get_singleton()->get_data_home(), true);
+ 		} break;
+ 		case EDITOR_OPEN_CONFIG_FOLDER: {
+ 			OS::get_singleton()->shell_show_in_file_manager(EditorPaths::get_singleton()->get_config_dir(), true);
+@@ -7579,7 +7579,7 @@ EditorNode::EditorNode() {
+ 	settings_menu->add_separator();
+ 
+ #ifndef ANDROID_ENABLED
+-	if (OS::get_singleton()->get_data_path() == OS::get_singleton()->get_config_path()) {
++	if (OS::get_singleton()->get_data_home() == OS::get_singleton()->get_config_path()) {
+ 		// Configuration and data folders are located in the same place (Windows/macOS).
+ 		settings_menu->add_item(TTR("Open Editor Data/Settings Folder"), EDITOR_OPEN_DATA_FOLDER);
+ 	} else {
+diff --git a/editor/editor_paths.cpp b/editor/editor_paths.cpp
+index cd17559ac3..a8b31427f4 100644
+--- a/editor/editor_paths.cpp
++++ b/editor/editor_paths.cpp
+@@ -42,8 +42,12 @@ bool EditorPaths::are_paths_valid() const {
+ 	return paths_valid;
+ }
+ 
+-String EditorPaths::get_data_dir() const {
+-	return data_dir;
++String EditorPaths::get_data_home() const {
++	return data_home;
++}
++
++const Vector<String> &EditorPaths::get_data_dirs() const {
++	return data_dirs;
+ }
+ 
+ String EditorPaths::get_config_dir() const {
+@@ -70,15 +74,15 @@ String EditorPaths::get_self_contained_file() const {
+ 	return self_contained_file;
+ }
+ 
+-String EditorPaths::get_export_templates_dir() const {
+-	return get_data_dir().path_join(export_templates_folder);
++const Vector<String> &EditorPaths::get_export_templates_dirs() const {
++	return export_template_dirs;
+ }
+ 
+ String EditorPaths::get_debug_keystore_path() const {
+ #ifdef ANDROID_ENABLED
+ 	return "assets://keystores/debug.keystore";
+ #else
+-	return get_data_dir().path_join("keystores/debug.keystore");
++	return get_data_home().path_join("keystores/debug.keystore");
+ #endif
+ }
+ 
+@@ -113,7 +117,8 @@ void EditorPaths::free() {
+ }
+ 
+ void EditorPaths::_bind_methods() {
+-	ClassDB::bind_method(D_METHOD("get_data_dir"), &EditorPaths::get_data_dir);
++	// TODO: provide alias for compatibility?
++	ClassDB::bind_method(D_METHOD("get_data_home"), &EditorPaths::get_data_home);
+ 	ClassDB::bind_method(D_METHOD("get_config_dir"), &EditorPaths::get_config_dir);
+ 	ClassDB::bind_method(D_METHOD("get_cache_dir"), &EditorPaths::get_cache_dir);
+ 	ClassDB::bind_method(D_METHOD("is_self_contained"), &EditorPaths::is_self_contained);
+@@ -160,29 +165,37 @@ EditorPaths::EditorPaths() {
+ 	if (self_contained) {
+ 		// editor is self contained, all in same folder
+ 		data_path = exe_path;
+-		data_dir = data_path.path_join("editor_data");
++		data_home = data_path.path_join("editor_data");
+ 		config_path = exe_path;
+-		config_dir = data_dir;
++		config_dir = data_home;
+ 		cache_path = exe_path;
+-		cache_dir = data_dir.path_join("cache");
+-		temp_dir = data_dir.path_join("temp");
++		cache_dir = data_home.path_join("cache");
++		temp_dir = data_home.path_join("temp");
+ 	} else {
+ 		// Typically XDG_DATA_HOME or %APPDATA%.
+-		data_path = OS::get_singleton()->get_data_path();
+-		data_dir = data_path.path_join(OS::get_singleton()->get_godot_dir_name());
++		data_path = OS::get_singleton()->get_data_home();
++		data_home = data_path.path_join(OS::get_singleton()->get_godot_dir_name());
++		for (auto const &dir: OS::get_singleton()->get_data_dirs()) {
++			data_dirs.push_back(dir.path_join(OS::get_singleton()->get_godot_dir_name()));
++		}
+ 		// Can be different from data_path e.g. on Linux or macOS.
+ 		config_path = OS::get_singleton()->get_config_path();
+ 		config_dir = config_path.path_join(OS::get_singleton()->get_godot_dir_name());
+-		// Can be different from above paths, otherwise a subfolder of data_dir.
++		// Can be different from above paths, otherwise a subfolder of data_home.
+ 		cache_path = OS::get_singleton()->get_cache_path();
+ 		if (cache_path == data_path) {
+-			cache_dir = data_dir.path_join("cache");
++			cache_dir = data_home.path_join("cache");
+ 		} else {
+ 			cache_dir = cache_path.path_join(OS::get_singleton()->get_godot_dir_name());
+ 		}
+ 		temp_dir = OS::get_singleton()->get_temp_path();
+ 	}
+ 
++	export_template_dirs.push_back(data_home.path_join(export_templates_folder));
++	for (auto const &dir: data_dirs) {
++		export_template_dirs.push_back(dir.path_join(export_templates_folder));
++	}
++
+ 	paths_valid = (!data_path.is_empty() && !config_path.is_empty() && !cache_path.is_empty());
+ 	ERR_FAIL_COND_MSG(!paths_valid, "Editor data, config, or cache paths are invalid.");
+ 
+@@ -192,10 +205,10 @@ EditorPaths::EditorPaths() {
+ 
+ 	// Data dir.
+ 	{
+-		if (dir->change_dir(data_dir) != OK) {
+-			dir->make_dir_recursive(data_dir);
+-			if (dir->change_dir(data_dir) != OK) {
+-				ERR_PRINT("Could not create editor data directory: " + data_dir);
++		if (dir->change_dir(data_home) != OK) {
++			dir->make_dir_recursive(data_home);
++			if (dir->change_dir(data_home) != OK) {
++				ERR_PRINT("Could not create editor data directory: " + data_home);
+ 				paths_valid = false;
+ 			}
+ 		}
+@@ -252,7 +265,7 @@ EditorPaths::EditorPaths() {
+ 	// including shader cache subdir.
+ 	if (Engine::get_singleton()->is_project_manager_hint() || (Main::is_cmdline_tool() && !ProjectSettings::get_singleton()->is_project_loaded())) {
+ 		// Nothing to create, use shared editor data dir for shader cache.
+-		Engine::get_singleton()->set_shader_cache_path(data_dir);
++		Engine::get_singleton()->set_shader_cache_path(data_home);
+ 	} else {
+ 		Ref<DirAccess> dir_res = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+ 		if (dir_res->change_dir(project_data_dir) != OK) {
+diff --git a/editor/editor_paths.h b/editor/editor_paths.h
+index 2fa288727c..e3a8bc4ef7 100644
+--- a/editor/editor_paths.h
++++ b/editor/editor_paths.h
+@@ -39,7 +39,9 @@ class EditorPaths : public Object {
+ 	GDCLASS(EditorPaths, Object)
+ 
+ 	bool paths_valid = false; // If any of the paths can't be created, this is false.
+-	String data_dir; // Editor data (templates, shader cache, etc.).
++	String data_home; // Editor data (templates, shader cache, etc.).
++	Vector<String> data_dirs;
++	Vector<String> export_template_dirs;
+ 	String config_dir; // Editor config (settings, profiles, themes, etc.).
+ 	String cache_dir; // Editor cache (thumbnails, tmp generated files).
+ 	String temp_dir; // Editor temporary directory.
+@@ -59,12 +61,13 @@ protected:
+ public:
+ 	bool are_paths_valid() const;
+ 
+-	String get_data_dir() const;
++	String get_data_home() const;
++	const Vector<String> &get_data_dirs() const;
+ 	String get_config_dir() const;
+ 	String get_cache_dir() const;
+ 	String get_temp_dir() const;
+ 	String get_project_data_dir() const;
+-	String get_export_templates_dir() const;
++	const Vector<String> &get_export_templates_dirs() const;
+ 	String get_debug_keystore_path() const;
+ 	String get_project_settings_dir() const;
+ 	String get_text_editor_themes_dir() const;
+diff --git a/editor/export/editor_export_platform.cpp b/editor/export/editor_export_platform.cpp
+index 55c58a10cb..3d95e5a646 100644
+--- a/editor/export/editor_export_platform.cpp
++++ b/editor/export/editor_export_platform.cpp
+@@ -394,15 +394,22 @@ Ref<ImageTexture> EditorExportPlatform::get_option_icon(int p_index) const {
+ 
+ String EditorExportPlatform::find_export_template(const String &template_file_name, String *err) const {
+ 	String current_version = VERSION_FULL_CONFIG;
+-	String template_path = EditorPaths::get_singleton()->get_export_templates_dir().path_join(current_version).path_join(template_file_name);
+ 
+-	if (FileAccess::exists(template_path)) {
+-		return template_path;
++	for (auto const &dir: EditorPaths::get_singleton()->get_export_templates_dirs()) {
++		String template_path = dir.path_join(current_version).path_join(template_file_name);
++
++		if (FileAccess::exists(template_path)) {
++			return template_path;
++		}
+ 	}
+ 
+ 	// Not found
+ 	if (err) {
+-		*err += TTR("No export template found at the expected path:") + "\n" + template_path + "\n";
++		*err += TTR("No export template found at the expected path:") + "\n";
++		for (auto const &dir: EditorPaths::get_singleton()->get_export_templates_dirs()) {
++			String template_path = dir.path_join(current_version).path_join(template_file_name);
++			*err += template_path + "\n";
++		}
+ 	}
+ 	return String();
+ }
+@@ -951,13 +958,20 @@ Dictionary EditorExportPlatform::get_internal_export_files(const Ref<EditorExpor
+ 				}
+ 			} else {
+ 				String current_version = VERSION_FULL_CONFIG;
+-				String template_path = EditorPaths::get_singleton()->get_export_templates_dir().path_join(current_version);
+-				if (p_debug && p_preset->has("custom_template/debug") && p_preset->get("custom_template/debug") != "") {
+-					template_path = p_preset->get("custom_template/debug").operator String().get_base_dir();
+-				} else if (!p_debug && p_preset->has("custom_template/release") && p_preset->get("custom_template/release") != "") {
+-					template_path = p_preset->get("custom_template/release").operator String().get_base_dir();
++				String template_path = p_preset->get(
++					p_debug
++					? "custom_template/debug"
++					: "custom_template/release")
++					.operator String()
++					.strip_edges();
++
++				String data_file_name;
++				if (template_path.is_empty()) {
++					data_file_name = find_export_template(ts_name);
++				} else {
++					data_file_name = template_path.get_base_dir().path_join(ts_name);
+ 				}
+-				String data_file_name = template_path.path_join(ts_name);
++
+ 				if (FileAccess::exists(data_file_name)) {
+ 					const PackedByteArray &ts_data = FileAccess::get_file_as_bytes(data_file_name);
+ 					if (!ts_data.is_empty()) {
+diff --git a/editor/export/export_template_manager.cpp b/editor/export/export_template_manager.cpp
+index a8ea949596..7f102e4bf1 100644
+--- a/editor/export/export_template_manager.cpp
++++ b/editor/export/export_template_manager.cpp
+@@ -79,7 +79,7 @@ static DownloadsAvailability _get_downloads_availability() {
+ void ExportTemplateManager::_update_template_status() {
+ 	// Fetch installed templates from the file system.
+ 	Ref<DirAccess> da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+-	const String &templates_dir = EditorPaths::get_singleton()->get_export_templates_dir();
++	const String &templates_dir = EditorPaths::get_singleton()->get_export_templates_dirs()[0];
+ 
+ 	Error err = da->change_dir(templates_dir);
+ 	ERR_FAIL_COND_MSG(err != OK, "Could not access templates directory at '" + templates_dir + "'.");
+@@ -494,7 +494,7 @@ bool ExportTemplateManager::_install_file_selected(const String &p_file, bool p_
+ 	}
+ 
+ 	Ref<DirAccess> d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+-	String template_path = EditorPaths::get_singleton()->get_export_templates_dir().path_join(version);
++	String template_path = EditorPaths::get_singleton()->get_export_templates_dirs()[0].path_join(version);
+ 	Error err = d->make_dir_recursive(template_path);
+ 	if (err != OK) {
+ 		EditorNode::get_singleton()->show_warning(TTR("Error creating path for extracting templates:") + "\n" + template_path);
+@@ -602,7 +602,7 @@ void ExportTemplateManager::_uninstall_template(const String &p_version) {
+ 
+ void ExportTemplateManager::_uninstall_template_confirmed() {
+ 	Ref<DirAccess> da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+-	const String &templates_dir = EditorPaths::get_singleton()->get_export_templates_dir();
++	const String &templates_dir = EditorPaths::get_singleton()->get_export_templates_dirs()[0];
+ 
+ 	Error err = da->change_dir(templates_dir);
+ 	ERR_FAIL_COND_MSG(err != OK, "Could not access templates directory at '" + templates_dir + "'.");
+@@ -680,7 +680,7 @@ void ExportTemplateManager::_installed_table_button_cbk(Object *p_item, int p_co
+ }
+ 
+ void ExportTemplateManager::_open_template_folder(const String &p_version) {
+-	const String &templates_dir = EditorPaths::get_singleton()->get_export_templates_dir();
++	const String &templates_dir = EditorPaths::get_singleton()->get_export_templates_dirs()[0];
+ 	OS::get_singleton()->shell_show_in_file_manager(templates_dir.path_join(p_version), true);
+ }
+ 
+@@ -775,7 +775,7 @@ String ExportTemplateManager::get_android_source_zip(const Ref<EditorExportPrese
+ 		}
+ 	}
+ 
+-	const String templates_dir = EditorPaths::get_singleton()->get_export_templates_dir().path_join(VERSION_FULL_CONFIG);
++	const String templates_dir = EditorPaths::get_singleton()->get_export_templates_dirs()[0].path_join(VERSION_FULL_CONFIG);
+ 	return templates_dir.path_join("android_source.zip");
+ }
+ 
+diff --git a/editor/project_manager/project_list.cpp b/editor/project_manager/project_list.cpp
+index 7eeb2f8460..ecf7690440 100644
+--- a/editor/project_manager/project_list.cpp
++++ b/editor/project_manager/project_list.cpp
+@@ -1244,6 +1244,6 @@ ProjectList::ProjectList() {
+ 	project_list_vbox->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+ 	add_child(project_list_vbox);
+ 
+-	_config_path = EditorPaths::get_singleton()->get_data_dir().path_join("projects.cfg");
++	_config_path = EditorPaths::get_singleton()->get_data_home().path_join("projects.cfg");
+ 	_migrate_config();
+ }
+diff --git a/platform/android/os_android.cpp b/platform/android/os_android.cpp
+index 53f41acf2d..af56acd54f 100644
+--- a/platform/android/os_android.cpp
++++ b/platform/android/os_android.cpp
+@@ -442,7 +442,7 @@ String OS_Android::get_model_name() const {
+ 	return OS_Unix::get_model_name();
+ }
+ 
+-String OS_Android::get_data_path() const {
++String OS_Android::get_data_home() const {
+ 	return OS::get_user_data_dir();
+ }
+ 
+diff --git a/platform/android/os_android.h b/platform/android/os_android.h
+index a59002b73b..7ab5776125 100644
+--- a/platform/android/os_android.h
++++ b/platform/android/os_android.h
+@@ -147,7 +147,7 @@ public:
+ 	virtual Vector<String> get_system_font_path_for_text(const String &p_font_name, const String &p_text, const String &p_locale = String(), const String &p_script = String(), int p_weight = 400, int p_stretch = 100, bool p_italic = false) const override;
+ 	virtual String get_executable_path() const override;
+ 	virtual String get_user_data_dir(const String &p_user_dir) const override;
+-	virtual String get_data_path() const override;
++	virtual String get_data_home() const override;
+ 	virtual String get_cache_path() const override;
+ 	virtual String get_temp_path() const override;
+ 	virtual String get_resource_dir() const override;
+diff --git a/platform/linuxbsd/os_linuxbsd.cpp b/platform/linuxbsd/os_linuxbsd.cpp
+index 466841d747..550b9c82bf 100644
+--- a/platform/linuxbsd/os_linuxbsd.cpp
++++ b/platform/linuxbsd/os_linuxbsd.cpp
+@@ -886,7 +886,7 @@ String OS_LinuxBSD::get_config_path() const {
+ 	}
+ }
+ 
+-String OS_LinuxBSD::get_data_path() const {
++String OS_LinuxBSD::get_data_home() const {
+ 	if (has_environment("XDG_DATA_HOME")) {
+ 		if (get_environment("XDG_DATA_HOME").is_absolute_path()) {
+ 			return get_environment("XDG_DATA_HOME");
+@@ -901,6 +901,17 @@ String OS_LinuxBSD::get_data_path() const {
+ 	}
+ }
+ 
++Vector<String> OS_LinuxBSD::get_data_dirs() const {
++	if (has_environment("XDG_DATA_DIRS")) {
++		return get_environment("XDG_DATA_DIRS").split(":", false);
++	} else {
++		return Vector<String> {
++			"/usr/local/share/",
++			"/usr/share/",
++		};
++	}
++}
++
+ String OS_LinuxBSD::get_cache_path() const {
+ 	if (has_environment("XDG_CACHE_HOME")) {
+ 		if (get_environment("XDG_CACHE_HOME").is_absolute_path()) {
+diff --git a/platform/linuxbsd/os_linuxbsd.h b/platform/linuxbsd/os_linuxbsd.h
+index 92e57304f3..55f48d20bc 100644
+--- a/platform/linuxbsd/os_linuxbsd.h
++++ b/platform/linuxbsd/os_linuxbsd.h
+@@ -113,7 +113,8 @@ public:
+ 	virtual Vector<String> get_system_font_path_for_text(const String &p_font_name, const String &p_text, const String &p_locale = String(), const String &p_script = String(), int p_weight = 400, int p_stretch = 100, bool p_italic = false) const override;
+ 
+ 	virtual String get_config_path() const override;
+-	virtual String get_data_path() const override;
++	virtual String get_data_home() const override;
++	virtual Vector<String> get_data_dirs() const override;
+ 	virtual String get_cache_path() const override;
+ 
+ 	virtual String get_system_dir(SystemDir p_dir, bool p_shared_storage = true) const override;
+diff --git a/platform/macos/os_macos.h b/platform/macos/os_macos.h
+index 334c8eab03..90640a1558 100644
+--- a/platform/macos/os_macos.h
++++ b/platform/macos/os_macos.h
+@@ -91,7 +91,7 @@ public:
+ 	virtual MainLoop *get_main_loop() const override;
+ 
+ 	virtual String get_config_path() const override;
+-	virtual String get_data_path() const override;
++	virtual String get_data_home() const override;
+ 	virtual String get_cache_path() const override;
+ 	virtual String get_temp_path() const override;
+ 	virtual String get_bundle_resource_dir() const override;
+diff --git a/platform/macos/os_macos.mm b/platform/macos/os_macos.mm
+index 085a4d281b..93b8eebe57 100644
+--- a/platform/macos/os_macos.mm
++++ b/platform/macos/os_macos.mm
+@@ -292,7 +292,7 @@ String OS_MacOS::get_config_path() const {
+ 	return ".";
+ }
+ 
+-String OS_MacOS::get_data_path() const {
++String OS_MacOS::get_data_home() const {
+ 	return get_config_path();
+ }
+ 
+diff --git a/platform/web/os_web.cpp b/platform/web/os_web.cpp
+index ce7c4a4ccf..e3c1660b22 100644
+--- a/platform/web/os_web.cpp
++++ b/platform/web/os_web.cpp
+@@ -195,7 +195,7 @@ String OS_Web::get_config_path() const {
+ 	return "/home/web_user/.config";
+ }
+ 
+-String OS_Web::get_data_path() const {
++String OS_Web::get_data_home() const {
+ 	return "/home/web_user/.local/share";
+ }
+ 
+diff --git a/platform/web/os_web.h b/platform/web/os_web.h
+index 786f7fe98e..fe2148d759 100644
+--- a/platform/web/os_web.h
++++ b/platform/web/os_web.h
+@@ -106,7 +106,7 @@ public:
+ 
+ 	String get_cache_path() const override;
+ 	String get_config_path() const override;
+-	String get_data_path() const override;
++	String get_data_home() const override;
+ 	String get_user_data_dir(const String &p_user_dir) const override;
+ 
+ 	bool is_userfs_persistent() const override;
+diff --git a/platform/windows/os_windows.cpp b/platform/windows/os_windows.cpp
+index b0ec6852af..64abde7843 100644
+--- a/platform/windows/os_windows.cpp
++++ b/platform/windows/os_windows.cpp
+@@ -2143,7 +2143,7 @@ String OS_Windows::get_config_path() const {
+ 	return ".";
+ }
+ 
+-String OS_Windows::get_data_path() const {
++String OS_Windows::get_data_home() const {
+ 	return get_config_path();
+ }
+ 
+@@ -2228,7 +2228,7 @@ String OS_Windows::get_system_dir(SystemDir p_dir, bool p_shared_storage) const
+ }
+ 
+ String OS_Windows::get_user_data_dir(const String &p_user_dir) const {
+-	return get_data_path().path_join(p_user_dir).replace("\\", "/");
++	return get_data_home().path_join(p_user_dir).replace("\\", "/");
+ }
+ 
+ String OS_Windows::get_unique_id() const {
+diff --git a/platform/windows/os_windows.h b/platform/windows/os_windows.h
+index d9b8233e51..2669cc9105 100644
+--- a/platform/windows/os_windows.h
++++ b/platform/windows/os_windows.h
+@@ -225,7 +225,7 @@ public:
+ 	virtual uint64_t get_embedded_pck_offset() const override;
+ 
+ 	virtual String get_config_path() const override;
+-	virtual String get_data_path() const override;
++	virtual String get_data_home() const override;
+ 	virtual String get_cache_path() const override;
+ 	virtual String get_temp_path() const override;
+ 	virtual String get_godot_dir_name() const override;
+diff --git a/tests/core/os/test_os.h b/tests/core/os/test_os.h
+index 1e2f5e222b..3f5d08cff3 100644
+--- a/tests/core/os/test_os.h
++++ b/tests/core/os/test_os.h
+@@ -95,7 +95,7 @@ TEST_CASE("[OS] Executable and data paths") {
+ 			OS::get_singleton()->get_executable_path().is_absolute_path(),
+ 			"The executable path returned should be an absolute path.");
+ 	CHECK_MESSAGE(
+-			OS::get_singleton()->get_data_path().is_absolute_path(),
++			OS::get_singleton()->get_data_home().is_absolute_path(),
+ 			"The user data path returned should be an absolute path.");
+ 	CHECK_MESSAGE(
+ 			OS::get_singleton()->get_config_path().is_absolute_path(),
+-- 
+2.48.1
+
