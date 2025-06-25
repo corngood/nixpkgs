@@ -381,6 +381,9 @@ dotnetInstallPhase() {
     local -r projectFile="${1-}"
 
     for runtimeId in "${runtimeIds[@]}"; do
+      # set RuntimeIdentifier because --runtime is broken:
+      # https://github.com/dotnet/sdk/issues/13983
+
       dotnet pack ${1+"$projectFile"} \
              -maxcpucount:"$maxCpuFlag" \
              -p:ContinuousIntegrationBuild=true \
@@ -391,6 +394,7 @@ dotnetInstallPhase() {
              --no-restore \
              --no-build \
              --runtime "$runtimeId" \
+             -p:RuntimeIdentifier="$runtimeId" \
              "${flags[@]}" \
              "${packFlags[@]}"
     done
