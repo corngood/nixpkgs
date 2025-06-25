@@ -1,5 +1,12 @@
 # shellcheck shell=bash
 
+_dotnetIsSolution() {
+  local -r projectFile="${1-}"
+  [[ $projectFile == *.sln || \
+       ! -f $projectFile && \
+         -n $(find "${projectFile:-.}" -maxdepth 1 -name \*.sln -print -quit) ]]
+}
+
 dotnetConfigurePhase() {
   echo "Executing dotnetConfigureHook"
 
@@ -108,9 +115,12 @@ dotnetBuildPhase() {
   dotnetBuild() {
     local -r projectFile="${1-}"
 
+    local useRuntime=
+    _dotnetIsSolution "$projectFile" || useRuntime=1
+
     for runtimeId in "${runtimeIds[@]}"; do
       local runtimeIdFlags=()
-      if [[ $projectFile == *.csproj || -n ${dotnetSelfContainedBuild-} ]]; then
+      if [[ -n $useRuntime ]]; then
         runtimeIdFlags+=("--runtime" "$runtimeId")
       fi
 
@@ -188,9 +198,12 @@ dotnetCheckPhase() {
 
   local projectFile runtimeId
   for projectFile in "${testProjectFiles[@]-${projectFiles[@]}}"; do
+    local useRuntime=
+    _dotnetIsSolution "$projectFile" || useRuntime=1
+
     for runtimeId in "${runtimeIds[@]}"; do
       local runtimeIdFlags=()
-      if [[ $projectFile == *.csproj ]]; then
+      if [[ -n $useRuntime ]]; then
         runtimeIdFlags=("--runtime" "$runtimeId")
       fi
 
@@ -356,9 +369,12 @@ dotnetInstallPhase() {
   dotnetPublish() {
     local -r projectFile="${1-}"
 
+    local useRuntime=
+    _dotnetIsSolution "$projectFile" || useRuntime=1
+
     for runtimeId in "${runtimeIds[@]}"; do
       runtimeIdFlags=()
-      if [[ $projectFile == *.csproj || -n ${dotnetSelfContainedBuild-} ]]; then
+      if [[ -n $useRuntime ]]; then
         runtimeIdFlags+=("--runtime" "$runtimeId")
       fi
 
