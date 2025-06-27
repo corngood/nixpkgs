@@ -1,5 +1,6 @@
 {
   alsa-lib,
+  apple-sdk_15,
   autoPatchelfHook,
   buildPackages,
   callPackage,
@@ -38,6 +39,7 @@
   makeWrapper,
   mbedtls,
   miniupnpc,
+  moltenvk,
   openxr-loader,
   pcre2,
   perl,
@@ -56,21 +58,21 @@
   vulkan-loader,
   wayland,
   wayland-scanner,
-  withAlsa ? true,
+  withAlsa ? stdenv.hostPlatform.isLinux,
   withDbus ? true,
   withFontconfig ? true,
   withMono ? false,
   nugetDeps ? null,
-  withPlatform ? "linuxbsd",
+  withPlatform ? if stdenv.hostPlatform.isDarwin then "macos" else "linuxbsd",
   withPrecision ? "single",
   withPulseaudio ? true,
   withSpeechd ? true,
   withTouch ? true,
-  withUdev ? true,
+  withUdev ? stdenv.hostPlatform.isLinux,
   # Wayland in Godot requires X11 until upstream fix is merged
   # https://github.com/godotengine/godot/pull/73504
-  withWayland ? true,
-  withX11 ? true,
+  withWayland ? stdenv.hostPlatform.isLinux,
+  withX11 ? stdenv.hostPlatform.isLinux,
   wslay,
   zstd,
 }:
@@ -116,6 +118,12 @@ let
         }
         // lib.optionalAttrs editor (
           let
+            platform =
+              {
+                linuxbsd = "Linux";
+                macos = "macOS";
+              }
+              .${withPlatform};
             project-src =
               runCommand "${pkg.name}-project-src"
                 {
@@ -144,12 +152,19 @@ let
                       monoNode.owner = node
                   ''
                   + ''
+                    ${""}
                       var scene = PackedScene.new()
                       var scenePath = "res://test.tscn"
                       scene.pack(node)
                       node.free()
                       var x = ResourceSaver.save(scene, scenePath)
                       ProjectSettings["application/run/main_scene"] = scenePath
+                  ''
+                  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+                    ${""}
+                      ProjectSettings["rendering/textures/vram_compression/import_etc2_astc"] = true
+                  ''
+                  + ''
                       ProjectSettings.save()
                       quit()
                     EOF
@@ -164,13 +179,18 @@ let
                     cat >export_presets.cfg <<'EOF'
                     [preset.0]
                     name="build"
-                    platform="Linux"
+                    platform="${platform}"
                     runnable=true
                     export_filter="all_resources"
                     include_filter=""
                     exclude_filter=""
                     [preset.0.options]
                     binary_format/architecture="${arch}"
+                  ''
+                  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+                    application/bundle_identifier="test"
+                  ''
+                  + ''
                     EOF
                   ''
                   + lib.optionalString withMono ''
@@ -208,7 +228,8 @@ let
 
                     rm nuget.config
                   ''
-                );
+                )
+                { inherit arch; };
 
             export-tests = lib.makeExtensible (final: {
               inherit (pkg) export-template;
@@ -224,8 +245,11 @@ let
                   runHook preBuild
 
                   export HOME=$(mktemp -d)
-                  mkdir -p $HOME/.local/share/godot/
-                  ln -s "${final.export-template}"/share/godot/export_templates "$HOME"/.local/share/godot/
+                  local dataDir="$HOME/${
+                    if stdenv.hostPlatform.isDarwin then "Library/Application Support/Godot" else ".local/share/godot"
+                  }/"
+                  mkdir -p "$dataDir"
+                  ln -s "${final.export-template}"/share/godot/export_templates "$dataDir"
 
                   godot${suffix} --headless --build-solutions -s create-scene.gd
 
@@ -236,7 +260,7 @@ let
                   runHook preInstall
 
                   mkdir -p "$out"/bin
-                  godot${suffix} --headless --export-release build "$out"/bin/test
+                  godot${suffix} --headless --export-release build "$out"/bin/test${lib.optionalString stdenv.hostPlatform.isDarwin ".app"}
 
                   runHook postInstall
                 '';
@@ -247,7 +271,7 @@ let
                   (
                     set -eo pipefail
                     HOME=$(mktemp -d)
-                    "${final.export}"/bin/test --headless | tail -n+3 | (
+                    "${final.export}"/bin/test${lib.optionalString stdenv.hostPlatform.isDarwin ".app/Contents/MacOS/Unnamed"} --headless | tail -n+3 | (
                 ''
                 + lib.optionalString withMono ''
                   # indent
@@ -279,29 +303,36 @@ let
                 final: prev: {
                   export-template = pkg.export-templates-bin;
 
-                  export = prev.export.overrideAttrs (prev: {
-                    nativeBuildInputs = prev.nativeBuildInputs or [ ] ++ [
-                      autoPatchelfHook
-                    ];
+                  export = prev.export.overrideAttrs (
+                    prev:
+                    {
+                      nativeBuildInputs =
+                        prev.nativeBuildInputs or [ ] ++ lib.optional stdenv.hostPlatform.isElf autoPatchelfHook;
 
-                    # stripping dlls results in:
-                    # Failed to load System.Private.CoreLib.dll (error code 0x8007000B)
-                    stripExclude = lib.optional withMono [ "*.dll" ];
+                      # stripping dlls results in:
+                      # Failed to load System.Private.CoreLib.dll (error code 0x8007000B)
+                      stripExclude = lib.optional withMono [ "*.dll" ];
 
-                    runtimeDependencies =
-                      prev.runtimeDependencies or [ ]
-                      ++ map lib.getLib [
-                        alsa-lib
-                        libpulseaudio
-                        libX11
-                        libXcursor
-                        libXext
-                        libXi
-                        libXrandr
-                        udev
-                        vulkan-loader
-                      ];
-                  });
+                      runtimeDependencies =
+                        prev.runtimeDependencies or [ ]
+                        ++ map lib.getLib [
+                          libpulseaudio
+                          libX11
+                          libXcursor
+                          libXext
+                          libXi
+                          libXrandr
+                          vulkan-loader
+                        ]
+                        ++ lib.optionals stdenv.hostPlatform.isLinux [
+                          alsa-lib
+                          udev
+                        ];
+                    }
+                    // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+                      src = prev.src.override { arch = "universal"; };
+                    }
+                  );
                 }
               )).run;
           }
@@ -385,7 +416,8 @@ let
             # aliasing bugs exist with hardening+LTO
             # https://github.com/godotengine/godot/pull/104501
             ccflags = "-fno-strict-aliasing";
-            linkflags = "-Wl,--build-id";
+            # on darwin: ld: unknown option: --build-id
+            linkflags = lib.optionalString (!stdenv.hostPlatform.isDarwin) "-Wl,--build-id";
 
             # libraries that aren't available in nixpkgs
             builtin_msdfgen = true;
@@ -414,6 +446,10 @@ let
 
         strictDeps = true;
 
+        propagatedSandboxProfile = lib.optionalString stdenv.hostPlatform.isDarwin ''
+          (allow file-read* (subpath "/System/Library/CoreServices/SystemAppearance.bundle"))
+        '';
+
         patches = [
           ./Linux-fix-missing-library-with-builtin_glslang-false.patch
         ]
@@ -426,7 +462,8 @@ let
           # Fix a crash in the mono test project build. It no longer seems to
           # happen in 4.4, but an existing fix couldn't be identified.
           ./CSharpLanguage-fix-crash-in-reload_assemblies-after-.patch
-        ];
+        ]
+        ++ lib.optional stdenv.hostPlatform.isDarwin ./fix-moltenvk-detection.patch;
 
         postPatch = ''
           # this stops scons from hiding e.g. NIX_CFLAGS_COMPILE
@@ -438,6 +475,8 @@ let
           substituteInPlace platform/linuxbsd/detect.py \
             --replace-fail /usr/include/recastnavigation ${lib.escapeShellArg (lib.getDev recastnavigation)}/include/recastnavigation
 
+        ''
+        + lib.optionalString (libGL != null) ''
           substituteInPlace thirdparty/glad/egl.c \
             --replace-fail \
               'static const char *NAMES[] = {"libEGL.so.1", "libEGL.so"}' \
@@ -452,6 +491,8 @@ let
             --replace-fail \
               '"libGL.so.1"' \
               '"${lib.getLib libGL}/lib/libGL.so"'
+        ''
+        + ''
 
           substituteInPlace thirdparty/volk/volk.c \
             --replace-fail \
@@ -476,12 +517,12 @@ let
           libwebp
           mbedtls
           miniupnpc
-          openxr-loader
           pcre2
           recastnavigation
           wslay
           zstd
         ]
+        ++ lib.optional (lib.meta.availableOn stdenv.hostPlatform openxr-loader) openxr-loader
         ++ lib.optionals (lib.versionAtLeast version "4.5") [
           libjpeg_turbo
           sdl3
@@ -514,7 +555,11 @@ let
           speechd-minimal
           glib
         ]
-        ++ lib.optional withUdev udev;
+        ++ lib.optional withUdev udev
+        ++ lib.optionals stdenv.hostPlatform.isDarwin [
+          apple-sdk_15
+          moltenvk
+        ];
 
         nativeBuildInputs = [
           installShellFiles
@@ -579,6 +624,7 @@ let
                   [
                     {
                       linuxbsd = "linux";
+                      macos = "macos";
                     }
                     .${withPlatform}
                   ]
@@ -629,6 +675,8 @@ let
           platforms = [
             "x86_64-linux"
             "aarch64-linux"
+            "x86_64-darwin"
+            "aarch64-darwin"
           ]
           ++ lib.optional (!withMono) "i686-linux";
           maintainers = with lib.maintainers; [
