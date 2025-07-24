@@ -10,13 +10,13 @@
 }:
 rustPlatform.buildRustPackage {
   pname = "wprs";
-  version = "0-unstable-2024-10-22";
+  version = "0-unstable-2025-06-13";
 
   src = fetchFromGitHub {
     owner = "wayland-transpositor";
     repo = "wprs";
-    rev = "6b993332c55568e66961b52bb6285e76d97d50df";
-    hash = "sha256-WrPr9b1r8As4Y5c+QCOYnHvY9x145+pL4OSmrGsYDpk=";
+    rev = "578e42ac3e74f83c33e43991b1322dfd9bf6d603";
+    hash = "sha256-QWEVkM2mEz4E1ZK5ecTazsvyuwtrT6OAGCRmvw5TijE=";
   };
 
   nativeBuildInputs = [
@@ -29,7 +29,7 @@ rustPlatform.buildRustPackage {
   ];
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-caf1d7SdAEc5RUDQCQkxlYw073gIUwlnvlVaX8gJGmc=";
+  cargoHash = "sha256-irZPb2S6TXf4r8IX/efk363UspWkJ5MlCLocoWMi30U=";
 
   preFixup = ''
     cp  wprs "$out/bin/wprs"
