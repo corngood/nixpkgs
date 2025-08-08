@@ -188,14 +188,6 @@ stdenv.mkDerivation rec {
     substituteInPlace \
       src/runtime/src/native/libs/CMakeLists.txt \
       --replace-fail 'add_compile_options(-Weverything)' 'add_compile_options(-Wall)'
-
-    # strip native symbols in runtime
-    # see: https://github.com/dotnet/source-build/issues/2543
-    xmlstarlet ed \
-      --inplace \
-      -s //Project -t elem -n PropertyGroup \
-      -s \$prev -t elem -n KeepNativeSymbols -v false \
-      src/runtime/Directory.Build.props
   ''
   + lib.optionalString (lib.versionAtLeast version "9") (
     ''
@@ -393,6 +385,10 @@ stdenv.mkDerivation rec {
   # bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
   LOCALE_ARCHIVE = lib.optionalString isLinux "${glibcLocales}/lib/locale/locale-archive";
 
+  # clang: error: argument unused during compilation: '-Wa,--compress-debug-sections' [-Werror,-Wunused-command-line-argument]
+  # caused by separateDebugInfo
+  NIX_CFLAGS_COMPILE = "-Wno-unused-command-line-argument";
+
   buildFlags = [
     "--with-packages"
     bootstrapSdk.artifacts
@@ -490,6 +486,8 @@ stdenv.mkDerivation rec {
   preFixup = ''
     stripExclude=(\*.dll crossgen2)
   '';
+
+  separateDebugInfo = true;
 
   passthru = {
     inherit releaseManifest buildRid targetRid;
