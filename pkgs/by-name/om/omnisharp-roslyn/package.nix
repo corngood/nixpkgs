@@ -5,6 +5,7 @@
   fetchFromGitHub,
   runCommand,
   expect,
+  csharp-language-server-protocol,
 }:
 
 let
@@ -28,6 +29,10 @@ let
     dotnet-sdk = sdk_8_0;
     dotnet-runtime = sdk_8_0;
 
+    buildInputs = [
+      csharp-language-server-protocol
+    ];
+
     dotnetInstallFlags = [ "--framework net8.0" ];
     dotnetBuildFlags = [
       "--framework net8.0"
@@ -41,6 +46,10 @@ let
       "-property:InformationalVersion=${version}"
       "-property:RuntimeFrameworkVersion=${runtime_8_0.version}"
       "-property:RollForward=LatestMajor"
+    ];
+
+    patches = [
+      ./0001-wip-implement-cancellation-of-completion-requests.patch
     ];
 
     postPatch = ''
