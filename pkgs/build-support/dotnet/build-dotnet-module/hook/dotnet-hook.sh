@@ -8,8 +8,6 @@ _dotnetIsSolution() {
 }
 
 dotnetConfigurePhase() {
-  echo "Executing dotnetConfigureHook"
-
   runHook preConfigure
 
   local -a projectFiles flags runtimeIds
@@ -64,8 +62,6 @@ dotnetConfigurePhase() {
   fi
 
   runHook postConfigure
-
-  echo "Finished dotnetConfigureHook"
 }
 
 if [[ -z "${dontDotnetConfigure-}" && -z "${configurePhase-}" ]]; then
@@ -73,8 +69,6 @@ if [[ -z "${dontDotnetConfigure-}" && -z "${configurePhase-}" ]]; then
 fi
 
 dotnetBuildPhase() {
-  echo "Executing dotnetBuildHook"
-
   runHook preBuild
 
   local -r dotnetBuildType="${dotnetBuildType-Release}"
@@ -147,8 +141,6 @@ dotnetBuildPhase() {
   done
 
   runHook postBuild
-
-  echo "Finished dotnetBuildHook"
 }
 
 if [[ -z ${dontDotnetBuild-} && -z ${buildPhase-} ]]; then
@@ -156,8 +148,6 @@ if [[ -z ${dontDotnetBuild-} && -z ${buildPhase-} ]]; then
 fi
 
 dotnetCheckPhase() {
-  echo "Executing dotnetCheckHook"
-
   runHook preCheck
 
   local -r dotnetBuildType="${dotnetBuildType-Release}"
@@ -222,8 +212,6 @@ dotnetCheckPhase() {
   done
 
   runHook postCheck
-
-  echo "Finished dotnetCheckHook"
 }
 
 if [[ -z "${dontDotnetCheck-}" && -z "${checkPhase-}" ]]; then
@@ -331,8 +319,6 @@ if [[ -z "${dontFixup-}" && -z "${dontDotnetFixup-}" ]]; then
 fi
 
 dotnetInstallPhase() {
-  echo "Executing dotnetInstallHook"
-
   runHook preInstall
 
   local -r dotnetInstallPath="${dotnetInstallPath-$out/lib/$pname}"
@@ -439,8 +425,6 @@ dotnetInstallPhase() {
   fi
 
   runHook postInstall
-
-  echo "Finished dotnetInstallHook"
 }
 
 if [[ -z "${dontDotnetInstall-}" && -z "${installPhase-}" ]]; then
