@@ -1,0 +1,22 @@
+[
+  {
+    "pname": "BCnEncoder.Net",
+    "version": "2.2.1",
+    "hash": "sha256-d1wRjTPPQiqRawqXOjKnvkMKQOulDR9TaYx38RafBgs="
+  },
+  {
+    "pname": "CommunityToolkit.HighPerformance",
+    "version": "8.4.0",
+    "hash": "sha256-q9RZZvLlvk1sXuIr5wdBxyTf9o0G2mk23xtNGDf6vGs="
+  },
+  {
+    "pname": "PVRTexLib.NET",
+    "version": "1.0.3",
+    "hash": "sha256-MPyHVIxJ/siJJMAMpfnj0EaLtX9ZiZfXgtcY0xVg5tA="
+  },
+  {
+    "pname": "SixLabors.ImageSharp",
+    "version": "3.1.10",
+    "hash": "sha256-6bVTSCxLY8Dt+9lpo4F4xEtMv5oPve2vS76O/lcuIok="
+  }
+]
