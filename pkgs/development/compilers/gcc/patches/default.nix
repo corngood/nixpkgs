@@ -224,6 +224,12 @@ in
   .${majorVersion} or [ ]
 )
 
+++ optional targetPlatform.isWindows (fetchpatch {
+  name = "libstdc-fix-compilation-in-freestanding-win32.patch";
+  url = "https://inbox.sourceware.org/gcc-patches/20250922182808.2599390-2-corngood@gmail.com/raw";
+  hash = "sha256-+EYW9lG8CviVX7RyNHp+iX+8BRHUjt5b07k940khbbY=";
+})
+
 ++ optionals targetPlatform.isCygwin [
   ./cygwin-fix-compilation-with-inhibit_libc.patch
 ]
