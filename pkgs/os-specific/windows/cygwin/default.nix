@@ -77,15 +77,18 @@ let
       "--with-cross-bootstrap"
       "ac_cv_prog_CC=gcc"
     ];
+
+    passthru.w32api = mingw_w64;
   };
 in
-# TODO: Is there something like nix-support which would achieve this better?
-symlinkJoin {
-  pname = "cygwin-and-mingw_w64";
-  inherit (newlib-cygwin) version;
-  paths = [
-    newlib-cygwin
-    mingw_w64
-    mingw_w64.dev
-  ];
-}
+newlib-cygwin
+# # TODO: Is there something like nix-support which would achieve this better?
+# symlinkJoin {
+#   pname = "cygwin-and-mingw_w64";
+#   inherit (newlib-cygwin) version;
+#   paths = [
+#     newlib-cygwin
+#     mingw_w64
+#     mingw_w64.dev
+#   ];
+# }
