@@ -20,7 +20,7 @@ in stdenv.mkDerivation rec {
     automake
     m4
     perl
-    cocom-tools
+    # cocom-tools
     xmlto
     dblatex
     dblatex.tex

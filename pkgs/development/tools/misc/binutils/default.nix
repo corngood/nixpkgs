@@ -83,7 +83,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = if stdenv.targetPlatform.isCygwin then (fetchurl {
     url = "mirror://gnu/binutils/binutils-${version}.tar.bz2";
-    sha256 = "sha256-Z/waQDDQjuh3pIZ9PcqzWCgUj4fh/QXabbWF7VoWa9Q=";
+    sha256 = "sha256-E5P5DbcMLr14X7Q01hJ/iIjFWdXuucAGw1SyA7qzRz4=";
   })
   else fetchurl {
     url = "mirror://gnu/binutils/binutils-with-gold-${version}.tar.bz2";
