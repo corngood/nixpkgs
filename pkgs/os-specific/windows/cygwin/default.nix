@@ -27,6 +27,10 @@ let
       ./remove-definitions-that-conflict-with-mingw.patch
     ];
 
+    postPatch = ''
+      patchShebangs --build winsup/cygwin/scripts
+    '';
+
     preConfigure = ''
       pushd winsup
       aclocal --force
@@ -35,10 +39,9 @@ let
       rm -rf autom4te.cache
       popd
       patch -p0 -i ${./after-autogen.patch}
-    '';
-
-    postPatch = ''
-      patchShebangs --build winsup/cygwin/scripts
+      mkdir "../build"
+      cd "../build"
+      configureScript="../$sourceRoot/configure"
     '';
 
     env.CXXFLAGS_FOR_TARGET = "-Wno-error";
@@ -56,10 +59,11 @@ let
 
     enableParallelBuilding = true;
 
-    postInstall = ''
-      mv $out/x86_64-pc-cygwin/* $out/
-      rmdir $out/x86_64-pc-cygwin
-    '';
+    makeFlags = [ "tooldir=$(out)" ];
+
+    # this is explicitly -j1 in cygwin.cygport
+    # without it the install order is non-deterministic
+    enableParallelInstalling = false;
 
     hardeningDisable = [
       "fortify"
