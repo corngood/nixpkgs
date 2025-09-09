@@ -185,7 +185,7 @@ stdenv.mkDerivation (finalAttrs: {
 
       # Use symlinks instead of hard links to save space ("strip" in the
       # fixup phase strips each hard link separately).
-      for i in binutils/Makefile.in gas/Makefile.in ld/Makefile.in gold/Makefile.in; do
+      for i in binutils/Makefile.in gas/Makefile.in ld/Makefile.in; do
           sed -i "$i" -e 's|ln |ln -s |'
       done
 
