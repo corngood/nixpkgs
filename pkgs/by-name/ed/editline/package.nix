@@ -64,6 +64,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   propagatedBuildInputs = lib.optional enableTermcap ncurses;
 
+  makeFlags = lib.optionals stdenv.hostPlatform.isWindows [
+    "LDFLAGS=-no-undefined"
+  ];
+
   outputs = [
     "out"
     "dev"
