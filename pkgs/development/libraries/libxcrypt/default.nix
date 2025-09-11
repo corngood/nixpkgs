@@ -19,6 +19,10 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-cVE6McAaQovM1TZ6Mv2V8RXW2sUPtbYMd51ceUKuwHE=";
   };
 
+  patches = [
+    ./fix-symver-on-non-elf.patch
+  ];
+
   # this could be accomplished by updateAutotoolsGnuConfigScriptsHook, but that causes infinite recursion
   # necessary for FreeBSD code path in configure
   postPatch = ''
@@ -36,7 +40,8 @@ stdenv.mkDerivation (finalAttrs: {
     "--disable-failure-tokens"
     # required for musl, android, march=native
     "--disable-werror"
-  ];
+  ]
+  ++ lib.optional stdenv.hostPlatform.isCygwin "--disable-symvers";
 
   makeFlags =
     let
