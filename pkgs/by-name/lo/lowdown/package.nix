@@ -31,6 +31,8 @@ stdenv.mkDerivation rec {
     hash = "sha512-cfzhuF4EnGmLJf5EGSIbWqJItY3npbRSALm+GarZ7SMU7Hr1xw0gtBFMpOdi5PBar4TgtvbnG4oRPh+COINGlA==";
   };
 
+  patches = lib.optional stdenv.hostPlatform.isCygwin ./fix-cygwin-build.patch;
+
   nativeBuildInputs = [
     which
     dieHook
@@ -53,6 +55,7 @@ stdenv.mkDerivation rec {
     runHook postConfigure
   '';
 
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.hostPlatform.isCygwin "-D_GNU_SOURCE";
   # Fix rpath change on darwin to avoid failure like:
   #     error: install_name_tool: changing install names or
   #     rpaths can't be redone for: liblowdown.1.dylib (for architecture
