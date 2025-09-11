@@ -139,7 +139,7 @@ lib.warnIf (withDocs != null)
     doCheck = false; # dependency cycle, needs to be interactive
 
     postInstall = ''
-      ln -s bash${stdenv.targetPlatform.extensions.executable} "$out/bin/sh"
+      ln -s bash${stdenv.hostPlatform.extensions.executable} "$out/bin/sh"
       rm -f $out/lib/bash/Makefile.inc
     '';
 
