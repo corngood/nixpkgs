@@ -13,7 +13,6 @@
   forFHSEnv ? false,
 
   pkgsStatic,
-  ncurses,
 }:
 
 let
@@ -46,7 +45,7 @@ lib.warnIf (withDocs != null)
     # bionic libc is super weird and has issues with fortify outside of its own libc, check this comment:
     # https://github.com/NixOS/nixpkgs/pull/192630#discussion_r978985593
     # or you can check libc/include/sys/cdefs.h in bionic source code
-    ++ lib.optional (stdenv.hostPlatform.libc == "bionic" || stdenv.hostPlatform.isCygwin) "fortify";
+    ++ lib.optional (stdenv.hostPlatform.libc == "bionic") "fortify";
 
     outputs = [
       "out"
@@ -104,9 +103,6 @@ lib.warnIf (withDocs != null)
       }"
     ]
     ++ lib.optionals stdenv.hostPlatform.isCygwin [
-      "--without-libintl-prefix"
-      "--without-libiconv-prefix"
-      "--with-curses"
       "bash_cv_dev_stdin=present"
       "bash_cv_dev_fd=standard"
       "gt_cv_func_printf_posix=yes"
@@ -129,8 +125,7 @@ lib.warnIf (withDocs != null)
     ]
     ++ lib.optional stdenv.hostPlatform.isDarwin stdenv.cc.bintools;
 
-    buildInputs =
-      lib.optional interactive readline ++ lib.optional stdenv.hostPlatform.isCygwin ncurses;
+    buildInputs = lib.optional interactive readline;
 
     enableParallelBuilding = true;
 
