@@ -123,7 +123,9 @@ let
       +
         lib.optionalString
           (
+            # https://github.com/NixOS/nix/commit/d8636843b1d20ec8067281efb8082dfcd3797db5
             !stdenv.hostPlatform.isWindows
+            && !stdenv.hostPlatform.isCygwin
             # build failure
             && !stdenv.hostPlatform.isStatic
             # LTO breaks exception handling on x86-64-darwin.
@@ -185,6 +187,24 @@ let
     lib.optionalAttrs stdenv.hostPlatform.isBSD {
       mesonFlags = [ (lib.mesonBool "b_asneeded" false) ] ++ prevAttrs.mesonFlags or [ ];
     };
+
+  # -std=gnu on cygwin defines 'unix', which conflicts with the namespace
+  cygwinLibcFlags = finalAttrs: prevAttrs: {
+    env =
+      prevAttrs.env or { }
+      // lib.optionalAttrs stdenv.hostPlatform.isCygwin {
+        NIX_CFLAGS_COMPILE =
+          prevAttrs.env.NIX_CFLAGS_COMPILE or ""
+          + toString [
+            " "
+            # -std=gnu on cygwin defines 'unix', which conflicts with the namespace
+            "-D_POSIX_C_SOURCE=200809L"
+            "-D_GNU_SOURCE"
+            # undefined reference to `__wrap__Znwm'
+            "-DGC_NO_INLINE_STD_NEW=1"
+          ];
+      };
+  };
 
   nixDefaultsLayer = finalAttrs: prevAttrs: {
     strictDeps = prevAttrs.strictDeps or true;
@@ -281,7 +301,14 @@ in
         /**
           Patches for the whole Nix source. Changes to packaging expressions will be ignored.
         */
-        patches = [ ];
+        patches = lib.optionals stdenv.hostPlatform.isCygwin [
+          ../../patches/fix-cygwin-build.patch
+          ../../patches/Remove-static-data-from-headers.patch
+          ../../patches/Fix-nix_api_store_test.nix_eval_state_lookup_path-wh.patch
+          ../../patches/Fix-leaks-in-nix_api_store_test.nix_eval_state_looku.patch
+          ../../patches/Fix-toString-ToStringPrimOpTest.toString-10-on-cygwi.patch
+          ../../patches/Disable-MonitorFdHup-test-on-cygwin.patch
+        ];
         /**
           Fetched and patched source to be used in component derivations.
         */
@@ -320,6 +347,7 @@ in
 
   mkMesonDerivation = mkPackageBuilder [
     nixDefaultsLayer
+    cygwinLibcFlags
     scope.sourceLayer
     setVersionLayer
     mesonLayer
@@ -328,6 +356,7 @@ in
   mkMesonExecutable = mkPackageBuilder [
     nixDefaultsLayer
     bsdNoLinkAsNeeded
+    cygwinLibcFlags
     scope.sourceLayer
     setVersionLayer
     mesonLayer
@@ -337,6 +366,7 @@ in
   mkMesonLibrary = mkPackageBuilder [
     nixDefaultsLayer
     bsdNoLinkAsNeeded
+    cygwinLibcFlags
     scope.sourceLayer
     mesonLayer
     setVersionLayer
