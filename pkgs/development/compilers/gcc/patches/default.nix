@@ -231,5 +231,10 @@ in
 })
 
 ++ optionals targetPlatform.isCygwin [
+  (fetchpatch {
+    name = "cygwin-use-builtin_define_std-for-unix.patch";
+    url = "https://inbox.sourceware.org/gcc-patches/20250922182808.2599390-3-corngood@gmail.com/raw";
+    hash = "sha256-8I2G4430gkYoWgUued4unqhk8ZCajHf1dcivAeuLZ0E=";
+  })
   ./cygwin-fix-compilation-with-inhibit_libc.patch
 ]
