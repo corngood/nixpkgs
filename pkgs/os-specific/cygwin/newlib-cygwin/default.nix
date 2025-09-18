@@ -31,6 +31,12 @@ stdenvNoLibc.mkDerivation {
 
   patches =
     newlib-cygwin-headers.patches
+    ++ [
+      # https://cygwin.com/pipermail/cygwin-developers/2020-September/011970.html
+      # This is required for boost coroutines to work. After we get to the point
+      # where nix runs on cygwin, we can attempt to upstream this again.
+      ./store-tls-pointer-in-win32-tls.patch
+    ]
     ++ lib.optional (stdenvNoLibc.hostPlatform != stdenvNoLibc.buildPlatform) ./fix-cross.patch;
 
   postPatch = ''
