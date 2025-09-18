@@ -19,7 +19,6 @@ stdenv.mkDerivation {
     version
     src
     meta
-    patches
     ;
 
   outputs = [
@@ -28,6 +27,8 @@ stdenv.mkDerivation {
     "dev"
     "man"
   ];
+
+  patches = cygwin-headers.patches ++ [ ./store-tls-pointer-in-win32-tls.patch ];
 
   postPatch = ''
     patchShebangs --build winsup/cygwin/scripts
