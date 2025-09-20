@@ -224,7 +224,7 @@ in
   .${majorVersion} or [ ]
 )
 
-++ optional targetPlatform.isWindows [
+++ optional targetPlatform.isCygwin [
   ./libstdc-fix-compilation-in-freestanding-win32.patch
 ]
 

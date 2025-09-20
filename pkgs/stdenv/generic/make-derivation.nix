@@ -710,14 +710,19 @@ let
               __propagatedImpureHostDeps = computedPropagatedImpureHostDeps ++ __propagatedImpureHostDeps;
             }
           )
-          // optionalAttrs isWindows {
-            allowedImpureDLLs =
-              allowedImpureDLLs
-              ++ lib.optionals isCygwin [
-                "KERNEL32.dll"
-                "cygwin1.dll"
-              ];
-          }
+          // optionalAttrs isWindows (
+            let
+              dlls =
+                allowedImpureDLLs
+                ++ lib.optionals isCygwin [
+                  "KERNEL32.dll"
+                  "cygwin1.dll"
+                ];
+            in
+            {
+              allowedImpureDLLs = if dlls != [ ] then dlls else null;
+            }
+          )
           // (
             if !__structuredAttrs then
               makeOutputChecks attrs
