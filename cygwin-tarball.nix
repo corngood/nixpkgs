@@ -81,7 +81,7 @@ let
       ln -fsr "${cacert}"/etc/ssl/trust-source /etc/ssl/
       ln -fsr "${profile}" /etc/profile
       if [[ -f /nix-path-registration ]]; then
-        nix --load-db < /nix-path-registration
+        nix-store --load-db < /nix-path-registration
         rm /nix-path-registration
       fi
     )
