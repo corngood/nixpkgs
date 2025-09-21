@@ -88,5 +88,7 @@ stdenv.mkDerivation {
     "ac_cv_prog_CC=gcc"
   ];
 
+  allowedImpureDLLs = [ "ntdll.dll" ];
+
   passthru.w32api = w32api;
 }
