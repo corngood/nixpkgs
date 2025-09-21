@@ -43,6 +43,15 @@ lib.makeScope newScope (
     libgnurx = callPackage ./libgnurx { };
 
     sdk = callPackage ./msvcSdk { };
+
+    w32api = callPackage ./mingw-w64 {
+      stdenv = stdenvNoLibc;
+      isW32api = true;
+    };
+
+    w32api-headers = callPackage ./mingw-w64/headers.nix {
+      isW32api = true;
+    };
   }
   // lib.optionalAttrs config.allowAliases {
     mingw_w64_pthreads = lib.warn "windows.mingw_w64_pthreads is deprecated, windows.pthreads should be preferred" self.pthreads;

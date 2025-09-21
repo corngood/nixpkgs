@@ -4,9 +4,10 @@
   stdenvNoCC,
   fetchurl,
   crt ? stdenvNoCC.hostPlatform.libc,
+  isW32api ? false,
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
-  pname = "mingw_w64-headers";
+  pname = if isW32api then "w32api-headers" else "mingw_w64-headers";
   version = "13.0.0";
 
   src = fetchurl {
@@ -14,9 +15,15 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     hash = "sha256-Wv6CKvXE7b9n2q9F7sYdU49J7vaxlSTeZIl8a5WCjK8=";
   };
 
-  configureFlags = [
-    (lib.withFeatureAs true "default-msvcrt" crt)
-  ];
+  configureFlags =
+    if isW32api then
+      [
+        (lib.enableFeature true "w32api")
+      ]
+    else
+      [
+        (lib.withFeatureAs true "default-msvcrt" crt)
+      ];
 
   preConfigure = ''
     cd mingw-w64-headers
