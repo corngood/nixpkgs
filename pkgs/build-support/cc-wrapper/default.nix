@@ -705,6 +705,12 @@ stdenvNoCC.mkDerivation {
           include '-idirafter' ''${dir} >> $out/nix-support/libc-cflags
         done
       ''
+      + optionalString (libc.w32api or null != null) ''
+        echo '-idirafter ${lib.getDev libc.w32api}${
+          libc.incdir or "/include/w32api"
+        }' >> $out/nix-support/libc-cflags
+        echo '-Wl,-L${lib.getLib libc.w32api}${libc.libdir or "/lib/w32api"}' >> $out/nix-support/libc-cflags
+      ''
       + ''
 
         echo "${libc_lib}" > $out/nix-support/orig-libc
