@@ -7,6 +7,7 @@
   newScope,
   overrideCC,
   stdenvNoLibc,
+  emptyDirectory,
 }:
 
 lib.makeScope newScope (
@@ -51,6 +52,17 @@ lib.makeScope newScope (
 
     w32api-headers = callPackage ./mingw-w64/headers.nix {
       isW32api = true;
+    };
+
+    cygwin-headers = callPackage ./cygwin/headers.nix { };
+
+    cygwin = callPackage ./cygwin {
+      stdenv = stdenvNoLibc;
+    };
+
+    # this is here to avoid symlinks being made to cygwin1.dll in /nix/store
+    cygwin-nobin = cygwin // {
+      bin = emptyDirectory;
     };
   }
   // lib.optionalAttrs config.allowAliases {
