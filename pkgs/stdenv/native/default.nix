@@ -184,8 +184,12 @@ in
             inherit lib stdenvNoCC nativePrefix;
             nativeTools = true;
             nativeLibc = true;
+            runtimeShell = shell;
+            expand-response-params = "";
           };
           inherit stdenvNoCC;
+          runtimeShell = shell;
+          expand-response-params = "";
         };
 
       fetchurl = import ../../build-support/fetchurl {
