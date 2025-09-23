@@ -214,6 +214,7 @@
           overlays = import ./pkgs/top-level/impure-overlays.nix ++ [
             (final: prev: {
               lib = prev.lib.extend libVersionInfoOverlay;
+              cygwinSystem = import ./cygwin-system.nix { inherit self system; };
             })
           ];
         })
