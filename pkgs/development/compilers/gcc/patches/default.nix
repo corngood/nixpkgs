@@ -223,3 +223,7 @@ in
   }
   .${majorVersion} or [ ]
 )
+
+++ optionals targetPlatform.isCygwin [
+  ./cygwin-fix-compilation-with-inhibit_libc.patch
+]

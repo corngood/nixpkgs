@@ -1,0 +1,29 @@
+From a9075b350edfeffc9b09c1eb7eaa33db08e0ec55 Mon Sep 17 00:00:00 2001
+From: David McFarland <corngood@gmail.com>
+Date: Mon, 22 Sep 2025 19:50:16 -0300
+Subject: [PATCH] cygwin: fix compilation with inhibit_libc
+
+---
+ gcc/tsystem.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/gcc/tsystem.h b/gcc/tsystem.h
+index efc59b14d46..0e0e669d95e 100644
+--- a/gcc/tsystem.h
++++ b/gcc/tsystem.h
+@@ -66,6 +66,12 @@ extern void free (void *);
+ extern int atexit (void (*)(void));
+ #endif
+ 
++// cygwin has a definition of abort that will conflict with the macro below
++// when included via windows.h
++#ifdef __CYGWIN__
++#include <stdlib.h>
++#endif
++
+ #ifndef abort
+ #define abort() __builtin_trap ()
+ #endif
+-- 
+2.50.1
+
