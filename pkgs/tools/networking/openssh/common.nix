@@ -68,7 +68,8 @@ stdenv.mkDerivation (finalAttrs: {
     # and nix store doesn't allow such fancy permission bits anyway.
     ''
       substituteInPlace Makefile.in --replace '$(INSTALL) -m 4711' '$(INSTALL) -m 0711'
-    '' + lib.optionalString stdenv.hostPlatform.isCygwin ''
+    ''
+    + lib.optionalString stdenv.hostPlatform.isCygwin ''
       substituteInPlace configure.ac --replace-fail \
         '/usr/lib/textreadmode.o' \
         '${lib.getLib cygwin.newlib-cygwin}/lib/textreadmode.o'
