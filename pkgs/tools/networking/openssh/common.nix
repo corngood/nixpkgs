@@ -34,6 +34,7 @@
   libfido2,
   libxcrypt,
   hostname,
+  cygwin,
   nixosTests,
   withSecurityKey ? !stdenv.hostPlatform.isStatic,
   withFIDO ? stdenv.hostPlatform.isUnix && !stdenv.hostPlatform.isMusl && withSecurityKey,
@@ -68,6 +69,11 @@ stdenv.mkDerivation (finalAttrs: {
     # and nix store doesn't allow such fancy permission bits anyway.
     ''
       substituteInPlace Makefile.in --replace '$(INSTALL) -m 4711' '$(INSTALL) -m 0711'
+    ''
+    + lib.optionalString stdenv.hostPlatform.isCygwin ''
+      substituteInPlace configure.ac --replace-fail \
+        '/usr/lib/textreadmode.o' \
+        '${lib.getLib cygwin.newlib-cygwin}/lib/textreadmode.o'
     '';
 
   strictDeps = true;
@@ -147,8 +153,14 @@ stdenv.mkDerivation (finalAttrs: {
   ]
   ++ lib.optional (!stdenv.hostPlatform.isDarwin) hostname
   # TODO: softhsm is currently breaking the tests; see #453782
-  ++ lib.optional (false && !stdenv.hostPlatform.isDarwin && !stdenv.hostPlatform.isMusl) softhsm;
+  ++ lib.optional (
+    false
+    && !stdenv.hostPlatform.isDarwin
+    && !stdenv.hostPlatform.isMusl
+    && !stdenv.hostPlatform.isCygwin
+  ) softhsm;
 
+  # TODO: remove this when doCheck = false?
   preCheck = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) (
     ''
       # construct a dummy HOME
@@ -166,7 +178,9 @@ stdenv.mkDerivation (finalAttrs: {
       # invoked directly and those invoked by the "remote" session
       cat > ~/.ssh/environment.base <<EOF
       NIX_REDIRECTS=/etc/passwd=$DUMMY_PASSWD
-      ${lib.optionalString (!stdenv.hostPlatform.isStatic) "LD_PRELOAD=${libredirect}/lib/libredirect.so"}
+      ${lib.optionalString (
+        !stdenv.hostPlatform.isStatic && !stdenv.buildPlatform.isCygwin
+      ) "LD_PRELOAD=${libredirect}/lib/libredirect.so"}
       EOF
 
       # use an ssh environment file to ensure environment is set
@@ -197,7 +211,12 @@ stdenv.mkDerivation (finalAttrs: {
     # See softhsm in nativeCheckInputs above.
     +
       lib.optionalString
-        (!finalAttrs.doCheck && !stdenv.hostPlatform.isDarwin && !stdenv.hostPlatform.isMusl)
+        (
+          !finalAttrs.doCheck
+          && !stdenv.hostPlatform.isDarwin
+          && !stdenv.hostPlatform.isMusl
+          && !stdenv.hostPlatform.isCygwin
+        )
         ''
           # The extra tests check PKCS#11 interactions, which softhsm emulates with software only
           substituteInPlace regress/test-exec.sh \
