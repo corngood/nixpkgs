@@ -67,7 +67,7 @@ bootStages
             { pkgs = prevStage; }
           )
           # needed for cygwin1.dll
-          ++ [ "/bin" ];
+          ++ [ "/" ];
 
         extraNativeBuildInputs = [
           # Many tarballs come with obsolete config.sub/config.guess that don't recognize aarch64.
