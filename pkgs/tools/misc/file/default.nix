@@ -58,7 +58,9 @@ stdenv.mkDerivation (finalAttrs: {
   # https://bugs.astron.com/view.php?id=382
   doCheck = !stdenv.buildPlatform.isMusl;
 
-  makeFlags = lib.optional stdenv.hostPlatform.isWindows "FILE_COMPILE=file";
+  makeFlags = lib.optional (
+    stdenv.hostPlatform.isWindows || stdenv.hostPlatform.isCygwin
+  ) "FILE_COMPILE=file";
 
   passthru.tests.pkg-config = testers.testMetaPkgConfig finalAttrs.finalPackage;
 
