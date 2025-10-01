@@ -308,6 +308,7 @@ in
           ../../patches/Fix-leaks-in-nix_api_store_test.nix_eval_state_looku.patch
           ../../patches/Fix-toString-ToStringPrimOpTest.toString-10-on-cygwi.patch
           ../../patches/Disable-MonitorFdHup-test-on-cygwin.patch
+          ../../patches/Include-bin-in-builder-PATH-on-cygwin.patch
         ];
         /**
           Fetched and patched source to be used in component derivations.
