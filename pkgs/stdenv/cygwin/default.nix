@@ -61,6 +61,7 @@ bootStages
               { pkgs }:
               [
                 pkgs.coreutils
+                pkgs.findutils
                 pkgs.gawk
                 pkgs.gnutar
                 pkgs.gzip
