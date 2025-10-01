@@ -54,14 +54,6 @@ stdenv.mkDerivation rec {
     stdenv.hostPlatform.system == "armv7l-linux" || stdenv.hostPlatform.isSunOS
   ) "1";
 
-  preConfigure =
-    if stdenv.hostPlatform.isCygwin then
-      ''
-        sed -i gnu/fpending.h -e 's,include <stdio_ext.h>,,'
-      ''
-    else
-      null;
-
   doCheck = false; # fails
   doInstallCheck = false; # fails
 
