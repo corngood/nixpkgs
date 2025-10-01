@@ -61,7 +61,9 @@ bootStages
               { pkgs }:
               [
                 pkgs.coreutils
+                pkgs.gawk
                 pkgs.gnutar
+                pkgs.gzip
                 pkgs.bashNonInteractive
               ]
             )
