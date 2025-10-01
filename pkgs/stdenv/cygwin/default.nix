@@ -74,7 +74,8 @@ bootStages
 
         shell = cc.shell;
 
-        inherit (prevStage.stdenv) fetchurlBoot;
+        # inherit (prevStage.stdenv) fetchurlBoot;
+        fetchurlBoot = prevStage.fetchurl;
 
         extraAttrs = {
           # inherit bootstrapTools;
@@ -84,6 +85,7 @@ bootStages
           self: super:
           {
             inherit (prevStage)
+              fetchurl
               gzip
               bzip2
               xz
