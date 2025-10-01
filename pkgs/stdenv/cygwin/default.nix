@@ -57,13 +57,17 @@ bootStages
         # initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
         initialPath =
           (
-            { pkgs }:
-            [
-              pkgs.coreutils
-              pkgs.bashNonInteractive
-            ]
+            (
+              { pkgs }:
+              [
+                pkgs.coreutils
+                pkgs.bashNonInteractive
+              ]
+            )
+            { pkgs = prevStage; }
           )
-            { pkgs = prevStage; };
+          # needed for cygwin1.dll
+          ++ [ "/bin" ];
 
         extraNativeBuildInputs = [
           # Many tarballs come with obsolete config.sub/config.guess that don't recognize aarch64.
