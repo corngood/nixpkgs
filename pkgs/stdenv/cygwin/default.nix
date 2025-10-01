@@ -61,6 +61,7 @@ bootStages
               { pkgs }:
               [
                 pkgs.coreutils
+                pkgs.gnutar
                 pkgs.bashNonInteractive
               ]
             )
