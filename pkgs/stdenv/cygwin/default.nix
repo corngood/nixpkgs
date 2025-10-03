@@ -144,6 +144,11 @@ bootStages
         shellPackage = prevStage.bash;
       };
 
+      overrides = self: super: {
+        inherit (prevStage)
+          fetchurl
+          ;
+      };
     };
   })
 
