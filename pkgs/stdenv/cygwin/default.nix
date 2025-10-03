@@ -43,7 +43,6 @@ bootStages
     # which applies here as well.
     {
       inherit config overlays;
-      allowCustomOverrides = true;
       stdenv = import ../generic rec {
         name = "stdenv-cygwin";
 
@@ -54,37 +53,8 @@ bootStages
 
         # preHook = commonPreHook;
 
-        # initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
         initialPath =
-          (
-            (
-              { pkgs }:
-              [
-                pkgs.coreutils
-                pkgs.findutils
-                pkgs.diffutils
-                pkgs.gnused
-                pkgs.gnugrep
-                pkgs.gawk
-                pkgs.gnutar
-                pkgs.gzip
-                pkgs.bzip2.bin
-                pkgs.gnumake
-                pkgs.bashNonInteractive
-                pkgs.patch
-                pkgs.xz.bin
-
-                # The `file` command is added here because an enormous number of
-                # packages have a vendored dependency upon `file` in their
-                # `./configure` script, due to libtool<=2.4.6, or due to
-                # libtool>=2.4.7 in which the package author decided to set FILECMD
-                # when running libtoolize.  In fact, file-5.4.6 *depends on itself*
-                # and tries to invoke `file` from its own ./configure script.
-                pkgs.file
-              ]
-            )
-            { pkgs = prevStage; }
-          )
+          ((import ../generic/common-path.nix) { pkgs = prevStage; })
           # needed for cygwin1.dll
           ++ [ "/" ];
 
@@ -153,117 +123,36 @@ bootStages
       };
     })
 
-  # # Regular native packages
-  # (
-  #   somePrevStage:
-  #   lib.last bootStages somePrevStage
-  #   // {
-  #     # It's OK to change the built-time dependencies
-  #     allowCustomOverrides = true;
-  #   }
-  # )
+  (prevStage: {
+    inherit config overlays;
+    stdenv = import ../generic rec {
+      name = "stdenv-linux";
 
-  #   # Build tool Packages
-  #   (vanillaPackages: {
-  #     inherit config overlays;
-  #     selfBuild = false;
-  #     stdenv =
-  #       assert vanillaPackages.stdenv.buildPlatform == localSystem;
-  #       assert vanillaPackages.stdenv.hostPlatform == localSystem;
-  #       assert vanillaPackages.stdenv.targetPlatform == localSystem;
-  #       vanillaPackages.stdenv.override { targetPlatform = crossSystem; };
-  #     # It's OK to change the built-time dependencies
-  #     allowCustomOverrides = true;
-  #   })
+      buildPlatform = localSystem;
+      hostPlatform = localSystem;
+      targetPlatform = localSystem;
+      inherit config;
 
-  #   # Run Packages
-  #   (
-  #     buildPackages:
-  #     let
-  #       adaptStdenv = if crossSystem.isStatic then buildPackages.stdenvAdapters.makeStatic else lib.id;
-  #       stdenvNoCC = adaptStdenv (
-  #         buildPackages.stdenv.override (old: rec {
-  #           buildPlatform = localSystem;
-  #           hostPlatform = crossSystem;
-  #           targetPlatform = crossSystem;
+      # preHook = commonPreHook;
 
-  #           # Prior overrides are surely not valid as packages built with this run on
-  #           # a different platform, and so are disabled.
-  #           overrides = _: _: { };
-  #           extraBuildInputs = [ ]; # Old ones run on wrong platform
-  #           allowedRequisites = null;
+      initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
 
-  #           cc = null;
-  #           hasCC = false;
+      extraNativeBuildInputs = [
+        # Many tarballs come with obsolete config.sub/config.guess that don't recognize aarch64.
+        prevStage.updateAutotoolsGnuConfigScriptsHook
+      ];
 
-  #           extraNativeBuildInputs =
-  #             old.extraNativeBuildInputs
-  #             ++ lib.optionals (hostPlatform.isLinux && !buildPlatform.isLinux) [ buildPackages.patchelf ]
-  #             ++ lib.optional (
-  #               let
-  #                 f =
-  #                   p:
-  #                   !p.isx86
-  #                   || builtins.elem p.libc [
-  #                     "musl"
-  #                     "wasilibc"
-  #                     "relibc"
-  #                   ]
-  #                   || p.isiOS
-  #                   || p.isGenode;
-  #               in
-  #               f hostPlatform && !(f buildPlatform)
-  #             ) buildPackages.updateAutotoolsGnuConfigScriptsHook;
-  #         })
-  #       );
-  #     in
-  #     {
-  #       inherit config;
-  #       overlays = overlays ++ crossOverlays;
-  #       selfBuild = false;
-  #       inherit stdenvNoCC;
-  #       stdenv =
-  #         let
-  #           inherit (stdenvNoCC) hostPlatform targetPlatform;
-  #           baseStdenv = stdenvNoCC.override {
-  #             # Old ones run on wrong platform
+      cc = prevStage.gcc;
 
-  #               buildPackages.targetPackages.apple-sdk
-  #             ];
+      shell = cc.shell;
 
-  #             hasCC = !stdenvNoCC.targetPlatform.isGhcjs;
+      inherit (prevStage.stdenv) fetchurlBoot;
 
-  #             cc =
-  #               if crossSystem.useiOSPrebuilt or false then
-  #                 buildPackages.darwin.iosSdkPkgs.clang
-  #               else if crossSystem.useAndroidPrebuilt or false then
-  #                 buildPackages."androidndkPkgs_${crossSystem.androidNdkVersion}".clang
-  #               else if
-  #                 targetPlatform.isGhcjs
-  #               # Need to use `throw` so tryEval for splicing works, ugh.  Using
-  #               # `null` or skipping the attribute would cause an eval failure
-  #               # `tryEval` wouldn't catch, wrecking accessing previous stages
-  #               # when there is a C compiler and everything should be fine.
-  #               then
-  #                 throw "no C compiler provided for this platform"
-  #               else if crossSystem.isDarwin then
-  #                 buildPackages.llvmPackages.libcxxClang
-  #               else if crossSystem.useLLVM or false then
-  #                 buildPackages.llvmPackages.clang
-  #               else if crossSystem.useZig or false then
-  #                 buildPackages.zig.cc
-  #               else if crossSystem.useArocc or false then
-  #                 buildPackages.arocc
-  #               else
-  #                 buildPackages.gcc;
-
-  #           };
-  #         in
-  #         if config ? replaceCrossStdenv then
-  #           config.replaceCrossStdenv { inherit buildPackages baseStdenv; }
-  #         else
-  #           baseStdenv;
-  #     }
-  #   )
+      extraAttrs = {
+        # inherit bootstrapTools;
+        shellPackage = prevStage.bash;
+      };
+    };
+  })
 
 ]
