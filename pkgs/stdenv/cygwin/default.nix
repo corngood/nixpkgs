@@ -26,16 +26,6 @@ in
 bootStages
 ++ [
 
-  # (
-  #   prevStage:
-  #   # previous stage5 stdenv; see stage3 comment regarding gcc,
-  #   # which applies here as well.
-  #   {
-  #     inherit (prevStage) config overlays stdenv;
-  #     selfBuild = true;
-  #   }
-  # )
-
   # Run Packages
   (
     prevStage:
@@ -125,6 +115,7 @@ bootStages
 
   (prevStage: {
     inherit config overlays;
+
     stdenv = import ../generic rec {
       name = "stdenv-linux";
 
@@ -152,6 +143,7 @@ bootStages
         # inherit bootstrapTools;
         shellPackage = prevStage.bash;
       };
+
     };
   })
 
