@@ -110,10 +110,14 @@ stdenv.mkDerivation (
           ''
       )
       +
-      # Perl's build system uses the src variable, and its value may end up in
-      # the output in some cases (when cross-compiling)
-      ''
-        unset src
+        # Perl's build system uses the src variable, and its value may end up in
+        # the output in some cases (when cross-compiling)
+        ''
+          unset src
+        ''
+      + lib.optionalString stdenv.buildPlatform.isCygwin ''
+        substituteInPlace hints/cygwin.sh \
+          --replace-fail "PATH='.:/usr/bin/'" ""
       '';
 
     # Build a thread-safe Perl with a dynamic libperl.so.  We need the
