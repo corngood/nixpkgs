@@ -92,6 +92,7 @@ let
   # TODO(@Ericson2314) Make unconditional, or optional but always true by
   # default.
   targetPrefix = optionalString (targetPlatform != hostPlatform) (targetPlatform.config + "-");
+  exeSuffix = stdenvNoCC.hostPlatform.extensions.executable;
 
   bintoolsVersion = getVersion bintools;
   bintoolsName = removePrefix targetPrefix (getName bintools);
@@ -257,16 +258,16 @@ stdenvNoCC.mkDerivation {
   + ''
     for binary in objdump objcopy size strings as ar nm gprof dwp c++filt addr2line \
         ranlib readelf elfedit dlltool dllwrap windmc windres; do
-      if [ -e $ldPath/${targetPrefix}''${binary} ]; then
-        ln -s $ldPath/${targetPrefix}''${binary} $out/bin/${targetPrefix}''${binary}
+      if [ -e $ldPath/${targetPrefix}''${binary}${exeSuffix} ]; then
+        ln -s $ldPath/${targetPrefix}''${binary}${exeSuffix} $out/bin/${targetPrefix}''${binary}${exeSuffix}
       fi
     done
 
-    if [ -e ''${ld:-$ldPath/${targetPrefix}ld} ]; then
-      wrap ${targetPrefix}ld ${./ld-wrapper.sh} ''${ld:-$ldPath/${targetPrefix}ld}
+    if [ -e ''${ld:-$ldPath/${targetPrefix}ld}${exeSuffix} ]; then
+      wrap ${targetPrefix}ld${exeSuffix} ${./ld-wrapper.sh} ''${ld:-$ldPath/${targetPrefix}ld}${exeSuffix}
     fi
 
-    for variant in $ldPath/${targetPrefix}ld.*; do
+    for variant in $ldPath/${targetPrefix}ld.*${exeSuffix}; do
       basename=$(basename "$variant")
       wrap $basename ${./ld-wrapper.sh} $variant
     done
