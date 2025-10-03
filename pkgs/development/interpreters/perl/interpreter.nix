@@ -135,6 +135,13 @@ stdenv.mkDerivation (
             # https://github.com/arsv/perl-cross/issues/158
             "-Dd_gnulibc=define"
           ]
+          # these currently can't be configured automatically on non-elf systems
+          ++ lib.optional stdenv.hostPlatform.isCygwin [
+            "-Dcharsize=1"
+            "-Dshortsize=2"
+            "-Dintsize=4"
+            "-Dlongsize=8"
+          ]
         else
           (
             [
