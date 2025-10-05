@@ -117,7 +117,7 @@ bootStages
     inherit config overlays;
 
     stdenv = import ../generic rec {
-      name = "stdenv-linux";
+      name = "stdenv-cygwin";
 
       buildPlatform = localSystem;
       hostPlatform = localSystem;
