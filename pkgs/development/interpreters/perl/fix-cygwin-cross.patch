@@ -1,0 +1,15 @@
+diff --git a/cnf/configure_tool.sh b/cnf/configure_tool.sh
+index 2f5492e..85c9715 100644
+--- a/cnf/configure_tool.sh
++++ b/cnf/configure_tool.sh
+@@ -246,6 +246,10 @@ if not hinted 'osname'; then
+ 			define osname "MSWin32"
+ 			result "MSWin32"
+ 			;;
++		*-cygwin)
++			define osname "cygwin"
++			result "Cygwin"
++			;;
+ 		*-android|*-androideabi)
+ 			define osname "android"
+ 			result "Android"

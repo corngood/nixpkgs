@@ -93,7 +93,8 @@ stdenv.mkDerivation (
     ++ lib.optional (crossCompiling && (lib.versionAtLeast version "5.40.0")) ./cross540.patch
     ++ lib.optional (crossCompiling && (lib.versionOlder version "5.40.0")) ./cross.patch
     # cherry pick upstream compile fix for cygwin
-    ++ lib.optional stdenv.hostPlatform.isCygwin ./cygwin.c-fix-several-silly-terrible-C-errors.patch;
+    ++ lib.optional stdenv.hostPlatform.isCygwin ./cygwin.c-fix-several-silly-terrible-C-errors.patch
+    ++ lib.optional (crossCompiling && stdenv.hostPlatform.isCygwin) ./fix-cygwin-cross.patch;
 
     # This is not done for native builds because pwd may need to come from
     # bootstrap tools when building bootstrap perl.
