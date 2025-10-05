@@ -40,7 +40,8 @@ stdenv.mkDerivation (finalAttrs: {
     "--disable-failure-tokens"
     # required for musl, android, march=native
     "--disable-werror"
-  ];
+  ]
+  ++ lib.optional stdenv.hostPlatform.isCygwin "--disable-symvers";
 
   makeFlags =
     let
