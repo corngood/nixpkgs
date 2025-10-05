@@ -122,7 +122,7 @@ stdenv.mkDerivation (
         substituteInPlace hints/cygwin.sh \
           --replace-fail "PATH='.:/usr/bin/'" ""
         substituteInPlace cpan/Win32/Makefile.PL haiku/Haiku/Makefile.PL \
-          --replace-fail '/lib/w32api/' '${lib.getLib stdenv.cc.libc.w32api}${
+          --replace-fail '/lib/w32api' '${lib.getLib stdenv.cc.libc.w32api}${
             stdenv.cc.libc.w32api.libdir or "/lib/w32api"
           }'
       '';
