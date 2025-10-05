@@ -121,6 +121,10 @@ stdenv.mkDerivation (
       + lib.optionalString stdenv.buildPlatform.isCygwin ''
         substituteInPlace hints/cygwin.sh \
           --replace-fail "PATH='.:/usr/bin/'" ""
+        substituteInPlace cpan/Win32/Makefile.PL haiku/Haiku/Makefile.PL \
+          --replace-fail '/lib/w32api/' '${lib.getLib stdenv.cc.libc.w32api}${
+            stdenv.cc.libc.w32api.libdir or "/lib/w32api"
+          }'
       '';
 
     # Build a thread-safe Perl with a dynamic libperl.so.  We need the
