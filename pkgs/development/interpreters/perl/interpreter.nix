@@ -381,4 +381,7 @@ stdenv.mkDerivation (
     # TODO merge setup hooks
     setupHook = ./setup-hook-cross.sh;
   }
+  // lib.optionalAttrs (!crossCompiling && stdenv.hostPlatform.isCygwin && enableCrypt) {
+    nativeBuildInputs = [ libxcrypt ];
+  }
 )
