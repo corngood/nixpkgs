@@ -91,7 +91,8 @@ stdenv.mkDerivation (
     # https://github.com/arsv/perl-cross/pull/159
     ++ lib.optional (crossCompiling && (lib.versionAtLeast version "5.40.0")) ./cross-fdopendir.patch
     ++ lib.optional (crossCompiling && (lib.versionAtLeast version "5.40.0")) ./cross540.patch
-    ++ lib.optional (crossCompiling && (lib.versionOlder version "5.40.0")) ./cross.patch;
+    ++ lib.optional (crossCompiling && (lib.versionOlder version "5.40.0")) ./cross.patch
+    ++ lib.optional stdenv.hostPlatform.isCygwin ./cygwin.c-fix-several-silly-terrible-C-errors.patch;
 
     # This is not done for native builds because pwd may need to come from
     # bootstrap tools when building bootstrap perl.
@@ -136,11 +137,20 @@ stdenv.mkDerivation (
             "-Dd_gnulibc=define"
           ]
           # these currently can't be configured automatically on non-elf systems
-          ++ lib.optional stdenv.hostPlatform.isCygwin [
+          # other archs will need verification
+          ++ lib.optional (stdenv.hostPlatform.isCygwin && stdenv.hostPlatform.isx86_64) [
             "-Dcharsize=1"
             "-Dshortsize=2"
             "-Dintsize=4"
             "-Dlongsize=8"
+            "-Ddoublesize=8"
+            "-Dptrsize=8"
+            "-Dlongdblsize=16"
+            "-Dlonglongsize=8"
+            "-Dsizesize=8"
+            "-Dfpossize=8"
+            "-Dlseeksize=8"
+            "-Duidsize=4"
           ]
         else
           (
