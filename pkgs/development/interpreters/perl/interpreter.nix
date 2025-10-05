@@ -92,6 +92,7 @@ stdenv.mkDerivation (
     ++ lib.optional (crossCompiling && (lib.versionAtLeast version "5.40.0")) ./cross-fdopendir.patch
     ++ lib.optional (crossCompiling && (lib.versionAtLeast version "5.40.0")) ./cross540.patch
     ++ lib.optional (crossCompiling && (lib.versionOlder version "5.40.0")) ./cross.patch
+    # cherry pick upstream compile fix for cygwin
     ++ lib.optional stdenv.hostPlatform.isCygwin ./cygwin.c-fix-several-silly-terrible-C-errors.patch;
 
     # This is not done for native builds because pwd may need to come from
@@ -151,6 +152,8 @@ stdenv.mkDerivation (
             "-Dfpossize=8"
             "-Dlseeksize=8"
             "-Duidsize=4"
+            "-Dgidsize=4"
+            "-Dtimesize=8"
           ]
         else
           (
