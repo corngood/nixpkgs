@@ -10,12 +10,24 @@
 
 stdenv.mkDerivation rec {
   pname = "pcre2";
-  version = "10.44";
+  version = if stdenv.hostPlatform.isCygwin then "10.46" else "10.44";
 
   src = fetchurl {
     url = "https://github.com/PhilipHazel/pcre2/releases/download/pcre2-${version}/pcre2-${version}.tar.bz2";
-    hash = "sha256-008C4RPPcZOh6/J3DTrFJwiNSF1OBH7RDl0hfG713pY=";
+    hash =
+      if stdenv.hostPlatform.isCygwin then
+        "sha256-FfvFq6a+7gsXrssEYCrjlDI5OroevY45t8q/fbiDKZ8="
+      else
+        "sha256-008C4RPPcZOh6/J3DTrFJwiNSF1OBH7RDl0hfG713pY=";
   };
+
+  ${if stdenv.hostPlatform.isCygwin then "patches" else null} =
+    lib.optional stdenv.hostPlatform.isCygwin
+      (fetchurl {
+        url = "https://cygwin.com/cgit/cygwin-packages/pcre2/plain/pcre2-10.46-cygwin-jit.patch";
+        hash = "sha256-9WoKxyCpmKdFfSFZAbtLJ8yrGphPfB+xf/CPqscSivY=";
+      });
+  ${if stdenv.hostPlatform.isCygwin then "patchFlags" else null} = [ "-p2" ];
 
   nativeBuildInputs = [ updateAutotoolsGnuConfigScriptsHook ];
 
