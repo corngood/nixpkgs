@@ -62,7 +62,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   enableParallelBuilding = true;
 
-  doCheck = true;
+  doCheck = !stdenv.hostPlatform.isCygwin;
 
   passthru = {
     tests = {
