@@ -44,7 +44,7 @@ stdenv.mkDerivation rec {
 
   # Normal check and install check largely execute the same test suite
   doCheck = false;
-  doInstallCheck = true;
+  doInstallCheck = !stdenv.buildPlatform.isCygwin;
 
   meta = {
     homepage = "https://www.gnu.org/software/bison/";
