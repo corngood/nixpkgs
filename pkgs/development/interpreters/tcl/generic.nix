@@ -107,7 +107,7 @@ let
             ln -s $out/lib/libtcl${release}${staticExtension} $out/lib/libtcl${staticExtension}
           fi
           ${lib.optionalString (!stdenv.hostPlatform.isStatic) ''
-            ln -s $out/{dllDir}/libtcl${release}${dllExtension} $out/{dllDir}/libtcl${dllExtension}
+            ln -s $out/${dllDir}/libtcl${release}${dllExtension} $out/${dllDir}/libtcl${dllExtension}
           ''}
         '';
 
