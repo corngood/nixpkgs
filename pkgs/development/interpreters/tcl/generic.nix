@@ -97,6 +97,7 @@ let
       postInstall =
         let
           dllExtension = stdenv.hostPlatform.extensions.sharedLibrary;
+          dllDir = if stdenv.hostPlatform.isCygwin then "bin" else "lib";
           staticExtension = stdenv.hostPlatform.extensions.staticLibrary;
         in
         ''
@@ -106,7 +107,7 @@ let
             ln -s $out/lib/libtcl${release}${staticExtension} $out/lib/libtcl${staticExtension}
           fi
           ${lib.optionalString (!stdenv.hostPlatform.isStatic) ''
-            ln -s $out/lib/libtcl${release}${dllExtension} $out/lib/libtcl${dllExtension}
+            ln -s $out/{dllDir}/libtcl${release}${dllExtension} $out/{dllDir}/libtcl${dllExtension}
           ''}
         '';
 
