@@ -18,8 +18,8 @@
 }:
 
 let
-  baseInterp =
-    stdenv.mkDerivation (rec {
+  baseInterp = stdenv.mkDerivation (
+    rec {
       pname = "tcl";
       inherit version src;
 
@@ -142,12 +142,10 @@ let
     }
     // lib.optionalAttrs stdenv.hostPlatform.isCygwin {
       patches = [
-        (fetchurl {
-          url = "https://cygwin.com/cgit/cygwin-packages/tcl/plain/8.6.6-cygwin-unix.patch?id=26f001c793d99f67f62aa51f2f5720d32805c8dd";
-          hash = "sha256-QitXmgASRuQzyuypTIYdhjXBsfFYWKTmm90/Vs1aMi8=";
-        })
+        ./fix-cygwin-build.patch
       ];
-    });
+    }
+  );
 
   mkTclDerivation = callPackage ./mk-tcl-derivation.nix { tcl = baseInterp; };
 
