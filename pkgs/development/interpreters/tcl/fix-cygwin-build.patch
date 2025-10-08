@@ -1,4 +1,4 @@
-From 634962c77cdb1fbd919120c73e3bad5f9a12d13d Mon Sep 17 00:00:00 2001
+From 3b266a8b33a4b1090a7d87662b6d1e23187c96d3 Mon Sep 17 00:00:00 2001
 From: David McFarland <corngood@gmail.com>
 Date: Wed, 8 Oct 2025 15:37:12 -0300
 Subject: [PATCH] fix cygwin build
@@ -14,14 +14,14 @@ Subject: [PATCH] fix cygwin build
  generic/tclPlatDecls.h    |  8 ++++----
  generic/tclStubInit.c     | 10 +++++-----
  tools/genStubs.tcl        |  9 ---------
- unix/Makefile.in          |  3 ---
+ unix/Makefile.in          |  5 +----
  unix/tcl.m4               | 15 ++++++++++++++-
  unix/tclUnixFCmd.c        | 37 +++++--------------------------------
  unix/tclUnixFile.c        |  4 ++--
  unix/tclUnixInit.c        |  6 +++---
  unix/tclUnixNotfy.c       | 22 +++++++++++-----------
  unix/tclUnixPort.h        |  2 +-
- 17 files changed, 60 insertions(+), 86 deletions(-)
+ 17 files changed, 61 insertions(+), 87 deletions(-)
 
 diff --git a/generic/tcl.h b/generic/tcl.h
 index fc772d5b3c..539f7ce300 100644
@@ -310,9 +310,18 @@ index 3c9964556f..416a89e14a 100644
  		    /* X11 */\n${iftxt}"
  	    if {$eltxt ne ""} {
 diff --git a/unix/Makefile.in b/unix/Makefile.in
-index bc743b3892..be0a207c93 100644
+index bc743b3892..dc80d61c2f 100644
 --- a/unix/Makefile.in
 +++ b/unix/Makefile.in
+@@ -358,7 +358,7 @@ NOTIFY_OBJS = tclUnixNotfy.o
+ 
+ MAC_OSX_OBJS = tclMacOSXBundle.o tclMacOSXFCmd.o tclMacOSXNotify.o
+ 
+-CYGWIN_OBJS = tclWinError.o
++CYGWIN_OBJS =
+ 
+ DTRACE_OBJ = tclDTrace.o
+ 
 @@ -637,9 +637,6 @@ ${LIB_FILE}: ${STUB_LIB_FILE} ${OBJS}
  	@MAKE_LIB@
  
