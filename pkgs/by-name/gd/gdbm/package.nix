@@ -5,6 +5,7 @@
   stdenv,
   testers,
   updateAutotoolsGnuConfigScriptsHook,
+  autoconf,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -26,7 +27,11 @@ stdenv.mkDerivation (finalAttrs: {
     ./freebsd-patch-src-lock-c.patch
   ];
 
-  nativeBuildInputs = [ updateAutotoolsGnuConfigScriptsHook ];
+  nativeBuildInputs = [
+    updateAutotoolsGnuConfigScriptsHook
+  ]
+  # needed for testsuite.at patch below
+  ++ lib.optional stdenv.buildPlatform.isCygwin autoconf;
 
   hardeningDisable = [ "strictflexarrays3" ];
 
