@@ -60,7 +60,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   makeFlags = lib.optional (
     stdenv.hostPlatform.isWindows || stdenv.hostPlatform.isCygwin
-  ) "FILE_COMPILE=file";
+  ) "FILE_COMPILE=file${stdenv.buildPlatform.extensions.executable}";
 
   passthru.tests.pkg-config = testers.testMetaPkgConfig finalAttrs.finalPackage;
 
