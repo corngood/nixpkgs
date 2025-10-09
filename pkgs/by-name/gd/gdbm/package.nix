@@ -32,6 +32,8 @@ stdenv.mkDerivation (finalAttrs: {
 
   configureFlags = [ (lib.enableFeature true "libgdbm-compat") ];
 
+  buildFlags = lib.optionalString stdenv.hostPlatform.isCygwin "LDFLAGS=-no-undefined";
+
   outputs = [
     "out"
     "dev"
@@ -53,7 +55,7 @@ stdenv.mkDerivation (finalAttrs: {
     substituteInPlace tests/Makefile.in \
       --replace-fail '_LDADD = ../src/libgdbm.la ../compat/libgdbm_compat.la' \
                      '_LDADD = ../compat/libgdbm_compat.la ../src/libgdbm.la'
-    substituteInPlace tests/testsuite.at
+    substituteInPlace tests/testsuite.at \
       --replace-fail 'm4_include([dbmfetch03.at])' ""
   '';
 
