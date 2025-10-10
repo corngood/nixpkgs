@@ -1,9 +1,12 @@
 {
-  emptyDirectory,
+  runCommand,
   newlib-cygwin,
 }:
 
 newlib-cygwin
 // {
-  bin = emptyDirectory;
+  bin = runCommand "${newlib-cygwin.name}-nobin" {} ''
+    mkdir -p "$out"/bin
+    CYGWIN+=\ winsymlinks:nativestrict ln -sr /bin/cygwin1.dll "$out"/bin
+  '';
 }
