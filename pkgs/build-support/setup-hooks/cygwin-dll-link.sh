@@ -27,7 +27,7 @@ _linkDeps() {
     local dll
     _dllDeps "$target" | while read dll; do
         echo '  dll:' "$dll"
-        if [[ -e "$dir/$dll" ]]; then continue; fi
+        if [[ -L "$dir/$dll" || -e "$dir/$dll" ]]; then continue; fi
         if [[ $dll = cygwin1.dll ]]; then
           CYGWIN+=\ winsymlinks:nativestrict ln -sr /bin/cygwin1.dll "$dir"
           continue
