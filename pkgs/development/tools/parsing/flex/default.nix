@@ -54,7 +54,11 @@ stdenv.mkDerivation rec {
     export ac_cv_func_realloc_0_nonnull=yes
   '';
 
-  postConfigure = lib.optionalString (stdenv.hostPlatform.isDarwin || stdenv.hostPlatform.isCygwin) ''
+  configureFlags =
+    # from flex.cygport
+    lib.optional stdenv.hostPlatform.isCygwin "--disable-shared";
+
+  postConfigure = lib.optionalString (stdenv.hostPlatform.isDarwin) ''
     sed -i Makefile -e 's/-no-undefined//;'
   '';
 
