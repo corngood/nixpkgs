@@ -62,7 +62,6 @@ stdenv.mkDerivation (finalAttrs: {
     # Don't search in non-Nix locations such as /usr, but do search in our libc.
     ./001-search-path.diff
   ]
-  ++ lib.optional stdenv.hostPlatform.isCygwin ./fix-cygwin-build.patch
   # On Darwin, always set CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG.
   ++ lib.optional stdenv.hostPlatform.isDarwin ./006-darwin-always-set-runtime-c-flag.diff
   # On platforms where ps is not part of stdenv, patch the invocation of ps to use an absolute path.
@@ -192,7 +191,10 @@ stdenv.mkDerivation (finalAttrs: {
   # fails with `The C++ compiler does not support C++11 (e.g.  std::unique_ptr).`
   # The cause is a compiler warning `warning: argument unused during compilation: '-pie' [-Wunused-command-line-argument]`
   # interfering with the feature check.
-  env.NIX_CFLAGS_COMPILE = "-Wno-unused-command-line-argument";
+  env.NIX_CFLAGS_COMPILE = toString (
+    [ "-Wno-unused-command-line-argument" ]
+    ++ lib.optional stdenv.hostPlatform.isCygwin [ "-D_GNU_SOURCE" ]
+  );
 
   # make install attempts to use the just-built cmake
   preInstall = lib.optionalString (stdenv.hostPlatform != stdenv.buildPlatform) ''
