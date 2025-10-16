@@ -184,7 +184,9 @@ stdenv.mkDerivation (finalAttrs: {
 
       (lib.cmakeBool "CMAKE_USE_OPENSSL" useOpenSSL)
       (lib.cmakeBool "BUILD_CursesDialog" cursesUI)
-    ]
+    ] ++
+    lib.optional stdenv.hostPlatform.isCygwin
+      (lib.cmakeFeature "CMAKE_C_FLAGS" "-D_GNU_SOURCE")
   );
 
   # make install attempts to use the just-built cmake
