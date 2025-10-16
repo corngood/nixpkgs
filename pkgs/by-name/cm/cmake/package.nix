@@ -62,6 +62,7 @@ stdenv.mkDerivation (finalAttrs: {
     # Don't search in non-Nix locations such as /usr, but do search in our libc.
     ./001-search-path.diff
   ]
+  ++ lib.optional stdenv.hostPlatform.isCygwin ./fix-cygwin-build.patch
   # On Darwin, always set CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG.
   ++ lib.optional stdenv.hostPlatform.isDarwin ./006-darwin-always-set-runtime-c-flag.diff
   # On platforms where ps is not part of stdenv, patch the invocation of ps to use an absolute path.
