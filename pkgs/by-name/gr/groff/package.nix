@@ -44,6 +44,8 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
+  patches = lib.optional stdenv.hostPlatform.isCygwin ./fix-cygwin-build.patch;
+
   postPatch = ''
     # BASH_PROG gets replaced with a path to the build bash which doesn't get automatically patched by patchShebangs
     substituteInPlace contrib/gdiffmk/gdiffmk.sh \
