@@ -18,11 +18,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ updateAutotoolsGnuConfigScriptsHook ];
 
   patches =
-    lib.optionals stdenv.hostPlatform.isCygwin [
-      ./1.16-cygwin.patch
-      ./1.16-vpath.patch
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isMinGW [
+    lib.optionals stdenv.hostPlatform.isMinGW [
       # Do not require <sys/ioctl.h>
       (fetchpatch2 {
         url = "https://aur.archlinux.org/cgit/aur.git/plain/get-w32-console-maxcols.mingw32.patch?h=mingw-w64-popt&id=63f2cdb0de116362c49681cef20f7a8b4355e85a";
