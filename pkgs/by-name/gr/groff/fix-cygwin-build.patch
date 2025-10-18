@@ -14,37 +14,26 @@ index f7ab410..2b26b93 100644
  # Search for macro files and device/font description directories in
  # source _and_ build trees; some of each are generated.
  FFLAG=-F$(abs_top_builddir)/font -F$(abs_top_srcdir)/font
-diff --git a/Makefile.in b/Makefile.in
-index a47df30..921533d 100644
---- a/Makefile.in
-+++ b/Makefile.in
-@@ -4952,12 +4952,12 @@ PROCESSEDDOCFILES = \
- 
- 
- # Declare minimal dependencies for documents by output driver.
--PROCESSEDFILES_DEPS_HTML = pre-grohtml groff troff post-grohtml \
-+PROCESSEDFILES_DEPS_HTML = pre-grohtml$(EXEEXT) groff$(EXEEXT) troff$(EXEEXT) post-grohtml$(EXEEXT) \
-   font/devhtml/stamp font/devps/stamp
- 
--PROCESSEDFILES_DEPS_PS = groff troff grops font/devps/stamp
--PROCESSEDFILES_DEPS_PDF = groff troff gropdf font/devpdf/stamp
--PROCESSEDFILES_DEPS_TXT = groff troff grotty font/devutf8/stamp
-+PROCESSEDFILES_DEPS_PS = groff$(EXEEXT) troff$(EXEEXT) grops$(EXEEXT) font/devps/stamp
-+PROCESSEDFILES_DEPS_PDF = groff$(EXEEXT) troff$(EXEEXT) gropdf$(EXEEXT) font/devpdf/stamp
-+PROCESSEDFILES_DEPS_TXT = groff$(EXEEXT) troff$(EXEEXT) grotty$(EXEEXT) font/devutf8/stamp
- otherdocdir = $(docdir)
- dist_otherdoc_DATA = $(DOCFILES_INST)
- nodist_otherdoc_DATA = $(PROCESSEDDOCFILES) $(GENERATEDDOCFILES)
-@@ -14058,7 +14058,7 @@ contrib/hdtbl/examples/test-hdtbl.sh: \
- 	&& sed -e "s|[@]fontdir[@]|$(fontdir)|" \
+diff --git a/contrib/hdtbl/hdtbl.am b/contrib/hdtbl/hdtbl.am
+index 3dd60cf..e0dfa0c 100644
+--- a/contrib/hdtbl/hdtbl.am
++++ b/contrib/hdtbl/hdtbl.am
+@@ -119,8 +119,8 @@ SUFFIXES += .roff .in .ps
  	       -e "s|[@]EGREP[@]|$(EGREP)|" $< >$@
  
+ 
 -$(HDTBLPROCESSEDEXAMPLEFILES): $(DOC_GNU_EPS) groff troff eqn pic tbl \
+-  grops font/devps/stamp contrib/hdtbl/examples/common.roff
 +$(HDTBLPROCESSEDEXAMPLEFILES): $(DOC_GNU_EPS) groff$(EXEEXT) troff$(EXEEXT) eqn$(EXEEXT) pic$(EXEEXT) tbl$(EXEEXT) \
-   grops font/devps/stamp contrib/hdtbl/examples/common.roff
++  grops$(EXEEXT) font/devps/stamp contrib/hdtbl/examples/common.roff
  
  uninstall_groffdirs: uninstall-hdtbl-hook
-@@ -14136,7 +14136,7 @@ contrib/mom/examples/tests-mom.sh: \
+ uninstall-hdtbl-hook:
+diff --git a/contrib/mom/mom.am b/contrib/mom/mom.am
+index 3bbbc9a..7813699 100644
+--- a/contrib/mom/mom.am
++++ b/contrib/mom/mom.am
+@@ -145,7 +145,7 @@ SUFFIXES += .mom .pdf
  	&& LC_ALL=C $(MOMPDFMOM) $< >$@
  
  $(MOMPROCESSEDEXAMPLEFILES): $(MOMNORMALFILES) \
@@ -53,7 +42,11 @@ index a47df30..921533d 100644
  
  penguin.ps:
  	$(AM_V_at)cp $(mom_srcdir)/examples/penguin.ps $@
-@@ -14176,7 +14176,7 @@ contrib/pdfmark/pdfmark.pdf: contrib/pdfmark/pdfmark.ms
+diff --git a/contrib/pdfmark/pdfmark.am b/contrib/pdfmark/pdfmark.am
+index 15eec8c..2135450 100644
+--- a/contrib/pdfmark/pdfmark.am
++++ b/contrib/pdfmark/pdfmark.am
+@@ -68,7 +68,7 @@ contrib/pdfmark/pdfmark.pdf: contrib/pdfmark/pdfmark.ms
  	  $(top_srcdir)/contrib/pdfmark/pdfmark.ms >$@
  
  # The pdf files use the local script to generate.
@@ -62,7 +55,11 @@ index a47df30..921533d 100644
  $(PDFDOCFILES): $(dist_devpsfont_DATA) $(nodist_devpsfont_DATA) \
    $(DOC_GNU_EPS)
  
-@@ -14234,7 +14234,7 @@ $(sboxes_builddir)/msboxes.ms: $(SBOXES_EXAMPLEFILES) $(sboxesnotquine)
+diff --git a/contrib/sboxes/sboxes.am b/contrib/sboxes/sboxes.am
+index 7786337..b2b93bb 100644
+--- a/contrib/sboxes/sboxes.am
++++ b/contrib/sboxes/sboxes.am
+@@ -54,7 +54,7 @@ $(sboxes_builddir)/msboxes.ms: $(SBOXES_EXAMPLEFILES) $(sboxesnotquine)
  	$(AM_V_GEN)mv $@.tmp $@
  
  $(sboxes_builddir)/msboxes.pdf: $(sboxes_builddir)/msboxes.ms \
@@ -71,7 +68,27 @@ index a47df30..921533d 100644
  	$(GROFF_V)$(DOC_GROFF) -M$(sboxes_srcdir) -ms -msboxes -Tpdf \
  	  $(sboxes_builddir)/msboxes.ms > $@
  
-@@ -14273,7 +14273,7 @@ man-clean:
+diff --git a/doc/doc.am b/doc/doc.am
+index cddc519..a42622a 100644
+--- a/doc/doc.am
++++ b/doc/doc.am
+@@ -81,11 +81,11 @@ PROCESSEDDOCFILES = \
+   $(PROCESSEDDOCFILES_TXT)
+ 
+ # Declare minimal dependencies for documents by output driver.
+-PROCESSEDFILES_DEPS_HTML = pre-grohtml groff troff post-grohtml \
++PROCESSEDFILES_DEPS_HTML = pre-grohtml$(EXEEXT) groff$(EXEEXT) troff$(EXEEXT) post-grohtml$(EXEEXT) \
+   font/devhtml/stamp font/devps/stamp
+-PROCESSEDFILES_DEPS_PS = groff troff grops font/devps/stamp
+-PROCESSEDFILES_DEPS_PDF = groff troff gropdf font/devpdf/stamp
+-PROCESSEDFILES_DEPS_TXT = groff troff grotty font/devutf8/stamp
++PROCESSEDFILES_DEPS_PS = groff$(EXEEXT) troff$(EXEEXT) grops$(EXEEXT) font/devps/stamp
++PROCESSEDFILES_DEPS_PDF = groff$(EXEEXT) troff$(EXEEXT) gropdf$(EXEEXT) font/devpdf/stamp
++PROCESSEDFILES_DEPS_TXT = groff$(EXEEXT) troff$(EXEEXT) grotty$(EXEEXT) font/devutf8/stamp
+ 
+ if USE_GROHTML
+ $(PROCESSEDDOCFILES_HTML): $(PROCESSEDFILES_DEPS_HTML)
+@@ -254,7 +254,7 @@ man-clean:
  # We embed the fonts (-P-e) to (1) honor the current PDF standard, (2)
  # ensure consistent rendering of the document, and (3) exercise this
  # feature of gropdf.
@@ -80,7 +97,7 @@ index a47df30..921533d 100644
    $(TMAC_PACKAGE_MAN) $(TMAC_PACKAGE_MDOC) font/devps/freeeuro.pfa
  	$(GROFF_V)$(DOC_GROFF) -pet -mandoc -dHF=HB -rC1 \
  	  -rCHECKSTYLE=3 -Tpdf -P-e \
-@@ -14281,7 +14281,7 @@ doc/groff-man-pages.pdf: $(GROFF_MAN_PAGES_ALL) eqn pic tbl \
+@@ -262,7 +262,7 @@ doc/groff-man-pages.pdf: $(GROFF_MAN_PAGES_ALL) eqn pic tbl \
  	  $(tmac_srcdir)/sv.tmac $(GROFF_MAN_PAGES2) \
  	  $(tmac_srcdir)/en.tmac $(GROFF_MAN_PAGES3) > $@
  
@@ -89,7 +106,7 @@ index a47df30..921533d 100644
    $(TMAC_PACKAGE_MAN) $(TMAC_PACKAGE_MDOC)
  	$(GROFF_V)$(DOC_GROFF) -pet -Tutf8 -mandoc \
  	  -rCHECKSTYLE=3 $(GROFF_MAN_PAGES1) \
-@@ -14289,7 +14289,7 @@ doc/groff-man-pages.utf8.txt: $(GROFF_MAN_PAGES_ALL) eqn pic tbl \
+@@ -270,7 +270,7 @@ doc/groff-man-pages.utf8.txt: $(GROFF_MAN_PAGES_ALL) eqn pic tbl \
  	  $(tmac_srcdir)/en.tmac $(GROFF_MAN_PAGES3) > $@
  
  doc/grnexmpl.ps: $(doc_srcdir)/grnexmpl.me $(doc_srcdir)/grnexmpl.g \
@@ -98,7 +115,7 @@ index a47df30..921533d 100644
  	$(GROFF_V)$(MKDIR_P) `dirname $@` \
  	&& $(DOC_GROFF) -Tps -ge -me $(doc_srcdir)/grnexmpl.me >$@
  
-@@ -14352,19 +14352,19 @@ doc/grnexmpl.ps: $(doc_srcdir)/grnexmpl.me $(doc_srcdir)/grnexmpl.g \
+@@ -334,19 +334,19 @@ SUFFIXES += .me.in .me
  
  # Use '-K utf8', not '-k', in case 'configure' didn't find uchardet.
  # The French translation uses tbl; its English counterpart does not.
@@ -122,7 +139,7 @@ index a47df30..921533d 100644
  doc/webpage.ps: $(doc_srcdir)/webpage.ms
  	$(GROFF_V)$(MKDIR_P) `dirname $@` \
  	&& $(DOC_GROFF) -I $(doc_srcdir) -I $(doc_builddir) -t -Tps \
-@@ -14375,7 +14375,7 @@ doc/webpage.ps: $(doc_srcdir)/webpage.ms
+@@ -357,7 +357,7 @@ doc/webpage.ps: $(doc_srcdir)/webpage.ms
  #	$(GROFF_V)$(MKDIR_P) `dirname $@` \
  #	&& $(DOC_GROFF) -Tps -ms $< >$@
  
@@ -131,7 +148,7 @@ index a47df30..921533d 100644
  doc/pic.html: tmac/www.tmac
  doc/pic.html: $(doc_srcdir)/pic.ms
  	$(GROFF_V)$(MKDIR_P) $(doc_builddir) \
-@@ -14383,7 +14383,7 @@ doc/pic.html: $(doc_srcdir)/pic.ms
+@@ -365,7 +365,7 @@ doc/pic.html: $(doc_srcdir)/pic.ms
  	&& $(DOC_GROFF) -pet -P-Ipic -P-Dimg -P-jpic -Thtml -ms \
  	  $(doc_srcdir)/pic.ms > pic.html
  
