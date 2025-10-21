@@ -602,7 +602,7 @@ stdenvNoCC.mkDerivation {
       installPhase =
         if targetPlatform.isCygwin then
           ''
-            echo addToSearchPath "LINK_DLL_FOLDERS" "${cc_bin}/lib" >> $out
+            echo addToSearchPath "HOST_PATH" "${cc_bin}/lib" >> $out
           ''
         else
           ''
