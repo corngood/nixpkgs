@@ -8,6 +8,14 @@ addLinkDLLPaths() {
 # shellcheck disable=SC2154
 addEnvHooks "$targetOffset" addLinkDLLPaths
 
+_moveDLLsToLib() {
+  if [[ "${dontMoveDLLsToLib-}" ]]; then return; fi
+  # shellcheck disable=SC2154
+  moveToOutput "bin/*.dll" "${!outputLib}"
+}
+
+preFixupHooks+=(_moveDLLsToLib)
+
 addOutputDLLPaths() {
   for output in $(getAllOutputNames); do
     addToSearchPath "LINK_DLL_FOLDERS" "${!output}/lib"
@@ -15,7 +23,7 @@ addOutputDLLPaths() {
   done
 }
 
-postInstallHooks+=(addOutputDLLPaths)
+preFixupHooks+=(addOutputDLLPaths)
 
 _dllDeps() {
   [ -z "${OBJDUMP:-}" ] && echo "_dllDeps: '\$OBJDUMP' variable is empty, skipping." 1>&2 && return
