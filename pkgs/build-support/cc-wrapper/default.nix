@@ -604,12 +604,12 @@ stdenvNoCC.mkDerivation {
         if targetPlatform.isCygwin then
           (
             ''
-              echo addToSearchPath "LINK_DLL_FOLDERS" "${cc_bin}/lib" >> $out
+              echo addToSearchPath "HOST_PATH" "${cc_bin}/lib" >> $out
               echo appendToVar configureFlags gl_cv_clean_version_stddef=yes >> $out
             ''
             # in a cross-toolchain, cygstdc++-6.dll is in /lib, but otherwise it's in /bin
             + lib.optionalString (targetPlatform == hostPlatform) ''
-              echo addToSearchPath "LINK_DLL_FOLDERS" "${cc_bin}/bin" >> $out
+              echo addToSearchPath "HOST_PATH" "${cc_bin}/bin" >> $out
             ''
           )
         else
