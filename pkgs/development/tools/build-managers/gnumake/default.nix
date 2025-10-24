@@ -3,6 +3,7 @@
   stdenv,
   fetchurl,
   autoreconfHook,
+  gettext,
   guileSupport ? false,
   guile,
   # avoid guile depend on bootstrap to prevent dependency cycles
@@ -41,7 +42,12 @@ stdenv.mkDerivation rec {
     autoreconfHook
     pkg-config
   ];
-  buildInputs = lib.optionals guileEnabled [ guile ];
+  buildInputs =
+    lib.optionals guileEnabled [ guile ]
+    # gettext gets pulled in via autoreconfHook because strictDeps is not set,
+    # and is linked against. Without this, it doesn't end up in HOST_PATH.
+    # TODO: enable strictDeps, and either make this dependency explicit, or remove it
+    ++ lib.optional stdenv.isCygwin gettext;
 
   configureFlags = lib.optional guileEnabled "--with-guile";
 
