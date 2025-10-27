@@ -38,6 +38,7 @@ tcl.mkTclDerivation rec {
     ./fix-darwin-bsd-clang16.patch
     # Remove some code which causes it to link against a file that does not exist at build time on native FreeBSD
     ./freebsd-unversioned.patch
+    ./fix-channel-declaration.patch
   ];
 
   postPatch = ''
@@ -52,7 +53,7 @@ tcl.mkTclDerivation rec {
   strictDeps = true;
 
   env = lib.optionalAttrs stdenv.cc.isGNU {
-    NIX_CFLAGS_COMPILE = "-Wno-error=incompatible-pointer-types -std=gnu17";
+    NIX_CFLAGS_COMPILE = "-std=gnu17";
   };
 
   hardeningDisable = [ "format" ];

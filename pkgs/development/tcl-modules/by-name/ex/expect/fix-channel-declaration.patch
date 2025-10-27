@@ -1,0 +1,21 @@
+diff --git a/exp_chan.c b/exp_chan.c
+index 50375d3..e37fbaa 100644
+--- a/exp_chan.c
++++ b/exp_chan.c
+@@ -59,7 +59,7 @@ static int		ExpGetHandleProc _ANSI_ARGS_((ClientData instanceData,
+ 
+ Tcl_ChannelType expChannelType = {
+     "exp",				/* Type name. */
+-    ExpBlockModeProc,			/* Set blocking/nonblocking mode.*/
++    TCL_CHANNEL_VERSION_1,
+     ExpCloseProc,			/* Close proc. */
+     ExpInputProc,			/* Input proc. */
+     ExpOutputProc,			/* Output proc. */
+@@ -69,6 +69,7 @@ Tcl_ChannelType expChannelType = {
+     ExpWatchProc,			/* Initialize notifier. */
+     ExpGetHandleProc,			/* Get OS handles out of channel. */
+     NULL,				/* Close2 proc */
++    ExpBlockModeProc,			/* Set blocking/nonblocking mode.*/
+ };
+ 
+ typedef struct ThreadSpecificData {
