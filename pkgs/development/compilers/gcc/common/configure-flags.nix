@@ -290,6 +290,8 @@ let
       # Workaround build failures like:
       #   cc1: error: fp software completion requires '-mtrap-precision=i' [-Werror]
       "--disable-werror"
+    ] ++ lib.optionals targetPlatform.isCygwin [
+      "--enable-threads"
     ];
 
 in
