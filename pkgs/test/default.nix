@@ -202,6 +202,7 @@ in
   coq = callPackage ./coq { };
 
   dotnet = recurseIntoAttrs (callPackages ./dotnet { });
+  dotnet-bin = recurseIntoAttrs (callPackages ./dotnet { dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0-bin; dotnet-runtime = pkgs.dotnetCorePackages.runtime_8_0-bin; });
 
   makeHardcodeGsettingsPatch = recurseIntoAttrs (callPackage ./make-hardcode-gsettings-patch { });
 

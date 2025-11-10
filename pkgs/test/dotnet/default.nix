@@ -12,6 +12,7 @@
   swiftPackages,
   testers,
   zlib,
+  dotnetCorePackages,
 }:
 
 let
@@ -33,7 +34,9 @@ let
       sdk = dotnet-sdk;
       built = stdenv.mkDerivation {
         name = "${sdk.name}-test-${name}";
-        buildInputs = [ sdk ] ++ buildInputs ++ lib.optional usePackageSource sdk.packages;
+        strictDeps = true;
+        nativeBuildInputs = [ sdk ];
+        buildInputs = buildInputs ++ lib.optional usePackageSource sdk.packages;
         # make sure ICU works in a sandbox
         propagatedSandboxProfile = toString sdk.__propagatedSandboxProfile;
         unpackPhase =
@@ -129,7 +132,7 @@ let
       single-file = mkConsoleTest {
         name = "single-file";
         usePackageSource = true;
-        build = "dotnet publish --use-current-runtime -p:PublishSingleFile=true -o $out/bin";
+        build = "dotnet publish --runtime ${dotnetCorePackages.systemToDotnetRid stdenv.hostPlatform.system} -p:PublishSingleFile=true -o $out/bin";
         runtime = null;
         run = checkConsoleOutput "$src/bin/test";
       };

@@ -75,6 +75,8 @@ stdenv.mkDerivation rec {
     hash = tarballHash;
   };
 
+  strictDeps = true;
+
   nativeBuildInputs = [
     ensureNewerSourcesForZipFilesHook
     jq
