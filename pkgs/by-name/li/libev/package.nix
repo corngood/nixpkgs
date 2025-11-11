@@ -4,7 +4,8 @@
   fetchurl,
   updateAutotoolsGnuConfigScriptsHook,
   # Note: -static hasn’t work on darwin
-  static ? with stdenv.hostPlatform; isStatic && !isDarwin,
+  # cygwin requires libtool -no-undefined for shared
+  static ? with stdenv.hostPlatform; (isStatic && !isDarwin) || isCygwin,
 }:
 
 # Note: this package is used for bootstrapping fetchurl, and thus
@@ -23,7 +24,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ updateAutotoolsGnuConfigScriptsHook ];
 
-  configureFlags = lib.optional static "LDFLAGS=-static";
+  configureFlags =
+    lib.optional static "LDFLAGS=-static";
 
   meta = {
     description = "High-performance event loop/event model with lots of features";
