@@ -28,7 +28,10 @@ perl.pkgs.toPerlModule (
     buildInputs = [
       nix-store
     ]
-    ++ finalAttrs.passthru.externalBuildInputs;
+    ++ finalAttrs.passthru.externalBuildInputs
+    # On cygwin we need this in HOST_PATH. Is this why strictDeps is disabled?
+    # Does that have something to do with this package being excluded in cross?
+    ++ lib.optional stdenv.hostPlatform.isCygwin perl;
 
     # Hack for sake of the dev shell
     passthru.externalBuildInputs = [
