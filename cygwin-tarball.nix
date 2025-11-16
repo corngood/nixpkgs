@@ -161,20 +161,22 @@ in
             mkdir -m 01777 dev/{shm,mqueue}
             ln -s "$(realpath -s --relative-to=/nix/var/nix/profiles "${system}")" nix/var/nix/profiles/system
             find . -type l -print0 | while read -r -d "" f; do
-                symlinkTarget=$(readlink -m "$f")
+                symlinkTarget=$(readlink "$f")
                 if [[ "$symlinkTarget"/ != /nix/store* ]]; then
                     # skip this symlink as it doesn't point to /nix/store
                     continue
                 fi
 
-                symlinkTarget=''${symlinkTarget#/}
+                relativeTarget=''${symlinkTarget#/}
 
-                if [ ! -e "$symlinkTarget" ]; then
-                    echo "the symlink $f is broken, it points to $symlinkTarget (which is missing)"
+                if [ ! -e "$relativeTarget" ]; then
+                    echo "the symlink $f is broken, it points to $relativeTarget (which is missing)"
                 fi
 
-                echo "rewriting symlink $f to be relative to /nix/store"
-                ln -snrf "$symlinkTarget" "$f"
+                relativeTarget=$(realpath -s --relative-to=$(dirname "$f") "$relativeTarget")
+
+                echo "changing symlink $f -> $symlinkTarget to $relativeTarget"
+                ln -snf "$relativeTarget" "$f"
             done
 
             mkdir -p "$out"/tarball
