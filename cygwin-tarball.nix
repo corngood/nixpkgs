@@ -161,7 +161,7 @@ in
             mkdir -m 01777 dev/{shm,mqueue}
             ln -s "$(realpath -s --relative-to=/nix/var/nix/profiles "${system}")" nix/var/nix/profiles/system
             find . -type l -print0 | while read -r -d "" f; do
-                symlinkTarget=$(readlink "$f")
+                symlinkTarget=$(readlink -m "$f")
                 if [[ "$symlinkTarget"/ != /nix/store* ]]; then
                     # skip this symlink as it doesn't point to /nix/store
                     continue
