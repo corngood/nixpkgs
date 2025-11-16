@@ -179,8 +179,13 @@ in
 
             mkdir -p "$out"/tarball
             cp "${install}" "$out"/tarball/install.ps1
-            cp "${cygwin1}" "$out"/tarball/
             cp "${gnutar}/bin/tar.exe" "$out"/tarball/
+            for dll in "${gnutar}/bin"/*.dll; do
+              if [[ $dll != */cygwin1.dll ]]; then
+                cp "$dll" "$out"/tarball/
+              fi
+            done
+            cp "${cygwin1}" "$out"/tarball/
           '';
         })
         // {
