@@ -1,4 +1,6 @@
-{ lib
+{ system
+
+, lib
 , fetchurl
 , writeScript
 , qemu
@@ -81,12 +83,11 @@ rec {
     chmod u+w ValidationOS.vhdx
 
     export diskImage=$PWD/ValidationOS.vhdx
-    set -x
     ${lib.trim qemuCommandWindows} &
-    set +x
     QEMU_PID=$!
 
     SSH_ARGS="-o StrictHostKeyChecking=no -i ${./test-windows-key}"
+    SCP="scp $SSH_ARGS -P $SSH_PORT"
     SSH="ssh $SSH_ARGS -p $SSH_PORT $SSH_USERNAME@127.0.0.1"
 
     echo "Waiting for SSH..."
@@ -110,5 +111,22 @@ rec {
 
   version = runWithWindowsSsh "windows-version" ''
     $SSH "ver" > $out
+  '';
+
+  cygwinSystem = import ../../../../cygwin-system.nix {
+    inherit system;
+    self = (import ../../../../lib).cleanSource ../../../..;
+  };
+
+  powershellBinary = fetchTarball {
+    url = "https://github.com/PowerShell/PowerShell/releases/download/v7.5.4/PowerShell-7.5.4-win-x64.zip";
+    sha256 = "08np0s732b36l0xg93zvaicm7lvi0dxyzsjzy7rybl53vzn98vvk";
+  };
+
+  testCygwinTarball = runWithWindowsSsh "test-cygwin-tarball" ''
+    $SCP -r "${powershellBinary}" "$SSH_USERNAME@127.0.0.1:C:\powershell"
+    $SCP -r "${cygwinSystem.config.system.build.tarball}" "$SSH_USERNAME@127.0.0.1:cygwin-tarball"
+    $SSH "C:\powershell\pwsh.exe cygwin-tarball\tarball\install.ps1 C:/nix"
+    $SSH "ver & cd C:\nix & C:\powershell\pwsh.exe .\cygwin.ps1 -c 'nix --version'" > $out
   '';
 }
