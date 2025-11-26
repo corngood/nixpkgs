@@ -1280,4 +1280,8 @@ rec {
   */
   diskImages = lib.mapAttrs (name: f: f { }) diskImageFuns;
 
+  windows = pkgs.callPackage ./windows {
+    inherit qemu-common customQemu;
+  };
+
 }

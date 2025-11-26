@@ -107,8 +107,10 @@ in
 
               $_ = mkdir -force $dir
 
-              fsutil file setCaseSensitiveInfo $dir enable
-              if (!$?) { throw 'setCaseSensitiveInfo failed, this may require: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux' }
+              if (Get-Command fsutil -ErrorAction SilentlyContinue) {
+                fsutil file setCaseSensitiveInfo $dir enable
+                if (!$?) { throw 'setCaseSensitiveInfo failed, this may require: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux' }
+              }
 
               $_ = ni $dir\.test-target
               try {
