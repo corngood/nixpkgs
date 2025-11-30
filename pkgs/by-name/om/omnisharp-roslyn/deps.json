@@ -450,31 +450,6 @@
     "url": "https://pkgs.dev.azure.com/dnceng/9ee6d478-d288-47f7-aacc-f6e6d082ae6d/_packaging/d1622942-d16f-48e5-bc83-96f4539e7601/nuget/v3/flat2/nuget.versioning/6.14.0-rc.116/nuget.versioning.6.14.0-rc.116.nupkg"
   },
   {
-    "pname": "OmniSharp.Extensions.JsonRpc",
-    "version": "0.19.9",
-    "hash": "sha256-n/DjyqXDVxWIPZZ/kdNak7gTFD6638bJtvW3hrEZFWU="
-  },
-  {
-    "pname": "OmniSharp.Extensions.JsonRpc.Generators",
-    "version": "0.19.9",
-    "hash": "sha256-38+lTizxqeBkWp6ZvMOe2dVsCG1PbQXjXgerXAsK+zw="
-  },
-  {
-    "pname": "OmniSharp.Extensions.LanguageProtocol",
-    "version": "0.19.9",
-    "hash": "sha256-L1O76h4n+qYDCvnKS3j3rwHDW60S4b7s8Cgg8sBbogw="
-  },
-  {
-    "pname": "OmniSharp.Extensions.LanguageServer",
-    "version": "0.19.9",
-    "hash": "sha256-cGIRuIqUl3pKfYpeT2mY4RigbZOa2yGf1itbSFydZW0="
-  },
-  {
-    "pname": "OmniSharp.Extensions.LanguageServer.Shared",
-    "version": "0.19.9",
-    "hash": "sha256-S27e9BjRaaVcbUle+MF0nRxjHS/fIhNqDyr3aBZyiog="
-  },
-  {
     "pname": "SQLitePCLRaw.bundle_green",
     "version": "2.1.8",
     "hash": "sha256-2heeK2naqrjk/ggcEPO1GhcumiXU8sC4VNFh/Xr+wd4="
