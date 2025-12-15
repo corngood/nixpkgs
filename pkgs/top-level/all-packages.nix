@@ -2414,6 +2414,9 @@ with pkgs;
       pslSupport = true;
       zstdSupport = true;
       http3Support = true;
+    }
+    // lib.optionalAttrs (!stdenv.hostPlatform.isCygwin) {
+      # c-ares causes DNS to timeout on cygwin
       c-aresSupport = true;
     }
     // lib.optionalAttrs (!stdenv.hostPlatform.isStatic) {
