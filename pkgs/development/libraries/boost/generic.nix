@@ -161,6 +161,15 @@ stdenv.mkDerivation {
 
   inherit src version;
 
+  # support boost super-project source
+  # from .github/workflows/release-cmake.yml
+  prePatch = ''
+    if [[ ! -e boost ]]; then
+      cp -r libs/*/include/boost libs/numeric/*/include/boost .
+      rm -rf libs/*/include libs/numeric/*/include
+    fi
+  '';
+
   patchFlags = [ ];
 
   patches =
