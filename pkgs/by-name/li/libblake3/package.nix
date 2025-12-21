@@ -39,13 +39,17 @@ stdenv.mkDerivation (finalAttrs: {
       hash = "sha256-kidCMGd/i9D9HLLTt7l1DbiU71sFTEyr3Vew4XHUHls=";
       relative = "c";
     })
-    # fix cygwin build
-    (fetchpatch {
-      url = "https://github.com/BLAKE3-team/BLAKE3/commit/d62babb7ebb01c8ac4aaa580f4b49071a639195e.patch";
-      hash = "sha256-qO8HsmBIAkR03rqITooyBiQTorUM6JCJLZOrOc2yss8=";
-      relative = "c";
-    })
-  ];
+  ]
+  ++
+    lib.optional stdenv.hostPlatform.isCygwin
+      # fix cygwin build
+      (
+        fetchpatch {
+          url = "https://github.com/BLAKE3-team/BLAKE3/commit/d62babb7ebb01c8ac4aaa580f4b49071a639195e.patch";
+          hash = "sha256-qO8HsmBIAkR03rqITooyBiQTorUM6JCJLZOrOc2yss8=";
+          relative = "c";
+        }
+      );
 
   sourceRoot = finalAttrs.src.name + "/c";
 
