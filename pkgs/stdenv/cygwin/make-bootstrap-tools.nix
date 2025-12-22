@@ -12,9 +12,6 @@ let
       name = "pack-env";
       paths = paths;
       includeClosures = true;
-      postBuild = ''
-        rm "$out"/bin/cygwin1.dll
-      '';
     };
 
   pack-all =
@@ -30,8 +27,7 @@ let
         let
         in
         ''
-          cp -aLT "${pack-env pkgs}" .
-          chmod -R +w .
+          rsync --chmod="+w" -av -L --exclude=cygwin1.dll "${pack-env pkgs}" $base
 
           base=$PWD
           rm -rf nix nix-support
@@ -62,13 +58,25 @@ let
 in
 rec {
   unpack = nar-all "unpack.nar.xz" (with pkgs; [
-    bash
+    bashNonInteractive
     mkdir
     xz
     gnutar
   ]) "";
   bootstrap-tools = tar-all "bootstrap-tools.tar.xz" (with pkgs; [
+    gcc
+    # gcc.lib
+    curl
+    curl.dev
+    cygwin.newlib-cygwin
+    cygwin.newlib-cygwin.bin
+    cygwin.newlib-cygwin.dev
+    cygwin.w32api
+    cygwin.w32api.dev
+    bintools-unwrapped
+    gnugrep
     coreutils
+    expand-response-params
   ]) "";
   build = runCommand "build" { } ''
     mkdir -p $out/on-server
