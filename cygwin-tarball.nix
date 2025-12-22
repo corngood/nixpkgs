@@ -106,13 +106,16 @@ in
 
               $_ = ni $dir\.test-target
               try {
-                $_ = ni $dir\.test-link -itemtype symboliclink -value $dir\.test-target
+                cmd /c mklink $dir\.test-link $dir\.test-target
+                if (!$?) {
+                  throw 'failed to create symbolic link: developer mode may need to be enabled'
+                }
               } catch {
-                  write-error 'failed to create symbolic link: developer mode may need to be enabled'
                   throw
+              } finally {
+                  rm $dir\.test-target
               }
               rm $dir\.test-link
-              rm $dir\.test-target
 
               $env:CYGWIN = "winsymlinks=native"
               & $PSScriptRoot\tar -C $dir --force-local -xpf $PSScriptRoot\${config.system.build.tarball.fileName}.tar${config.system.build.tarball.extension}
