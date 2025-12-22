@@ -12,6 +12,7 @@ let
       name = "pack-env";
       paths = paths;
       includeClosures = true;
+      ignoreCollisions = true;
     };
 
   pack-all =
@@ -27,7 +28,7 @@ let
         let
         in
         ''
-          rsync --chmod="+w" -av -L --exclude=cygwin1.dll "${pack-env pkgs}" $base
+          rsync --chmod="+w" -av -L --exclude=cygwin1.dll "${pack-env pkgs}"/ .
 
           base=$PWD
           rm -rf nix nix-support
@@ -55,6 +56,14 @@ let
     mkdir -p $out/bin
     cp $coreutils/bin/mkdir.exe $out/bin
   '';
+
+  curl = pkgs.curl.overrideAttrs (old: {
+    # these use the build shebang
+    # TODO: fix in curl
+    postFixup = old.postFixup or "" + ''
+      rm "$dev"/bin/curl-config "$bin"/bin/wcurl
+    '';
+  });
 in
 rec {
   unpack = nar-all "unpack.nar.xz" (with pkgs; [
@@ -73,7 +82,7 @@ rec {
     cygwin.newlib-cygwin.dev
     cygwin.w32api
     cygwin.w32api.dev
-    bintools-unwrapped
+    # bintools-unwrapped
     gnugrep
     coreutils
     expand-response-params
