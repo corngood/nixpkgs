@@ -15,8 +15,7 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-4UOrVW15o17zHsHiQIl8m4qNC2aT5QorbkfX/UsgBRk=";
   };
 
-  patches = lib.optional (stdenv.buildPlatform != stdenv.hostPlatform)
-    ./fix-cross-build.patch;
+  patches = lib.optional (stdenv.buildPlatform != stdenv.hostPlatform) ./fix-cross-build.patch;
 
   ${if (stdenv.buildPlatform != stdenv.hostPlatform) then "preConfigure" else null} =
     lib.optionalString (stdenv.buildPlatform != stdenv.hostPlatform)
