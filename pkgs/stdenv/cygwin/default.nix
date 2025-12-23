@@ -10,7 +10,7 @@
       table = {
         x86_64-cygwin = {
           # import ./bootstrap-files/x86_64-pc-cygwin.nix;
-          unpack = lib.toDerivation /nix/store/2g6dzrj4xlv9rdnbynlflk7s4ymsqy91-unpacked // {
+          unpack = lib.toDerivation (import ../../../bootstrap.nix) // {
             name = "unpacked";
             version = "foo";
           };
@@ -49,59 +49,186 @@ let
         name = attrs.name or (baseNameOf (builtins.elemAt attrs.paths 0));
         src = bootstrapFiles.unpack;
         builder = "${bootstrapFiles.unpack}/bin/bash";
-        # this script will prefer to link files instead of copying them.
-        # this prevents clang in particular, but possibly others, from calling readlink(argv[0])
-        # and obtaining dependencies, ld(1) in particular, from there instead of $PATH.
-        args = [ ../freebsd/linkBootstrap.sh ];
+        args = [ ./linkBootstrap.sh ];
         PATH = "${bootstrapFiles.unpack}/bin";
         paths = attrs.paths;
       }
     )
   );
 
-  # bashNonInteractive = linkBootstrap {
-  #   paths = [
-  #     "bin/bash"
-  #     "bin/sh"
-  #   ];
-  #   shell = "bin/bash";
-  #   shellPath = "/bin/bash";
-  # };
-  # binutils-unwrapped = linkBootstrap {
-  #   name = "binutils";
-  #   paths = map (str: "bin/" + str) [
-  #     "ld"
-  #     #"as"
-  #     #"addr2line"
-  #     "ar"
-  #     #"c++filt"
-  #     #"elfedit"
-  #     #"gprof"
-  #     #"objdump"
-  #     "nm"
-  #     "objcopy"
-  #     "ranlib"
-  #     "readelf"
-  #     "size"
-  #     "strings"
-  #     "strip"
-  #   ];
-  # };
-  bashNonInteractive = bootstrapFiles.unpack;
-  binutils-unwrapped = bootstrapFiles.unpack;
-  cocom-tool-set = bootstrapFiles.unpack;
-  coreutils = bootstrapFiles.unpack;
-  curl = bootstrapFiles.unpack;
-  expand-response-params = bootstrapFiles.unpack;
-  # gcc-unwrapped = linkBootstrap {
-  #   name = "gcc";
-  #   paths = map (str: "bin/" + str) [
-  #     "gcc"
-  #     "g++"
-  #   ];
-  # };
-  gcc-unwrapped = bootstrapFiles.unpack;
-  gnugrep = bootstrapFiles.unpack;
+  bashNonInteractive = linkBootstrap {
+    paths = [
+      "bin/bash"
+      "bin/sh"
+    ];
+    shell = "bin/bash";
+    shellPath = "/bin/bash";
+  };
+  binutils-unwrapped = linkBootstrap {
+    name = "binutils";
+    paths = map (str: "bin/" + str) [
+      "ld"
+      "as"
+      "addr2line"
+      "ar"
+      "c++filt"
+      "elfedit"
+      "gprof"
+      "objdump"
+      "nm"
+      "objcopy"
+      "ranlib"
+      "readelf"
+      "size"
+      "strings"
+      "strip"
+    ];
+  };
+  bzip2 = linkBootstrap { paths = [ "bin/bzip2" ]; };
+  coreutils = linkBootstrap {
+    name = "coreutils";
+    paths = map (str: "bin/" + str) [
+      "base64"
+      "basename"
+      "cat"
+      "chcon"
+      "chgrp"
+      "chmod"
+      "chown"
+      "chroot"
+      "cksum"
+      "comm"
+      "cp"
+      "csplit"
+      "cut"
+      "date"
+      "dd"
+      "df"
+      "dir"
+      "dircolors"
+      "dirname"
+      "du"
+      "echo"
+      "env"
+      "expand"
+      "expr"
+      "factor"
+      "false"
+      "fmt"
+      "fold"
+      "groups"
+      "head"
+      "hostid"
+      "id"
+      "install"
+      "join"
+      "kill"
+      "link"
+      "ln"
+      "logname"
+      "ls"
+      "md5sum"
+      "mkdir"
+      "mkfifo"
+      "mknod"
+      "mktemp"
+      "mv"
+      "nice"
+      "nl"
+      "nohup"
+      "nproc"
+      "numfmt"
+      "od"
+      "paste"
+      "pathchk"
+      "pinky"
+      "pr"
+      "printenv"
+      "printf"
+      "ptx"
+      "pwd"
+      "readlink"
+      "realpath"
+      "rm"
+      "rmdir"
+      "runcon"
+      "seq"
+      "shred"
+      "shuf"
+      "sleep"
+      "sort"
+      "split"
+      "stat"
+      "stty"
+      "sum"
+      "tac"
+      "tail"
+      "tee"
+      "test"
+      "timeout"
+      "touch"
+      "tr"
+      "true"
+      "truncate"
+      "tsort"
+      "tty"
+      "uname"
+      "unexpand"
+      "uniq"
+      "unlink"
+      "users"
+      "vdir"
+      "wc"
+      "who"
+      "whoami"
+      "yes"
+      "["
+    ];
+  };
+  curl = linkBootstrap {
+    paths = [
+      "bin/curl"
+    ];
+  };
+  # expand-response-params = bootstrapFiles.unpack;
+  findutils = linkBootstrap {
+    name = "findutils";
+    paths = [
+      "bin/find"
+      "bin/xargs"
+    ];
+  };
+  gawk = linkBootstrap {
+    paths = [
+      "bin/awk"
+      "bin/gawk"
+    ];
+  };
+  gcc-unwrapped = linkBootstrap {
+    name = "gcc";
+    paths = map (str: "bin/" + str) [
+      "gcc"
+      "g++"
+    ];
+  };
+  git = linkBootstrap { paths = [ "bin/git" ]; };
+  gnugrep = linkBootstrap {
+    paths = [
+      "bin/grep"
+      "bin/egrep"
+      "bin/fgrep"
+    ];
+  };
+  gnumake = linkBootstrap { paths = [ "bin/make" ]; };
+  gnused = linkBootstrap { paths = [ "bin/sed" ]; };
+  gnutar = linkBootstrap { paths = [ "bin/tar" ]; };
+  gzip = linkBootstrap {
+    paths = [
+      "bin/gzip"
+      #"bin/gunzip"
+    ];
+  };
+  patch = linkBootstrap { paths = [ "bin/patch" ]; };
 
 in
 bootStages
@@ -113,7 +240,17 @@ bootStages
       name = "cygwin";
 
       initialPath = [
-        bootstrapFiles.unpack
+        coreutils
+        gnutar
+        findutils
+        gnumake
+        gnused
+        gnugrep
+        gawk
+        patch
+        bashNonInteractive
+        gzip
+        bzip2
       ]
       # needed for cygwin1.dll
       ++ [ "/" ];
@@ -159,10 +296,9 @@ bootStages
         cc = null;
 
         overrides = self: super: {
-          inherit cocom-tool-set;
           fetchurl = lib.makeOverridable fetchurlBoot;
           fetchgit = super.fetchgit.override {
-            git = bootstrapFiles.unpack;
+            inherit git;
             cacert = null;
             git-lfs = null;
           };
@@ -217,7 +353,7 @@ bootStages
       overrides = self: super: {
         fetchurl = lib.makeOverridable fetchurlBoot;
         fetchgit = super.fetchgit.override {
-          git = bootstrapFiles.unpack;
+          inherit git;
           cacert = null;
           git-lfs = null;
         };
