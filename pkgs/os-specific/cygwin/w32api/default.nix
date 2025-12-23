@@ -69,7 +69,7 @@ in
       }
     else
       {
-        nativeBuildInputs = [ autoreconfHook ];
+        # nativeBuildInputs = [ autoreconfHook ];
 
         hardeningDisable = [
           "stackprotector"
