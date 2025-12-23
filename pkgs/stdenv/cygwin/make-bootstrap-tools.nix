@@ -82,6 +82,8 @@ let
     patch
     ;
 
+  inherit (pkgs.cygwin) newlib-cygwin;
+
 in
 rec {
   bootstrap-env = pack-env (
@@ -128,6 +130,7 @@ rec {
         cp -d "${gnused}"/bin/* "$out"/bin/
         cp -d "${gnutar}"/bin/* "$out"/bin/
         cp -d "${gzip}"/bin/* "$out"/bin/
+        cp -rd ${newlib-cygwin}/lib/* $out/lib/
         cp -d "${patch}"/bin/* "$out"/bin/
 
         for x in "$out"/bin/* "$out"/libexec/*/*/*; do
