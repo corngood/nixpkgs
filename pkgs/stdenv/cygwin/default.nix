@@ -47,6 +47,7 @@ let
       // {
         inherit (localSystem) system;
         name = attrs.name or (baseNameOf (builtins.elemAt attrs.paths 0));
+        version = bootstrapFiles.unpack.version;
         src = bootstrapFiles.unpack;
         builder = "${bootstrapFiles.unpack}/bin/bash";
         args = [ ./linkBootstrap.sh ];
@@ -72,6 +73,7 @@ let
       "addr2line"
       "ar"
       "c++filt"
+      "dlltool"
       "elfedit"
       "gprof"
       "objdump"
