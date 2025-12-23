@@ -6,7 +6,6 @@
   autoreconfHook,
   bison,
   buildPackages,
-  cocom-tool-set,
   flex,
   perl,
   w32api,
@@ -40,9 +39,10 @@ in
     version = "3.6.4";
 
     src = buildPackages.fetchgit {
-      url = "https://cygwin.com/git/newlib-cygwin.git";
+      url = "git://cygwin.com/git/newlib-cygwin";
       rev = "cygwin-${finalAttrs.version}";
       hash = "sha256-+WYKwqcDAc7286GzbgKKAxNJCOf3AeNnF8XEVPoor+g=";
+      fetchSubmodules = false;
     };
 
     outputs = [
@@ -135,7 +135,6 @@ in
         nativeBuildInputs = [
           autoreconfHook
           bison
-          cocom-tool-set
           flex
           perl
         ];
