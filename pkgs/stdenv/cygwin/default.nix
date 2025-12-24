@@ -261,19 +261,19 @@ bootStages
       name = "cygwin";
 
       initialPath = [
-        bashNonInteractive
-        bzip2
         coreutils
         diffutils
+        gnutar
         file
         findutils
-        gawk
-        gnugrep
         gnumake
         gnused
-        gnutar
-        gzip
+        gnugrep
+        gawk
         patch
+        bashNonInteractive
+        gzip
+        bzip2
         xz
       ]
       # needed for cygwin1.dll
@@ -365,6 +365,64 @@ bootStages
           name = "${name}-bintools";
           bintools = binutils-unwrapped;
           libc = prevStage.cygwin.newlib-cygwin-headers;
+          inherit gnugrep coreutils;
+          expand-response-params = "";
+          nativeTools = false;
+          nativeLibc = false;
+          propagateDoc = false;
+          runtimeShell = shell;
+        };
+      };
+
+      overrides = self: super: {
+        fetchurl = lib.makeOverridable fetchurlBoot;
+        fetchgit = super.fetchgit.override {
+          inherit git;
+          cacert = null;
+          git-lfs = null;
+        };
+      };
+    };
+  })
+
+  (prevStage: {
+    inherit config overlays;
+    inherit (prevStage) stdenvNoCC;
+
+    stdenv = import ../generic rec {
+      name = "stdenv-cygwin";
+
+      buildPlatform = localSystem;
+      hostPlatform = localSystem;
+      targetPlatform = localSystem;
+      inherit
+        config
+        ;
+      inherit (prevStage.stdenv) fetchurlBoot initialPath shell;
+
+      cc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
+        inherit lib;
+        inherit (prevStage) stdenvNoCC;
+        name = "${name}-cc";
+        cc = gcc-unwrapped;
+        isGNU = true;
+        libc = libc // {
+          inherit (prevStage.cygwin) w32api;
+        };
+        inherit gnugrep coreutils;
+        expand-response-params = "";
+        nativeTools = false;
+        nativeLibc = false;
+        propagateDoc = false;
+        runtimeShell = shell;
+        bintools = lib.makeOverridable (import ../../build-support/bintools-wrapper) {
+          inherit lib;
+          inherit (prevStage) stdenvNoCC;
+          name = "${name}-bintools";
+          bintools = binutils-unwrapped;
+          libc = libc // {
+            inherit (prevStage.cygwin) w32api;
+          };
           inherit gnugrep coreutils;
           expand-response-params = "";
           nativeTools = false;
