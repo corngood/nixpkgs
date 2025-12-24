@@ -225,6 +225,7 @@ let
     paths = map (str: "bin/" + str) [
       "gcc"
       "g++"
+      "cygstdc++-6.dll"
     ];
   };
   git = linkBootstrap { paths = [ "bin/git" ]; };
