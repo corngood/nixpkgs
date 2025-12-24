@@ -84,6 +84,7 @@ let
       "size"
       "strings"
       "strip"
+      "windres"
     ];
   };
   bzip2 = linkBootstrap { paths = [ "bin/bzip2" ]; };
@@ -192,7 +193,20 @@ let
       "bin/curl"
     ];
   };
+  diffutils = linkBootstrap {
+    name = "diffutils";
+    paths = map (str: "bin/" + str) [
+      "diff"
+      "cmp"
+      #"diff3"
+      #"sdiff"
+    ];
+  };
   # expand-response-params = bootstrapFiles.unpack;
+  file = linkBootstrap {
+    name = "file";
+    paths = [ "bin/file" ];
+  };
   findutils = linkBootstrap {
     name = "findutils";
     paths = [
@@ -230,6 +244,10 @@ let
       #"bin/gunzip"
     ];
   };
+  libc = linkBootstrap {
+    name = "libc";
+    paths = [ "lib" ];
+  };
   patch = linkBootstrap { paths = [ "bin/patch" ]; };
 
 in
@@ -243,7 +261,9 @@ bootStages
 
       initialPath = [
         coreutils
+        diffutils
         gnutar
+        file
         findutils
         gnumake
         gnused
@@ -359,26 +379,6 @@ bootStages
           cacert = null;
           git-lfs = null;
         };
-        # __bootstrapFiles = bootstrapFiles;
-        # __bootstrapPackages =
-        #   (import ../generic/common-path.nix) { pkgs = prevStage; }
-        #   ++ [
-        #     gcc
-        #     gcc.lib
-        #   ]
-        #   ++ (with prevStage; [
-        #     curl
-        #     curl.dev
-        #     cygwin.newlib-cygwin
-        #     cygwin.newlib-cygwin.bin
-        #     cygwin.newlib-cygwin.dev
-        #     cygwin.w32api
-        #     cygwin.w32api.dev
-        #     bintools-unwrapped
-        #     gnugrep
-        #     coreutils
-        #     expand-response-params
-        #   ]);
       };
     };
   })

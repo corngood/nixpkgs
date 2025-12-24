@@ -70,6 +70,8 @@ let
     binutils-unwrapped
     bzip2
     coreutils
+    diffutils
+    file
     findutils
     gawk
     gcc-unwrapped
@@ -121,6 +123,8 @@ rec {
         cp -d "${bzip2}"/bin/* "$out"/bin/
         cp -d "${coreutils}"/bin/* "$out"/bin/
         cp -d "${curl}"/bin/* "$out"/bin/
+        cp -d "${diffutils}"/bin/* "$out"/bin/
+        cp -d "${file}"/bin/* "$out"/bin/
         cp -d "${findutils}"/bin/* "$out"/bin/
         cp -d "${gawk}"/bin/* "$out"/bin/
         cp -d "${gcc-unwrapped}"/bin/* "$out"/bin/
