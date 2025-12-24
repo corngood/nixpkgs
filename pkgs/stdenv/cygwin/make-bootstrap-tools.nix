@@ -82,7 +82,10 @@ let
     patch
     ;
 
-  inherit (pkgs.cygwin) newlib-cygwin;
+  inherit (pkgs.cygwin)
+    newlib-cygwin
+    w32api
+    ;
 
 in
 rec {
@@ -124,6 +127,7 @@ rec {
         cp -rd ${gcc-unwrapped}/include/* $out/include/
         cp -rd ${gcc-unwrapped}/lib/* $out/lib/
         cp -rd ${gcc-unwrapped}/libexec/* $out/libexec/
+        cp -rd ${gcc-unwrapped.lib}/lib/* $out/lib/
         cp -d "${gitMinimal}"/bin/* "$out"/bin/
         cp -d "${gnugrep}"/bin/* "$out"/bin/
         cp -d "${gnumake}"/bin/* "$out"/bin/
@@ -132,6 +136,7 @@ rec {
         cp -d "${gzip}"/bin/* "$out"/bin/
         cp -rd ${newlib-cygwin}/lib/* $out/lib/
         cp -d "${patch}"/bin/* "$out"/bin/
+        cp -d "${w32api}"/lib/w32api/lib{advapi,shell,user,kernel}32.a "$out"/lib/
 
         for x in "$out"/bin/* "$out"/libexec/*/*/*; do
           [[ -L "$x" && -e "$x" ]] || continue
