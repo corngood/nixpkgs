@@ -82,6 +82,7 @@ let
     gnutar
     gzip
     patch
+    xz
     ;
 
   inherit (pkgs.cygwin)
@@ -141,6 +142,7 @@ rec {
         cp -rd ${newlib-cygwin}/lib/* $out/lib/
         cp -d "${patch}"/bin/* "$out"/bin/
         cp -d "${w32api}"/lib/w32api/lib{advapi,shell,user,kernel}32.a "$out"/lib/
+        cp -d "${xz}"/bin/* "$out"/bin/
 
         for x in "$out"/bin/* "$out"/libexec/*/*/*; do
           [[ -L "$x" && -e "$x" ]] || continue

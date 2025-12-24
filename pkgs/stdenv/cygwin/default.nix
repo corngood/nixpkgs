@@ -249,6 +249,7 @@ let
     paths = [ "lib" ];
   };
   patch = linkBootstrap { paths = [ "bin/patch" ]; };
+  xz = linkBootstrap { paths = [ "bin/xz" ]; };
 
 in
 bootStages
@@ -260,19 +261,20 @@ bootStages
       name = "cygwin";
 
       initialPath = [
+        bashNonInteractive
+        bzip2
         coreutils
         diffutils
-        gnutar
         file
         findutils
+        gawk
+        gnugrep
         gnumake
         gnused
-        gnugrep
-        gawk
-        patch
-        bashNonInteractive
+        gnutar
         gzip
-        bzip2
+        patch
+        xz
       ]
       # needed for cygwin1.dll
       ++ [ "/" ];
