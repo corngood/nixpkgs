@@ -132,6 +132,7 @@ rec {
         cp -rd ${gcc-unwrapped}/include/* $out/include/
         cp -rd ${gcc-unwrapped}/lib/* $out/lib/
         cp -rd ${gcc-unwrapped}/libexec/* $out/libexec/
+        cp -frd ${gcc-unwrapped.lib}/bin/* $out/bin/
         cp -rd ${gcc-unwrapped.lib}/lib/* $out/lib/
         cp -d "${gitMinimal}"/bin/* "$out"/bin/
         cp -d "${gnugrep}"/bin/* "$out"/bin/

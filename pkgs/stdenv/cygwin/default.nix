@@ -341,9 +341,7 @@ bootStages
       buildPlatform = localSystem;
       hostPlatform = localSystem;
       targetPlatform = localSystem;
-      inherit
-        config
-        ;
+      inherit config;
       inherit (prevStage.stdenv) fetchurlBoot initialPath shell;
 
       cc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
@@ -395,9 +393,7 @@ bootStages
       buildPlatform = localSystem;
       hostPlatform = localSystem;
       targetPlatform = localSystem;
-      inherit
-        config
-        ;
+      inherit config;
       inherit (prevStage.stdenv) fetchurlBoot initialPath shell;
 
       cc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
