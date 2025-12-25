@@ -440,6 +440,29 @@ bootStages
     };
   })
 
+  (prevStage: {
+    inherit config overlays;
+
+    stdenv = import ../generic rec {
+      name = "stdenv-cygwin";
+
+      buildPlatform = localSystem;
+      hostPlatform = localSystem;
+      targetPlatform = localSystem;
+      inherit config;
+
+      initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
+
+      cc = prevStage.gcc;
+
+      shell = cc.shell;
+
+      inherit (prevStage.stdenv) fetchurlBoot;
+
+      disallowedRequisites = [ bootstrapFiles.unpack ];
+    };
+  })
+
   # (
   #   prevStage:
   #   let
