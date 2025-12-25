@@ -460,6 +460,10 @@ bootStages
       inherit (prevStage.stdenv) fetchurlBoot;
 
       disallowedRequisites = [ bootstrapFiles.unpack ];
+
+      overrides = self: super: {
+        inherit (prevStage) fetchurl;
+      };
     };
   })
 
