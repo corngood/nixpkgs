@@ -288,6 +288,7 @@ in
           ../../patches/Disable-MonitorFdHup-test-on-cygwin.patch
           ../../patches/Include-bin-in-builder-PATH-on-cygwin.patch
           ../../patches/Suppress-xattr-errors-on-Cygwin.patch
+          ../../patches/Recreate-symlinks-on-cygwin.patch
         ];
         /**
           Fetched and patched source to be used in component derivations.
