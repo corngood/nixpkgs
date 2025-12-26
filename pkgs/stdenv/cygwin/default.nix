@@ -50,7 +50,10 @@ let
         version = bootstrapFiles.unpack.version;
         src = bootstrapFiles.unpack;
         builder = "${bootstrapFiles.unpack}/bin/bash";
-        args = [ ./linkBootstrap.sh ];
+        args = [
+          ./linkBootstrap.sh
+          ../../build-support/setup-hooks/cygwin-dll-link.sh
+        ];
         PATH = "${bootstrapFiles.unpack}/bin";
         paths = attrs.paths;
       }
