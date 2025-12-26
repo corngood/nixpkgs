@@ -21,10 +21,6 @@ let
 
   nix = config.nix.package;
 
-  # These are here so the cross stdenv will work. This is a bit hacky because
-  # these are not pinned and will only work with this nixpkgs.
-  stdenvDeps = (import ./. { system = "x86_64-cygwin"; }).__bootstrapPackages;
-
   sw = buildEnv {
     name = "cygwin-root";
 
@@ -146,11 +142,7 @@ in
               object = system;
               symlink = "none";
             }
-          ]
-          ++ map (object: {
-            inherit object;
-            symlink = "none";
-          }) stdenvDeps;
+          ];
 
           extraCommands = buildPackages.writeShellScript "extra-commands.sh" ''
             chmod -R +w nix
@@ -186,11 +178,7 @@ in
             done
             cp "${cygwin1}" "$out"/tarball/
           '';
-        })
-        // {
-          inherit system;
-          stdenvDeps = pkgs.writeText "foo" (toString stdenvDeps);
-        };
+        });
     };
   };
 }
