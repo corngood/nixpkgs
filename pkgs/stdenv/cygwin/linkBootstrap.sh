@@ -9,5 +9,5 @@ for path in $paths; do
     exit 1
   fi
   mkdir -p $out/$(dirname $path)
-  ln -s $src/$path $out/$path
+  CYGWIN+=\ winsymlinks:nativestrict ln -s $src/$path $out/$path
 done
