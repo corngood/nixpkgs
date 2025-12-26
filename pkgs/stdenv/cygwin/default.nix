@@ -225,6 +225,9 @@ let
     paths = map (str: "bin/" + str) [
       "gcc"
       "g++"
+      "cygatomic-1.dll"
+      "cyggcc_s-seh-1.dll"
+      "cygquadmath-0.dll"
       "cygstdc++-6.dll"
     ];
   };
