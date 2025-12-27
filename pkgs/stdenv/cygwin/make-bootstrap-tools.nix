@@ -110,12 +110,12 @@ rec {
   unpacked =
     runCommand "unpacked"
       {
-        nativeBuildInputs = [ rsync ];
+        nativeBuildInputs = [ pkgs.buildPackages.nukeReferences ];
         # The result should not contain any references (store paths) so
         # that we can safely copy them out of the store and to other
         # locations in the store.
-        # TODO:
-        # allowedReferences = [ ];
+        allowedReferences = [ "out" ];
+        strictDeps = true;
       }
       ''
         mkdir -p "$out"/{bin,include,lib,libexec}
@@ -139,18 +139,27 @@ rec {
         cp -d "${gnumake}"/bin/* "$out"/bin/
         cp -d "${gnused}"/bin/* "$out"/bin/
         cp -d "${gnutar}"/bin/* "$out"/bin/
-        cp -d "${gzip}"/bin/* "$out"/bin/
-        cp -rd ${newlib-cygwin}/lib/* $out/lib/
+        (shopt -s dotglob; cp -d "${gzip}"/bin/* "$out"/bin/)
+        cp -rd ${newlib-cygwin.dev}/include/* $out/include/
+        cp -rd ${newlib-cygwin}/lib/* "$out"/lib/
         cp -d "${patch}"/bin/* "$out"/bin/
         cp -d "${w32api}"/lib/w32api/lib{advapi,shell,user,kernel}32.a "$out"/lib/
         cp -d "${xz}"/bin/* "$out"/bin/
 
-        for x in "$out"/bin/* "$out"/libexec/*/*/*; do
-          [[ -L "$x" && -e "$x" ]] || continue
-          [[ $(realpath "$x") != "$out"* ]] || continue
-          cp "$x" "$x"~
-          mv "$x"~ "$x"
+        chmod -R +w "$out"
+
+        substituteInPlace "$out"/bin/gzip \
+          --replace-fail "${bashNonInteractive}" "$out" \
+          --replace-fail "${gzip}" "$out"
+
+        find "$out" -type l -print0 | while read -d $'\0' link; do
+          [[ -L "$link" && -e "$link" ]] || continue
+          [[ $(realpath "$link") != "$out"* ]] || continue
+          cp "$link" "$link"~
+          mv "$link"~ "$link"
         done
+
+        find "$out" -print0 | xargs -0 nuke-refs -e "$out"
       '';
 
   unpack = nar-all "unpack.nar.xz" (with pkgs; [
