@@ -48,4 +48,6 @@ concatTo() {
     done
 }
 
-OBJDUMP=$src/bin/objdump HOST_PATH=$src/bin linkDLLs $out/bin
+OBJDUMP=$src/bin/objdump
+HOST_PATH=$src/bin
+linkDLLs $out/bin
