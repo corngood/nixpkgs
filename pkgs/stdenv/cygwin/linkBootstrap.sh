@@ -50,4 +50,5 @@ concatTo() {
 
 OBJDUMP=$src/bin/objdump
 HOST_PATH=$src/bin
+allowedImpureDLLs=(KERNEL32.dll ntdll.dll)
 linkDLLs $out/bin

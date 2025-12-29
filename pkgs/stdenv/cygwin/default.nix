@@ -25,21 +25,6 @@
 
 assert crossSystem == localSystem;
 let
-  # bootStages = import ../. {
-  #   inherit lib overlays;
-
-  #   localSystem = lib.systems.elaborate "x86_64-linux";
-
-  #   crossSystem = localSystem;
-  #   crossOverlays = [ ];
-
-  #   # Ignore custom stdenvs when cross compiling for compatibility
-  #   # Use replaceCrossStdenv instead.
-  #   config = builtins.removeAttrs config [ "replaceStdenv" ];
-  # };
-
-  bootStages = [ ];
-
   linkBootstrap = (
     attrs:
     derivation (
@@ -60,258 +45,239 @@ let
     )
   );
 
-  bashNonInteractive = linkBootstrap {
-    paths = [
-      "bin/bash"
-      "bin/sh"
-    ];
-    shell = "bin/bash";
-    shellPath = "/bin/bash";
+  bootstrap-packages = {
+    bashNonInteractive = linkBootstrap {
+      paths = [
+        "bin/bash"
+        "bin/sh"
+      ];
+      shell = "bin/bash";
+      shellPath = "/bin/bash";
+    };
+    binutils-unwrapped = linkBootstrap {
+      name = "binutils";
+      paths = map (str: "bin/" + str) [
+        "ld"
+        "as"
+        "addr2line"
+        "ar"
+        "c++filt"
+        "dlltool"
+        "elfedit"
+        "gprof"
+        "objdump"
+        "nm"
+        "objcopy"
+        "ranlib"
+        "readelf"
+        "size"
+        "strings"
+        "strip"
+        "windres"
+      ];
+    };
+    bzip2 = linkBootstrap { paths = [ "bin/bzip2" ]; };
+    coreutils = linkBootstrap {
+      name = "coreutils";
+      paths = map (str: "bin/" + str) [
+        "base64"
+        "basename"
+        "cat"
+        "chcon"
+        "chgrp"
+        "chmod"
+        "chown"
+        "chroot"
+        "cksum"
+        "comm"
+        "cp"
+        "csplit"
+        "cut"
+        "date"
+        "dd"
+        "df"
+        "dir"
+        "dircolors"
+        "dirname"
+        "du"
+        "echo"
+        "env"
+        "expand"
+        "expr"
+        "factor"
+        "false"
+        "fmt"
+        "fold"
+        "groups"
+        "head"
+        "hostid"
+        "id"
+        "install"
+        "join"
+        "kill"
+        "link"
+        "ln"
+        "logname"
+        "ls"
+        "md5sum"
+        "mkdir"
+        "mkfifo"
+        "mknod"
+        "mktemp"
+        "mv"
+        "nice"
+        "nl"
+        "nohup"
+        "nproc"
+        "numfmt"
+        "od"
+        "paste"
+        "pathchk"
+        "pinky"
+        "pr"
+        "printenv"
+        "printf"
+        "ptx"
+        "pwd"
+        "readlink"
+        "realpath"
+        "rm"
+        "rmdir"
+        "runcon"
+        "seq"
+        "shred"
+        "shuf"
+        "sleep"
+        "sort"
+        "split"
+        "stat"
+        "stty"
+        "sum"
+        "tac"
+        "tail"
+        "tee"
+        "test"
+        "timeout"
+        "touch"
+        "tr"
+        "true"
+        "truncate"
+        "tsort"
+        "tty"
+        "uname"
+        "unexpand"
+        "uniq"
+        "unlink"
+        "users"
+        "vdir"
+        "wc"
+        "who"
+        "whoami"
+        "yes"
+        "["
+      ];
+    };
+    curl = linkBootstrap {
+      paths = [
+        "bin/curl"
+      ];
+    };
+    diffutils = linkBootstrap {
+      name = "diffutils";
+      paths = map (str: "bin/" + str) [
+        "diff"
+        "cmp"
+        #"diff3"
+        #"sdiff"
+      ];
+    };
+    # expand-response-params = bootstrapFiles.unpack;
+    file = linkBootstrap {
+      name = "file";
+      paths = [ "bin/file" ];
+    };
+    findutils = linkBootstrap {
+      name = "findutils";
+      paths = [
+        "bin/find"
+        "bin/xargs"
+      ];
+    };
+    gawk = linkBootstrap {
+      paths = [
+        "bin/awk"
+        "bin/gawk"
+      ];
+    };
+    gcc-unwrapped = linkBootstrap {
+      name = "gcc";
+      paths = map (str: "bin/" + str) [
+        "gcc"
+        "g++"
+        "cygatomic-1.dll"
+        "cyggcc_s-seh-1.dll"
+        "cygquadmath-0.dll"
+        "cygstdc++-6.dll"
+      ];
+    };
+    git = linkBootstrap { paths = [ "bin/git" ]; };
+    gnugrep = linkBootstrap {
+      paths = [
+        "bin/grep"
+        "bin/egrep"
+        "bin/fgrep"
+      ];
+    };
+    gnumake = linkBootstrap { paths = [ "bin/make" ]; };
+    gnused = linkBootstrap { paths = [ "bin/sed" ]; };
+    gnutar = linkBootstrap { paths = [ "bin/tar" ]; };
+    gzip = linkBootstrap {
+      paths = [
+        "bin/gzip"
+        #"bin/gunzip"
+      ];
+    };
+    libc = linkBootstrap {
+      name = "libc";
+      paths = [
+        "include"
+        "lib"
+      ];
+    };
+    patch = linkBootstrap { paths = [ "bin/patch" ]; };
+    xz = linkBootstrap { paths = [ "bin/xz" ]; };
   };
-  binutils-unwrapped = linkBootstrap {
-    name = "binutils";
-    paths = map (str: "bin/" + str) [
-      "ld"
-      "as"
-      "addr2line"
-      "ar"
-      "c++filt"
-      "dlltool"
-      "elfedit"
-      "gprof"
-      "objdump"
-      "nm"
-      "objcopy"
-      "ranlib"
-      "readelf"
-      "size"
-      "strings"
-      "strip"
-      "windres"
-    ];
-  };
-  bzip2 = linkBootstrap { paths = [ "bin/bzip2" ]; };
-  coreutils = linkBootstrap {
-    name = "coreutils";
-    paths = map (str: "bin/" + str) [
-      "base64"
-      "basename"
-      "cat"
-      "chcon"
-      "chgrp"
-      "chmod"
-      "chown"
-      "chroot"
-      "cksum"
-      "comm"
-      "cp"
-      "csplit"
-      "cut"
-      "date"
-      "dd"
-      "df"
-      "dir"
-      "dircolors"
-      "dirname"
-      "du"
-      "echo"
-      "env"
-      "expand"
-      "expr"
-      "factor"
-      "false"
-      "fmt"
-      "fold"
-      "groups"
-      "head"
-      "hostid"
-      "id"
-      "install"
-      "join"
-      "kill"
-      "link"
-      "ln"
-      "logname"
-      "ls"
-      "md5sum"
-      "mkdir"
-      "mkfifo"
-      "mknod"
-      "mktemp"
-      "mv"
-      "nice"
-      "nl"
-      "nohup"
-      "nproc"
-      "numfmt"
-      "od"
-      "paste"
-      "pathchk"
-      "pinky"
-      "pr"
-      "printenv"
-      "printf"
-      "ptx"
-      "pwd"
-      "readlink"
-      "realpath"
-      "rm"
-      "rmdir"
-      "runcon"
-      "seq"
-      "shred"
-      "shuf"
-      "sleep"
-      "sort"
-      "split"
-      "stat"
-      "stty"
-      "sum"
-      "tac"
-      "tail"
-      "tee"
-      "test"
-      "timeout"
-      "touch"
-      "tr"
-      "true"
-      "truncate"
-      "tsort"
-      "tty"
-      "uname"
-      "unexpand"
-      "uniq"
-      "unlink"
-      "users"
-      "vdir"
-      "wc"
-      "who"
-      "whoami"
-      "yes"
-      "["
-    ];
-  };
-  curl = linkBootstrap {
-    paths = [
-      "bin/curl"
-    ];
-  };
-  diffutils = linkBootstrap {
-    name = "diffutils";
-    paths = map (str: "bin/" + str) [
-      "diff"
-      "cmp"
-      #"diff3"
-      #"sdiff"
-    ];
-  };
-  # expand-response-params = bootstrapFiles.unpack;
-  file = linkBootstrap {
-    name = "file";
-    paths = [ "bin/file" ];
-  };
-  findutils = linkBootstrap {
-    name = "findutils";
-    paths = [
-      "bin/find"
-      "bin/xargs"
-    ];
-  };
-  gawk = linkBootstrap {
-    paths = [
-      "bin/awk"
-      "bin/gawk"
-    ];
-  };
-  gcc-unwrapped = linkBootstrap {
-    name = "gcc";
-    paths = map (str: "bin/" + str) [
-      "gcc"
-      "g++"
-      "cygatomic-1.dll"
-      "cyggcc_s-seh-1.dll"
-      "cygquadmath-0.dll"
-      "cygstdc++-6.dll"
-    ];
-  };
-  git = linkBootstrap { paths = [ "bin/git" ]; };
-  gnugrep = linkBootstrap {
-    paths = [
-      "bin/grep"
-      "bin/egrep"
-      "bin/fgrep"
-    ];
-  };
-  gnumake = linkBootstrap { paths = [ "bin/make" ]; };
-  gnused = linkBootstrap { paths = [ "bin/sed" ]; };
-  gnutar = linkBootstrap { paths = [ "bin/tar" ]; };
-  gzip = linkBootstrap {
-    paths = [
-      "bin/gzip"
-      #"bin/gunzip"
-    ];
-  };
-  libc = linkBootstrap {
-    name = "libc";
-    paths = [ "include" "lib" ];
-  };
-  patch = linkBootstrap { paths = [ "bin/patch" ]; };
-  xz = linkBootstrap { paths = [ "bin/xz" ]; };
 
 in
-bootStages
-++ [
-
+[
   (
     prevStage:
     let
-      name = "cygwin";
+      initialPath =
+        with bootstrap-packages;
+        [
+          coreutils
+          diffutils
+          gnutar
+          file
+          findutils
+          gnumake
+          gnused
+          gnugrep
+          gawk
+          patch
+          bashNonInteractive
+          gzip
+          bzip2
+          xz
+        ]
+        # needed for cygwin1.dll
+        ++ [ "/" ];
 
-      initialPath = [
-        coreutils
-        diffutils
-        gnutar
-        file
-        findutils
-        gnumake
-        gnused
-        gnugrep
-        gawk
-        patch
-        bashNonInteractive
-        gzip
-        bzip2
-        xz
-      ]
-      # needed for cygwin1.dll
-      ++ [ "/" ];
+      shell = "${bootstrap-packages.bashNonInteractive}/bin/bash";
 
-      shell = "${bashNonInteractive}/bin/bash";
-
-      stdenvNoCC = import ../generic {
-        inherit
-          config
-          initialPath
-          shell
-          fetchurlBoot
-          ;
-        name = "stdenvNoCC-${name}";
-        buildPlatform = localSystem;
-        hostPlatform = localSystem;
-        targetPlatform = localSystem;
-        cc = null;
-      };
-
-      fetchurlBoot = import ../../build-support/fetchurl {
-        inherit lib stdenvNoCC curl;
-        inherit (config) rewriteURL hashedMirrors;
-      };
-
-    in
-    {
-      inherit config overlays stdenvNoCC;
-      stdenv = import ../generic rec {
-        name = "stdenv-cygwin";
+      stdenvNoCC = import ../generic rec {
+        name = "stdenv-cygwin-boot0";
 
         buildPlatform = localSystem;
         hostPlatform = localSystem;
@@ -326,15 +292,31 @@ bootStages
         hasCC = false;
         cc = null;
 
+        preHook = ''
+          OBJDUMP=objdump
+        '';
+        extraNativeBuildInputs = [ bootstrap-packages.binutils-unwrapped ];
+
         overrides = self: super: {
           fetchurl = lib.makeOverridable fetchurlBoot;
           fetchgit = super.fetchgit.override {
-            inherit git;
+            inherit (bootstrap-packages) git;
             cacert = null;
             git-lfs = null;
           };
         };
       };
+
+      fetchurlBoot = import ../../build-support/fetchurl {
+        inherit lib stdenvNoCC;
+        inherit (bootstrap-packages) curl;
+        inherit (config) rewriteURL hashedMirrors;
+      };
+
+    in
+    {
+      inherit config overlays stdenvNoCC;
+      stdenv = stdenvNoCC;
     }
   )
 
@@ -343,22 +325,28 @@ bootStages
     inherit (prevStage) stdenvNoCC;
 
     stdenv = import ../generic rec {
-      name = "stdenv-cygwin";
+      name = "stdenv-cygwin-boot1";
 
-      buildPlatform = localSystem;
-      hostPlatform = localSystem;
-      targetPlatform = localSystem;
       inherit config;
-      inherit (prevStage.stdenv) fetchurlBoot initialPath shell;
+      inherit (prevStage.stdenv)
+        buildPlatform
+        hostPlatform
+        targetPlatform
+        fetchurlBoot
+        initialPath
+        shell
+        ;
+
+      extraNativeBuildInputs = [ cc.bintools ];
 
       cc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
         inherit lib;
         inherit (prevStage) stdenvNoCC;
         name = "${name}-cc";
-        cc = gcc-unwrapped;
+        cc = bootstrap-packages.gcc-unwrapped;
         isGNU = true;
         libc = prevStage.cygwin.newlib-cygwin-headers;
-        inherit gnugrep coreutils;
+        inherit (bootstrap-packages) gnugrep coreutils;
         expand-response-params = "";
         nativeTools = false;
         nativeLibc = false;
@@ -368,9 +356,9 @@ bootStages
           inherit lib;
           inherit (prevStage) stdenvNoCC;
           name = "${name}-bintools";
-          bintools = binutils-unwrapped;
+          bintools = bootstrap-packages.binutils-unwrapped;
           libc = prevStage.cygwin.newlib-cygwin-headers;
-          inherit gnugrep coreutils;
+          inherit (bootstrap-packages) gnugrep coreutils;
           expand-response-params = "";
           nativeTools = false;
           nativeLibc = false;
@@ -382,7 +370,7 @@ bootStages
       overrides = self: super: {
         fetchurl = lib.makeOverridable fetchurlBoot;
         fetchgit = super.fetchgit.override {
-          inherit git;
+          inherit (bootstrap-packages) git;
           cacert = null;
           git-lfs = null;
         };
@@ -392,10 +380,9 @@ bootStages
 
   (prevStage: {
     inherit config overlays;
-    inherit (prevStage) stdenvNoCC;
 
     stdenv = import ../generic rec {
-      name = "stdenv-cygwin";
+      name = "stdenv-cygwin-boot2";
 
       buildPlatform = localSystem;
       hostPlatform = localSystem;
@@ -403,16 +390,18 @@ bootStages
       inherit config;
       inherit (prevStage.stdenv) fetchurlBoot initialPath shell;
 
+      extraNativeBuildInputs = [ cc.bintools ];
+
       cc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
         inherit lib;
         inherit (prevStage) stdenvNoCC;
         name = "${name}-cc";
-        cc = gcc-unwrapped;
+        cc = bootstrap-packages.gcc-unwrapped;
         isGNU = true;
-        libc = libc // {
+        libc = bootstrap-packages.libc // {
           inherit (prevStage.cygwin) w32api;
         };
-        inherit gnugrep coreutils;
+        inherit (bootstrap-packages) gnugrep coreutils;
         expand-response-params = "";
         nativeTools = false;
         nativeLibc = false;
@@ -422,11 +411,11 @@ bootStages
           inherit lib;
           inherit (prevStage) stdenvNoCC;
           name = "${name}-bintools";
-          bintools = binutils-unwrapped;
-          libc = libc // {
+          bintools = bootstrap-packages.binutils-unwrapped;
+          libc = bootstrap-packages.libc // {
             inherit (prevStage.cygwin) w32api;
           };
-          inherit gnugrep coreutils;
+          inherit (bootstrap-packages) gnugrep coreutils;
           expand-response-params = "";
           nativeTools = false;
           nativeLibc = false;
@@ -439,7 +428,7 @@ bootStages
         fetchurl = lib.makeOverridable fetchurlBoot;
         __realFetchUrl = super.fetchurl;
         fetchgit = super.fetchgit.override {
-          inherit git;
+          inherit (bootstrap-packages) git;
           cacert = null;
           git-lfs = null;
         };
@@ -451,7 +440,7 @@ bootStages
     inherit config overlays;
 
     stdenv = import ../generic rec {
-      name = "stdenv-cygwin";
+      name = "stdenv-cygwin-boot3";
 
       buildPlatform = localSystem;
       hostPlatform = localSystem;
@@ -460,13 +449,13 @@ bootStages
 
       initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
 
+      extraNativeBuildInputs = [ cc.bintools ];
+
       cc = prevStage.gcc;
 
       shell = cc.shell;
 
       inherit (prevStage.stdenv) fetchurlBoot;
-
-      # disallowedRequisites = [ bootstrapFiles.unpack ];
 
       overrides = self: super: {
         inherit (prevStage) fetchurl;
@@ -488,17 +477,18 @@ bootStages
 
       initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
 
+      extraNativeBuildInputs = [ cc.bintools ];
+
       cc = prevStage.gcc;
 
       shell = cc.shell;
 
       inherit (prevStage.stdenv) fetchurlBoot;
 
-      # disallowedRequisites = [ bootstrapFiles.unpack ];
+      disallowedRequisites = [ bootstrapFiles.unpack ];
 
       overrides = self: super: {
         fetchurl = prevStage.__realFetchUrl;
-        __binutils = binutils-unwrapped;
       };
     };
   })
