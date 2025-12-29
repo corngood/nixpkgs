@@ -526,33 +526,33 @@ stdenvNoCC.mkDerivation {
     export named_cxx=${targetPrefix}c++
 
     if [ -e $ccPath/${targetPrefix}gcc${exeSuffix} ]; then
-      wrap ${targetPrefix}gcc${exeSuffix} $wrapper $ccPath/${targetPrefix}gcc${exeSuffix}
-      ln -s ${targetPrefix}gcc${exeSuffix} $out/bin/${targetPrefix}cc
+      wrap ${targetPrefix}gcc $wrapper $ccPath/${targetPrefix}gcc${exeSuffix}
+      ln -s ${targetPrefix}gcc $out/bin/${targetPrefix}cc
       export named_cc=${targetPrefix}gcc
       export named_cxx=${targetPrefix}g++
     elif [ -e $ccPath/clang${exeSuffix} ]; then
-      wrap ${targetPrefix}clang${exeSuffix} $wrapper $ccPath/clang${exeSuffix}
-      ln -s ${targetPrefix}clang${exeSuffix} $out/bin/${targetPrefix}cc
+      wrap ${targetPrefix}clang $wrapper $ccPath/clang${exeSuffix}
+      ln -s ${targetPrefix}clang $out/bin/${targetPrefix}cc
       export named_cc=${targetPrefix}clang
       export named_cxx=${targetPrefix}clang++
     elif [ -e $ccPath/arocc${exeSuffix} ]; then
-      wrap ${targetPrefix}arocc${exeSuffix} $wrapper $ccPath/arocc${exeSuffix}
-      ln -s ${targetPrefix}arocc${exeSuffix} $out/bin/${targetPrefix}cc
+      wrap ${targetPrefix}arocc $wrapper $ccPath/arocc${exeSuffix}
+      ln -s ${targetPrefix}arocc $out/bin/${targetPrefix}cc
       export named_cc=${targetPrefix}arocc
     fi
 
     if [ -e $ccPath/${targetPrefix}g++${exeSuffix} ]; then
-      wrap ${targetPrefix}g++${exeSuffix} $wrapper $ccPath/${targetPrefix}g++${exeSuffix}
-      ln -s ${targetPrefix}g++${exeSuffix} $out/bin/${targetPrefix}c++
+      wrap ${targetPrefix}g++ $wrapper $ccPath/${targetPrefix}g++${exeSuffix}
+      ln -s ${targetPrefix}g++ $out/bin/${targetPrefix}c++
     elif [ -e $ccPath/clang++${exeSuffix} ]; then
-      wrap ${targetPrefix}clang++${exeSuffix} $wrapper $ccPath/clang++${exeSuffix}
-      ln -s ${targetPrefix}clang++${exeSuffix} $out/bin/${targetPrefix}c++
+      wrap ${targetPrefix}clang++ $wrapper $ccPath/clang++${exeSuffix}
+      ln -s ${targetPrefix}clang++ $out/bin/${targetPrefix}c++
     fi
 
     if [ -e $ccPath/${targetPrefix}cpp${exeSuffix} ]; then
-      wrap ${targetPrefix}cpp${exeSuffix} $wrapper $ccPath/${targetPrefix}cpp${exeSuffix}
+      wrap ${targetPrefix}cpp $wrapper $ccPath/${targetPrefix}cpp${exeSuffix}
     elif [ -e $ccPath/cpp${exeSuffix} ]; then
-      wrap ${targetPrefix}cpp${exeSuffix} $wrapper $ccPath/cpp${exeSuffix}
+      wrap ${targetPrefix}cpp $wrapper $ccPath/cpp${exeSuffix}
     fi
   ''
 

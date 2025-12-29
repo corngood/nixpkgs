@@ -264,11 +264,11 @@ stdenvNoCC.mkDerivation {
     done
 
     if [ -e ''${ld:-$ldPath/${targetPrefix}ld}${exeSuffix} ]; then
-      wrap ${targetPrefix}ld${exeSuffix} ${./ld-wrapper.sh} ''${ld:-$ldPath/${targetPrefix}ld}${exeSuffix}
+      wrap ${targetPrefix}ld ${./ld-wrapper.sh} ''${ld:-$ldPath/${targetPrefix}ld}${exeSuffix}
     fi
 
     for variant in $ldPath/${targetPrefix}ld.*${exeSuffix}; do
-      basename=$(basename "$variant")
+      basename=$(basename "${if exeSuffix != "" then "\${variant%${exeSuffix}}" else "$variant"}")
       wrap $basename ${./ld-wrapper.sh} $variant
     done
   '';
