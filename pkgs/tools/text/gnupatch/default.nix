@@ -26,7 +26,7 @@ stdenv.mkDerivation rec {
     "ac_cv_func_strnlen_working=yes"
   ];
 
-  doCheck = stdenv.hostPlatform.libc != "musl"; # not cross;
+  doCheck = stdenv.hostPlatform.libc != "musl" && !stdenv.hostPlatform.isCygwin; # not cross;
   nativeCheckInputs = [ ed ];
 
   meta = {
