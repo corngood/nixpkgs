@@ -253,7 +253,7 @@ let
   };
   libc = linkBootstrap {
     name = "libc";
-    paths = [ "lib" ];
+    paths = [ "include" "lib" ];
   };
   patch = linkBootstrap { paths = [ "bin/patch" ]; };
   xz = linkBootstrap { paths = [ "bin/xz" ]; };
@@ -437,6 +437,7 @@ bootStages
 
       overrides = self: super: {
         fetchurl = lib.makeOverridable fetchurlBoot;
+        __realFetchUrl = super.fetchurl;
         fetchgit = super.fetchgit.override {
           inherit git;
           cacert = null;
@@ -465,118 +466,40 @@ bootStages
 
       inherit (prevStage.stdenv) fetchurlBoot;
 
-      disallowedRequisites = [ bootstrapFiles.unpack ];
+      # disallowedRequisites = [ bootstrapFiles.unpack ];
 
       overrides = self: super: {
         inherit (prevStage) fetchurl;
+        __realFetchUrl = super.fetchurl;
       };
     };
   })
 
-  # (
-  #   prevStage:
-  #   let
-  #     name = "cygwin";
+  (prevStage: {
+    inherit config overlays;
 
-  #     initialPath =
-  #       ((import ../generic/common-path.nix) { pkgs = prevStage; })
-  #       # needed for cygwin1.dll
-  #       ++ [ "/" ];
+    stdenv = import ../generic rec {
+      name = "stdenv-cygwin";
 
-  #     shell = "${prevStage.bashNonInteractive}/bin/bash";
+      buildPlatform = localSystem;
+      hostPlatform = localSystem;
+      targetPlatform = localSystem;
+      inherit config;
 
-  #     stdenvNoCC = import ../generic {
-  #       inherit
-  #         config
-  #         initialPath
-  #         shell
-  #         fetchurlBoot
-  #         ;
-  #       name = "stdenvNoCC-${name}";
-  #       buildPlatform = localSystem;
-  #       hostPlatform = localSystem;
-  #       targetPlatform = localSystem;
-  #       cc = null;
-  #     };
+      initialPath = ((import ../generic/common-path.nix) { pkgs = prevStage; });
 
-  #     fetchurlBoot = import ../../build-support/fetchurl {
-  #       inherit lib stdenvNoCC;
-  #       inherit (prevStage) curl;
-  #       inherit (config) rewriteURL hashedMirrors;
-  #     };
+      cc = prevStage.gcc;
 
-  #     gcc = (
-  #       prevStage.gccFun {
-  #         noSysDirs = true;
-  #         majorMinorVersion = toString prevStage.default-gcc-version;
-  #         targetPackages.stdenv.cc.bintools = prevStage.stdenv.cc.bintools;
-  #       }
-  #     );
+      shell = cc.shell;
 
-  #   in
-  #   {
-  #     inherit config overlays stdenvNoCC;
-  #     stdenv = import ../generic rec {
-  #       name = "stdenv-cygwin";
+      inherit (prevStage.stdenv) fetchurlBoot;
 
-  #       buildPlatform = localSystem;
-  #       hostPlatform = localSystem;
-  #       targetPlatform = localSystem;
-  #       inherit
-  #         config
-  #         initialPath
-  #         fetchurlBoot
-  #         shell
-  #         ;
+      # disallowedRequisites = [ bootstrapFiles.unpack ];
 
-  #       cc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
-  #         inherit lib stdenvNoCC;
-  #         name = "${name}-cc";
-  #         cc = gcc;
-  #         isGNU = true;
-  #         libc = prevStage.cygwin.newlib-cygwin;
-  #         inherit (prevStage) gnugrep coreutils expand-response-params;
-  #         nativeTools = false;
-  #         nativeLibc = false;
-  #         propagateDoc = false;
-  #         runtimeShell = shell;
-  #         bintools = lib.makeOverridable (import ../../build-support/bintools-wrapper) {
-  #           inherit lib stdenvNoCC;
-  #           name = "${name}-bintools";
-  #           bintools = prevStage.bintools-unwrapped;
-  #           libc = prevStage.cygwin.newlib-cygwin;
-  #           inherit (prevStage) gnugrep coreutils expand-response-params;
-  #           nativeTools = false;
-  #           nativeLibc = false;
-  #           propagateDoc = false;
-  #           runtimeShell = shell;
-  #         };
-  #       };
-
-  #       overrides = self: super: {
-  #         fetchurl = lib.makeOverridable fetchurlBoot;
-  #         __bootstrapFiles = bootstrapFiles;
-  #         __bootstrapPackages =
-  #           (import ../generic/common-path.nix) { pkgs = prevStage; }
-  #           ++ [
-  #             gcc
-  #             gcc.lib
-  #           ]
-  #           ++ (with prevStage; [
-  #             curl
-  #             curl.dev
-  #             cygwin.newlib-cygwin
-  #             cygwin.newlib-cygwin.bin
-  #             cygwin.newlib-cygwin.dev
-  #             cygwin.w32api
-  #             cygwin.w32api.dev
-  #             bintools-unwrapped
-  #             gnugrep
-  #             coreutils
-  #             expand-response-params
-  #           ]);
-  #       };
-  #     };
-  #   }
-  # )
+      overrides = self: super: {
+        fetchurl = prevStage.__realFetchUrl;
+        __binutils = binutils-unwrapped;
+      };
+    };
+  })
 ]
