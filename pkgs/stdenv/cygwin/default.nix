@@ -76,7 +76,7 @@ let
         "windres"
       ];
     };
-    bzip2 = linkBootstrap { paths = [ "bin/bzip2" ]; };
+    bzip2.bin = linkBootstrap { paths = [ "bin/bzip2" ]; };
     coreutils = linkBootstrap {
       name = "coreutils";
       paths = map (str: "bin/" + str) [
@@ -245,7 +245,7 @@ let
       ];
     };
     patch = linkBootstrap { paths = [ "bin/patch" ]; };
-    xz = linkBootstrap { paths = [ "bin/xz" ]; };
+    xz.bin = linkBootstrap { paths = [ "bin/xz" ]; };
   };
 
 in
@@ -254,6 +254,8 @@ in
     prevStage:
     let
       initialPath =
+        # TODO: switch to this
+        # ((import ../generic/common-path.nix) { pkgs = bootstrap-packages; })
         with bootstrap-packages;
         [
           coreutils
@@ -268,10 +270,11 @@ in
           patch
           bashNonInteractive
           gzip
-          bzip2
-          xz
+          bzip2.bin
+          xz.bin
         ]
         # needed for cygwin1.dll
+        # TODO: remove?
         ++ [ "/" ];
 
       shell = "${bootstrap-packages.bashNonInteractive}/bin/bash";
