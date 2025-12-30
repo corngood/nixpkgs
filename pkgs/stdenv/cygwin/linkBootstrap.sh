@@ -12,7 +12,9 @@ for path in $paths; do
   CYGWIN+=\ winsymlinks:nativestrict ln -s $src/$path $out/$path
 done
 
-source "$1"
+addEnvHooks() {
+  true
+}
 
 # HACK: copied from stdenv
 # refactor cygwin-dll-link?
@@ -48,7 +50,9 @@ concatTo() {
     done
 }
 
+source "$1"
+
 OBJDUMP=$src/bin/objdump
-HOST_PATH=$src/bin
+_linkDeps_inputPath=$src/bin
 allowedImpureDLLs=(KERNEL32.dll ntdll.dll)
 linkDLLs $out/bin
