@@ -604,7 +604,7 @@ stdenvNoCC.mkDerivation {
         if targetPlatform.isCygwin then
           (
             ''
-              echo addToSearchPath "_HOST_PATH" "${cc_solib}/bin" >> $out
+              echo addToSearchPath "_linkDeps_inputPath" "${cc_solib}/bin" >> $out
               echo appendToVar configureFlags gl_cv_clean_version_stddef=yes >> $out
             ''
             + lib.optionalString (hostPlatform.canExecute targetPlatform) ''

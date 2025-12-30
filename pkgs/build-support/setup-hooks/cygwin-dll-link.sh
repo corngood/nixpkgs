@@ -8,11 +8,17 @@ _moveDLLsToLib() {
 
 preFixupHooks+=(_moveDLLsToLib)
 
-declare _linkDeps_binPath
+declare _linkDeps_inputPath _linkDeps_outputPath
+
+_addInputDLLPaths() {
+  addToSearchPath _linkDeps_inputPath "$1/bin"
+}
+
+addEnvHooks "$targetOffset" _addInputDLLPaths
 
 _addOutputDLLPaths() {
   for output in $(getAllOutputNames); do
-    addToSearchPath _linkDeps_binPath "${!output}/bin"
+    addToSearchPath _linkDeps_outputPath "${!output}/bin"
   done
 }
 
@@ -71,13 +77,12 @@ _linkDeps() {
       if [[ $dll = cygwin1.dll ]]; then
         dllPath=/bin/cygwin1.dll
       else
-        # Locate the DLL - it should be an *executable* file on $HOST_PATH.
-        # This intentionally doesn't use $dir because we want to prefer dependencies
-        # that are already linked next to the target.
+        # This intentionally doesn't use $dir because we want to prefer
+        # dependencies that are already linked next to the target.
         local searchPath realTarget
-        searchPath=$_linkDeps_binPath:$HOST_PATH
+        searchPath=$_linkDeps_outputPath:$_linkDeps_inputPath
         if [[ -L $target ]]; then
-          searchPath=$(dirname "$(readlink "$target")"):$searchPath
+          searchPath=searchPath:$(dirname "$(readlink "$target")")
         fi
         searchPath=$(dirname "$target"):$searchPath
         if ! dllPath=$(PATH="$searchPath" type -P "$dll"); then
