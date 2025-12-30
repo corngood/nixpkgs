@@ -82,7 +82,7 @@ _linkDeps() {
         local searchPath realTarget
         searchPath=$_linkDeps_outputPath:$_linkDeps_inputPath
         if [[ -L $target ]]; then
-          searchPath=searchPath:$(dirname "$(readlink "$target")")
+          searchPath=$searchPath:$(dirname "$(readlink "$target")")
         fi
         searchPath=$(dirname "$target"):$searchPath
         if ! dllPath=$(PATH="$searchPath" type -P "$dll"); then
