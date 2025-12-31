@@ -50,7 +50,7 @@ _linkDeps() {
 
   local output inOutput
   for output in $outputs ; do
-    if [[ $target == "${!output}"* ]]; then
+    if [[ $target == "${!output}"* && ! -L $target ]]; then
       echo "_linkDeps: $target is in $output (${!output})." 1>&2
       inOutput=1
       break
