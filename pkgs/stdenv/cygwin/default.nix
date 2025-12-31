@@ -482,7 +482,14 @@ in
 
       extraNativeBuildInputs = [ cc.bintools ];
 
-      cc = prevStage.gcc;
+      cc = prevStage.gcc.override (old: {
+        cc = old.cc.overrideAttrs (old: {
+          # break dependency on previous stage cygintl-8.dll
+          preFixup = old.preFixup or "" + ''
+            ln -s "${lib.getLib prevStage.gettext}"/bin/cygintl-8.dll "$out"/bin
+          '';
+        });
+      });
 
       shell = cc.shell;
 
