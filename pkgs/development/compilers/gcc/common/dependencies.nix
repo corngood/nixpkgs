@@ -78,11 +78,7 @@ in
   ]
   ++ optionals (isl != null) [ isl ]
   ++ optionals (zlib != null) [ zlib ]
-  ++ optionals (langGo && stdenv.hostPlatform.isMusl) [ libucontext ]
-  # gettext gets pulled in via autoreconfHook because strictDeps is not set,
-  # and is linked against. Without this, it doesn't end up in HOST_PATH.
-  # TODO: enable strictDeps, and either make this dependency explicit, or remove it
-  ++ lib.optional stdenv.hostPlatform.isCygwin gettext;
+  ++ optionals (langGo && stdenv.hostPlatform.isMusl) [ libucontext ];
 
   depsTargetTarget = optionals (
     !withoutTargetLibc && threadsCross != { } && threadsCross.package != null
