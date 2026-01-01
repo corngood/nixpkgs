@@ -12,7 +12,7 @@
           # import ./bootstrap-files/x86_64-pc-cygwin.nix;
           unpack = import <nix/fetchurl.nix> {
             url = "https://github.com/corngood/nixpkgs/releases/download/bootstrap%2Fv0.1/unpack.nar.xz";
-            hash = "sha256-1nrOndqWcmnuMOURGamz8bBfLubKCi5U/R7QuIZ3chM=";
+            hash = "sha256-B5pezEcJkWtI0nDRCeOjtwSQ4OTuA2ef06keEvr4i4E=";
             name = "unpack";
             unpack = true;
           };
