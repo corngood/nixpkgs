@@ -1,0 +1,25 @@
+name: Cygwin Bootstrap Release
+on:
+  push:
+    tags: 'bootstrap/*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="${{ steps.tag.outputs.tag }}"
+          gh release create --draft "$tag" --title "$tag"
+      - uses: actions/checkout@v5
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build -f pkgs/top-level/release-cross.nix bootstrapTools.x86_64-pc-cygwin.unpack -o unpack.nar.xz
+      - name: Upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "${{ needs.release.outputs.tag }}" unpack.nar.xz
