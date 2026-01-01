@@ -50,9 +50,11 @@ concatTo() {
     done
 }
 
-source "$1"
+source "$cygwinDllLink"
 
 OBJDUMP=$src/bin/objdump
 _linkDeps_inputPath=$src/bin
 allowedImpureDLLs=(KERNEL32.dll ntdll.dll)
 linkDLLs $out/bin
+
+[[ ! -v postBuild ]] || eval "$postBuild"

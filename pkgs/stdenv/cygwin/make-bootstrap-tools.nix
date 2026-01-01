@@ -114,7 +114,7 @@ rec {
         # The result should not contain any references (store paths) so
         # that we can safely copy them out of the store and to other
         # locations in the store.
-        allowedReferences = [ "out" ];
+        allowedReferences = [ ];
         strictDeps = true;
       }
       ''
@@ -147,10 +147,6 @@ rec {
         cp -d "${xz}"/bin/* "$out"/bin/
 
         chmod -R +w "$out"
-
-        substituteInPlace "$out"/bin/gzip \
-          --replace-fail "${bashNonInteractive}" "$out" \
-          --replace-fail "${gzip}" "$out"
 
         find "$out" -type l -print0 | while read -d $'\0' link; do
           [[ -L "$link" && -e "$link" ]] || continue

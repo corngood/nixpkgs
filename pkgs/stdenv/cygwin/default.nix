@@ -34,14 +34,14 @@ let
       // {
         inherit (localSystem) system;
         name = attrs.name or (baseNameOf (builtins.elemAt attrs.paths 0));
-        version = bootstrapFiles.unpack.version;
+        version = "bootstrap";
         src = bootstrapFiles.unpack;
         builder = "${bootstrapFiles.unpack}/bin/bash";
         args = [
           ./linkBootstrap.sh
-          ../../build-support/setup-hooks/cygwin-dll-link.sh
         ];
         PATH = "${bootstrapFiles.unpack}/bin";
+        cygwinDllLink = ../../build-support/setup-hooks/cygwin-dll-link.sh;
         paths = attrs.paths;
       }
     )
@@ -238,6 +238,11 @@ let
         "bin/gzip"
         #"bin/gunzip"
       ];
+      postBuild = ''
+        rm "$out"/bin/gzip
+        sed -E 's:/nix/store/[^/]*:'$src':' "$src"/bin/gzip > "$out"/bin/gzip
+        chmod +x "$out"/bin/gzip
+      '';
     };
     libc = linkBootstrap {
       name = "libc";
