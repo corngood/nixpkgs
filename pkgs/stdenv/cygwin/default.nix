@@ -10,9 +10,11 @@
       table = {
         x86_64-cygwin = {
           # import ./bootstrap-files/x86_64-pc-cygwin.nix;
-          unpack = lib.toDerivation (import ../../../bootstrap.nix) // {
-            name = "unpacked";
-            version = "foo";
+          unpack = import <nix/fetchurl.nix> {
+            url = "https://github.com/corngood/nixpkgs/releases/download/bootstrap%2Fv0.1/unpack.nar.xz";
+            hash = "sha256-1nrOndqWcmnuMOURGamz8bBfLubKCi5U/R7QuIZ3chM=";
+            name = "unpack";
+            unpack = true;
           };
         };
       };
