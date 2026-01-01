@@ -162,9 +162,9 @@ rec {
         find "$out" -print0 | xargs -0 nuke-refs -e "$out"
       '';
 
-  unpack = nar-all "unpack.nar.xz" (with pkgs; [
-    bashNonInteractive
-  ]) "";
+  unpack = runCommand "unpack.nar.xz" {
+    nativeBuildInputs = [ dumpnar ];
+  } "dumpnar ${unpacked} | xz -9 -e -T $NIX_BUILD_CORES >$out";
   bootstrap-tools = tar-all "bootstrap-tools.tar.xz" (with pkgs; [
     gcc
     # gcc.lib
