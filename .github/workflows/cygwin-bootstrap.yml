@@ -11,7 +11,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tag="${{ steps.tag.outputs.tag }}"
+          tag="${{ github.ref_name }}"
           gh release create --draft "$tag" --title "$tag"
       - uses: actions/checkout@v5
       - uses: DeterminateSystems/nix-installer-action@main
@@ -22,4 +22,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release upload "${{ needs.release.outputs.tag }}" unpack.nar.xz
+        run: gh release upload "${{ github.ref_name }}" unpack.nar.xz
