@@ -92,6 +92,8 @@ let
 
   dottedVersion = lib.replaceStrings [ "-" ] [ "." ] version + lib.optionalString withMono ".mono";
 
+  harfbuzz-icu = harfbuzz.override { withIcu = true; };
+
   mkTarget =
     target:
     let
@@ -390,6 +392,11 @@ let
           dotnet restore modules/mono/editor/Godot.NET.Sdk/Godot.NET.Sdk.sln
         '';
 
+        # darwin needs $HOME/.cache/clang/ModuleCache
+        preBuild = lib.optionalString stdenv.hostPlatform.isDarwin ''
+          export HOME=$(mktemp -d)
+        '';
+
         # From: https://github.com/godotengine/godot/blob/4.2.2-stable/SConstruct
         sconsFlags = mkSconsFlagsFromAttrSet (
           {
@@ -505,24 +512,29 @@ let
           pkg-config
         ];
 
+	env.NIX_CFLAGS_COMPILE = toString (lib.optionals stdenv.hostPlatform.isDarwin [
+          "-I${lib.getDev harfbuzz-icu}/include/harfbuzz"
+          "-I${lib.getDev recastnavigation}/include/recastnavigation"
+        ]);
+
         buildInputs = [
           embree
           enet
           freetype
           glslang
           graphite2
-          (harfbuzz.override { withIcu = true; })
+          harfbuzz-icu
           icu
           libtheora
           libwebp
           mbedtls
           miniupnpc
+          openxr-loader
           pcre2
           recastnavigation
           wslay
           zstd
         ]
-        ++ lib.optional (lib.meta.availableOn stdenv.hostPlatform openxr-loader) openxr-loader
         ++ lib.optionals (lib.versionAtLeast version "4.5") [
           libjpeg_turbo
           sdl3
