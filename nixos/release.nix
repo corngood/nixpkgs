@@ -456,6 +456,28 @@ rec {
         )
       );
 
+  cygwinTarball =
+    forMatchingSystems
+      [
+        "x86_64-linux"
+        "aarch64-linux"
+      ]
+      (
+        system:
+
+        hydraJob (
+          (import lib/eval-config.nix {
+            inherit system;
+            modules = [
+              configuration
+              versionModule
+              ./maintainers/scripts/cygwin/system.nix
+              ./maintainers/scripts/cygwin/tarball.nix
+            ];
+          }).config.system.cygwin.tarball
+        )
+      );
+
   # Ensure that all packages used by the minimal NixOS config end up in the channel.
   dummy = forAllSystems (
     system:
