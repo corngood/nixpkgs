@@ -233,6 +233,10 @@ in
 
   options.systemd = {
 
+    enable = mkEnableOption "enable systemd" // {
+      default = true;
+    };
+
     package = mkPackageOption pkgs "systemd" { };
 
     enableStrictShellChecks = mkEnableOption "" // {
@@ -477,7 +481,7 @@ in
 
   ###### implementation
 
-  config = {
+  config = mkIf cfg.enable {
 
     warnings =
       let
