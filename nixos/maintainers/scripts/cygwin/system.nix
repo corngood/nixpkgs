@@ -140,7 +140,10 @@ in
     nixpkgs.hostPlatform = lib.mkDefault "x86_64-cygwin";
 
     nix = {
-      settings.sandbox = false;
+      settings = {
+        sandbox = false;
+        ignored-acls = "user.$kernel.purge.esbcache";
+      };
       package = pkgs.nixVersions.git;
     };
 
