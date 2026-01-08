@@ -284,6 +284,7 @@ in
           ../../patches/Include-bin-in-builder-PATH-on-cygwin.patch
           ../../patches/Suppress-xattr-errors-on-Cygwin.patch
           ../../patches/Recreate-symlinks-on-cygwin.patch
+          ../../patches/libutil-tests-fix-openFileEnsureBeneathNoSymlinks.wo.patch
         ];
         /**
           Fetched and patched source to be used in component derivations.
