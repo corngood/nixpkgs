@@ -467,12 +467,16 @@ rec {
 
         hydraJob (
           (import lib/eval-config.nix {
-            inherit system;
+            system = null;
             modules = [
               configuration
               versionModule
               ./maintainers/scripts/cygwin/system.nix
               ./maintainers/scripts/cygwin/tarball.nix
+              {
+                nixpkgs.buildPlatform = lib.mkDefault system;
+                nixpkgs.hostPlatform = lib.mkDefault "x86_64-cygwin";
+              }
             ];
           }).config.system.cygwin.tarball
         )
