@@ -1,0 +1,30 @@
+diff --git a/swift/lib/FrontendTool/FrontendTool.cpp b/swift/lib/FrontendTool/FrontendTool.cpp
+index afbc57c..dbfef8d 100644
+--- a/lib/FrontendTool/FrontendTool.cpp
++++ b/lib/FrontendTool/FrontendTool.cpp
+@@ -2188,25 +2188,6 @@ int swift::performFrontend(ArrayRef<const char *> Args,
+ 
+   PrettyStackTraceFrontend frontendTrace(Invocation);
+ 
+-  // Make an array of PrettyStackTrace objects to dump the configuration files
+-  // we used to parse the arguments. These are RAII objects, so they and the
+-  // buffers they refer to must be kept alive in order to be useful. (That is,
+-  // we want them to be alive for the entire rest of performFrontend.)
+-  //
+-  // This can't be a SmallVector or similar because PrettyStackTraces can't be
+-  // moved (or copied)...and it can't be an array of non-optionals because
+-  // PrettyStackTraces can't be default-constructed. So we end up with a
+-  // dynamically-sized array of optional PrettyStackTraces, which get
+-  // initialized by iterating over the buffers we collected above.
+-  auto configurationFileStackTraces =
+-      std::make_unique<llvm::Optional<PrettyStackTraceFileContents>[]>(
+-          configurationFileBuffers.size());
+-  for_each(configurationFileBuffers.begin(), configurationFileBuffers.end(),
+-           &configurationFileStackTraces[0],
+-           [](const std::unique_ptr<llvm::MemoryBuffer> &buffer,
+-              llvm::Optional<PrettyStackTraceFileContents> &trace) {
+-             trace.emplace(*buffer);
+-           });
+ 
+   // Setting DWARF Version depend on platform
+   IRGenOptions &IRGenOpts = Invocation.getIRGenOptions();
