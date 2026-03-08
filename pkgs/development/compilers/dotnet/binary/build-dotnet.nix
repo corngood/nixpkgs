@@ -46,6 +46,7 @@ assert
   callPackage,
   systemToDotnetRid,
   xmlstarlet,
+  _experimental-update-script-combinators,
 }:
 
 let
