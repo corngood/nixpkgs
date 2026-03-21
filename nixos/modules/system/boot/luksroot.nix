@@ -1126,6 +1126,16 @@ in
       }
     ];
 
+    warnings =
+      optional
+        (
+          (versionAtLeast kernelPackages.kernel.version "7.0")
+          && (builtins.elem "aes_generic" luks.cryptoModules)
+        )
+        ''
+          cryptoModule "aes_generic" is no longer provided in kernel versions >= 7.0. This will fail if provided in a future version.
+        '';
+
     # actually, sbp2 driver is the one enabling the DMA attack, but this needs to be tested
     boot.blacklistedKernelModules = optionals luks.mitigateDMAAttacks [
       "firewire_ohci"
@@ -1138,7 +1148,9 @@ in
       "dm_mod"
       "dm_crypt"
     ]
-    ++ luks.cryptoModules
+    ++ (builtins.filter (
+      x: (versionOlder kernelPackages.kernel.version "7.0") || x != "aes_generic"
+    ) luks.cryptoModules)
     # workaround until https://marc.info/?l=linux-crypto-vger&m=148783562211457&w=4 is merged
     # remove once 'modprobe --show-depends xts' shows ecb as a dependency
     ++ (optional (builtins.elem "xts" luks.cryptoModules) "ecb");
