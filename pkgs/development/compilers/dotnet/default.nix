@@ -11,10 +11,11 @@
   generateSplicesForMkScope,
   makeScopeWithSplicing',
   writeScriptBin,
+  callPackage,
 }:
 
 let
-  pkgs = makeScopeWithSplicing' {
+  scope = makeScopeWithSplicing' {
     otherSplices = generateSplicesForMkScope "dotnetCorePackages";
     f = (
       self:
@@ -23,8 +24,10 @@ let
 
         fetchNupkg = callPackage ../../../build-support/dotnet/fetch-nupkg { };
 
-        buildDotnet = attrs: callPackage (import ./build-dotnet.nix attrs) { };
         buildDotnetSdk =
+          let
+            buildDotnet = attrs: callPackage (import ./binary/build-dotnet.nix attrs) { };
+          in
           version:
           import version {
             inherit fetchNupkg;
@@ -32,17 +35,6 @@ let
             buildNetRuntime = attrs: buildDotnet (attrs // { type = "runtime"; });
             buildNetSdk = attrs: buildDotnet (attrs // { type = "sdk"; });
           };
-
-        dotnet-bin = lib.mergeAttrsList (
-          map buildDotnetSdk [
-            ./6.0/releases.nix
-            ./7.0/releases.nix
-            ./8.0/releases.nix
-            ./9.0/releases.nix
-            ./10.0/releases.nix
-            ./11.0/releases.nix
-          ]
-        );
 
         runtimeIdentifierMap = {
           "x86_64-linux" = "linux-x64";
@@ -54,24 +46,16 @@ let
         };
 
       in
-      lib.optionalAttrs config.allowAliases (
-        {
-          # EOL
-          sdk_2_1 = throw "Dotnet SDK 2.1 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
-          sdk_2_2 = throw "Dotnet SDK 2.2 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
-          sdk_3_0 = throw "Dotnet SDK 3.0 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
-          sdk_3_1 = throw "Dotnet SDK 3.1 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
-          sdk_5_0 = throw "Dotnet SDK 5.0 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
-        }
-        // dotnet-bin
-      )
-      // lib.mapAttrs' (k: v: lib.nameValuePair "${k}-bin" v) dotnet-bin
-      // {
-        inherit callPackage fetchNupkg buildDotnetSdk;
+      {
+        inherit
+          callPackage
+          fetchNupkg
+          buildDotnetSdk
+          ;
 
         generate-dotnet-sdk = writeScriptBin "generate-dotnet-sdk" (
           # Don't include current nixpkgs in the exposed version. We want to make the script runnable without nixpkgs repo.
-          builtins.replaceStrings [ " -I nixpkgs=./." ] [ "" ] (builtins.readFile ./update.sh)
+          builtins.replaceStrings [ " -I nixpkgs=./." ] [ "" ] (builtins.readFile ./binary/update.sh)
         );
 
         # Convert a "stdenv.hostPlatform.system" to a dotnet RID
@@ -90,15 +74,11 @@ let
         mkNugetSource = callPackage ../../../build-support/dotnet/make-nuget-source { };
         mkNugetDeps = callPackage ../../../build-support/dotnet/make-nuget-deps { };
         addNuGetDeps = callPackage ../../../build-support/dotnet/add-nuget-deps { };
-
-        dotnet_8 = lib.recurseIntoAttrs (callPackage ./8.0 { });
-        dotnet_9 = lib.recurseIntoAttrs (callPackage ./9.0 { });
-        dotnet_10 = lib.recurseIntoAttrs (callPackage ./10.0 { });
-        dotnet_10_0_2xx = lib.recurseIntoAttrs (callPackage ./10.0.2xx { });
-        dotnet_11 = lib.recurseIntoAttrs (callPackage ./11.0 { });
       }
     );
   };
+
+  callPackage = scope.callPackage;
 
   # combine an SDK with the runtime/packages from a base SDK
   combineSdk =
@@ -166,36 +146,53 @@ let
       in
       pkgs.callPackage ./wrapper.nix { } "sdk" withFallbackPackages;
 
+  pkgs =
+    scope
+    // (
+      let
+        dotnet_6 = callPackage ./dotnet.nix {
+          dir = ./6.0;
+          withVMR = false;
+        };
+
+        dotnet_7 = callPackage ./dotnet.nix {
+          dir = ./7.0;
+          withVMR = false;
+        };
+
+        dotnet_8 = callPackage ./dotnet.nix {
+          dir = ./8.0;
+        };
+
+        dotnet_9 = callPackage ./dotnet.nix {
+          dir = ./9.0;
+        };
+
+        dotnet_10 = callPackage ./dotnet.nix {
+          dir = ./10.0;
+        };
+
+        dotnet_11 = callPackage ./dotnet.nix {
+          dir = ./11.0;
+          allowPrerelease = true;
+        };
+      in
+      lib.optionalAttrs config.allowAliases {
+        # EOL
+        sdk_2_1 = throw "Dotnet SDK 2.1 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
+        sdk_2_2 = throw "Dotnet SDK 2.2 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
+        sdk_3_0 = throw "Dotnet SDK 3.0 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
+        sdk_3_1 = throw "Dotnet SDK 3.1 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
+        sdk_5_0 = throw "Dotnet SDK 5.0 is EOL, please use 8.0 (LTS) or 9.0 (Current)";
+      }
+      // lib.mergeAttrsList [
+        dotnet_6
+        dotnet_7
+        dotnet_8
+        dotnet_9
+        dotnet_10
+        dotnet_11
+      ]
+    );
 in
 pkgs
-// rec {
-  # use binary SDK here to avoid downgrading feature band
-  # combining sdk_8 results in a broken ilcompiler
-  sdk_8_0_1xx = if !pkgs.dotnet_8.vmr.meta.broken then pkgs.dotnet_8.sdk else pkgs.sdk_8_0_1xx-bin;
-  sdk_9_0_1xx = combineSdk pkgs.dotnet_9.sdk pkgs.sdk_9_0_1xx-bin;
-  sdk_10_0_1xx = combineSdk pkgs.dotnet_10.sdk pkgs.sdk_10_0_1xx-bin;
-  sdk_10_0_2xx = combineSdk pkgs.dotnet_10_0_2xx.sdk pkgs.sdk_10_0_2xx-bin;
-  sdk_11_0_1xx = combineSdk pkgs.dotnet_11.sdk pkgs.sdk_11_0_1xx-bin;
-  # source-built SDK only exists for _1xx feature band
-  # https://github.com/dotnet/source-build/issues/3667
-  sdk_8_0_4xx = combineSdk sdk_8_0_1xx pkgs.sdk_8_0_4xx-bin;
-  sdk_9_0_3xx = combineSdk sdk_9_0_1xx pkgs.sdk_9_0_3xx-bin;
-  sdk_8_0 = sdk_8_0_4xx;
-  sdk_9_0 = sdk_9_0_3xx;
-  sdk_10_0 = sdk_10_0_2xx;
-  sdk_11_0 = sdk_11_0_1xx;
-  sdk_8_0-source = if !pkgs.dotnet_8.vmr.meta.broken then pkgs.dotnet_8.sdk else pkgs.sdk_8_0_1xx-bin;
-  sdk_9_0-source = if !pkgs.dotnet_9.vmr.meta.broken then pkgs.dotnet_9.sdk else pkgs.sdk_9_0_1xx-bin;
-  sdk_10_0-source =
-    if !pkgs.dotnet_10.vmr.meta.broken then pkgs.dotnet_10_0_2xx.sdk else pkgs.sdk_10_0_2xx-bin;
-  sdk_11_0-source =
-    if !pkgs.dotnet_11.vmr.meta.broken then pkgs.dotnet_11.sdk else pkgs.sdk_11_0_1xx-bin;
-  runtime_8_0 = sdk_8_0.runtime;
-  runtime_9_0 = sdk_9_0.runtime;
-  runtime_10_0 = sdk_10_0.runtime;
-  runtime_11_0 = sdk_11_0.runtime;
-  aspnetcore_8_0 = sdk_8_0.aspnetcore;
-  aspnetcore_9_0 = sdk_9_0.aspnetcore;
-  aspnetcore_10_0 = sdk_10_0.aspnetcore;
-  aspnetcore_11_0 = sdk_11_0.aspnetcore;
-}
