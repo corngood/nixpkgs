@@ -158,39 +158,26 @@ def resolve_workload_packs(
     return deduped
 
 
-def fetch_nuget_hash(nuget_id: str, version: str, retries: int = 3, timeout: int = 30) -> str | None:
-    """Fetch a NuGet package and compute its SRI hash. Returns None on 404."""
-    url = f"https://www.nuget.org/api/v2/package/{nuget_id}/{version}"
-    print(f"  Fetching {nuget_id} {version}...", file=sys.stderr)
-    req = urllib.request.Request(
-        url, headers={"User-Agent": "nixpkgs-workload-gen/1.0"}
-    )
-    for attempt in range(1, retries + 1):
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                data = resp.read()
-            break
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                print(
-                    f"  WARNING: {nuget_id} {version} not found on NuGet (404), skipping",
-                    file=sys.stderr,
-                )
-                return None
-            if attempt < retries:
-                print(f"  Retrying ({attempt}/{retries}) after HTTP {e.code}...", file=sys.stderr)
-                time.sleep(2 ** attempt)
-                continue
-            raise
-        except (urllib.error.URLError, TimeoutError):
-            if attempt < retries:
-                print(f"  Retrying ({attempt}/{retries}) after network error...", file=sys.stderr)
-                time.sleep(2 ** attempt)
-                continue
-            raise
-    sha512 = hashlib.sha512(data).digest()
-    sri = "sha512-" + base64.b64encode(sha512).decode()
-    return sri
+class Fetcher:
+    def __init__(self):
+        with urllib.request.urlopen("https://api.nuget.org/v3/index.json") as resp:
+            index = json.load(resp)
+        resources = { resource['@type']: resource['@id'] for resource in index['resources'] }
+        self.package_base_url = resources['PackageBaseAddress/3.0.0']
+
+    def fetch_nuget_hash(self, nuget_id: str, version: str) -> str:
+        """Fetch a NuGet package and compute its SRI hash. Returns None on 404."""
+        lid = nuget_id.lower()
+        lver = version.lower()
+        url = f"{self.package_base_url}{lid}/{lver}/{lid}.{lver}.nupkg"
+        print(f"  Fetching {nuget_id} {version}...", file=sys.stderr)
+        req = urllib.request.Request(
+            url, headers={"User-Agent": "nixpkgs-workload-gen/1.0"}, method="HEAD"
+        )
+        with urllib.request.urlopen(req) as resp:
+            sha512=resp.getheader('x-ms-meta-sha512')
+        sri = "sha512-" + sha512
+        return sri
 
 
 SUPPORTED_RIDS = ["linux-x64", "linux-arm64", "osx-x64", "osx-arm64"]
@@ -201,6 +188,7 @@ def generate_nix(
     workloads: dict,
     packs: dict,
     band: str,
+    fetcher: Fetcher,
 ) -> str:
     """Generate a Nix expression for workload packs across all supported RIDs."""
     # Resolve for all RIDs
@@ -220,7 +208,7 @@ def generate_nix(
 
     # Fetch hashes
     for key, p in sorted(unique_packs.items()):
-        p["hash"] = fetch_nuget_hash(p["nugetId"], p["version"])
+        p["hash"] = fetcher.fetch_nuget_hash(p["nugetId"], p["version"])
     # Remove packs that couldn't be fetched (404)
     missing = {k for k, p in unique_packs.items() if p["hash"] is None}
     if missing:
@@ -333,6 +321,7 @@ def main():
         workloads,
         packs,
         band,
+        Fetcher()
     )
 
     print(nix_output)
