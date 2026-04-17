@@ -53,6 +53,8 @@ let
           buildDotnetSdk
           ;
 
+        workload = callPackage ./workload.nix { };
+
         generate-dotnet-sdk = writeScriptBin "generate-dotnet-sdk" (
           # Don't include current nixpkgs in the exposed version. We want to make the script runnable without nixpkgs repo.
           builtins.replaceStrings [ " -I nixpkgs=./." ] [ "" ] (builtins.readFile ./binary/update.sh)
