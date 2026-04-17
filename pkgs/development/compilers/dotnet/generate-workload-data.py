@@ -17,6 +17,7 @@ RIDs (linux-x64, linux-arm64, osx-x64, osx-arm64).
 
 import base64
 import json
+import json5
 import hashlib
 import re
 import subprocess
@@ -26,31 +27,10 @@ import urllib.request
 from pathlib import Path
 
 
-def parse_manifest(path: Path) -> dict:
-    """Parse a WorkloadManifest.json with comments and trailing commas."""
-    text = path.read_text()
-    # Remove single-line comments
-    text = re.sub(r"//[^\n]*", "", text)
-    # Remove multi-line comments
-    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
-    # Remove trailing commas before } or ]
-    text = re.sub(r",(\s*[}\]])", r"\1", text)
-    return json.loads(text)
-
-
-def load_manifest(manifest_path: Path) -> tuple[dict, dict, dict]:
-    """Load all workload manifests for a band, returning merged workloads, packs, and manifest sources."""
-    all_workloads = {}
-    all_packs = {}
-    manifest_sources = {}  # manifest-id -> version
-
-    manifest = parse_manifest(manifest_path)
-    manifest_sources['bar'] = 'foo'
-    all_workloads.update(manifest.get("workloads", {}))
-    all_packs.update(manifest.get("packs", {}))
-
-    return all_workloads, all_packs, manifest_sources
-
+def load_manifest(manifest_path: Path) -> dict:
+    with open(manifest_path, 'r') as file:
+        manifest = json5.load(file)
+    return manifest
 
 RID_GRAPH = {
     "linux-x64": ["linux", "unix", "any"],
@@ -159,7 +139,6 @@ class Fetcher:
         lid = nuget_id.lower()
         lver = version.lower()
         url = f"{self.package_base_url}{lid}/{lver}/{lid}.{lver}.nupkg"
-        print(f"  Fetching {nuget_id} {version}...", file=sys.stderr)
         req = urllib.request.Request(
             url, headers={"User-Agent": "nixpkgs-workload-gen/1.0"}, method="HEAD"
         )
@@ -169,84 +148,80 @@ class Fetcher:
         return sri
 
 
-SUPPORTED_RIDS = ["linux-x64", "linux-arm64", "osx-x64", "osx-arm64"]
-
-
 def generate_nix(
-    workload_ids: list[str],
-    workloads: dict,
-    packs: dict,
+    manifest: dict,
     fetcher: Fetcher,
-) -> str:
+):
     """Generate a Nix expression for workload packs across all supported RIDs."""
     # Resolve for all RIDs
-    all_resolved = {}  # (rid, wid) -> [pack]
-    for rid in SUPPORTED_RIDS:
-        for wid in workload_ids:
-            resolved = resolve_workload_packs(wid, workloads, packs, rid)
-            all_resolved[(rid, wid)] = resolved
+    # all_resolved = {}  # (rid, wid) -> [pack]
+    # for rid in SUPPORTED_RIDS:
+    #     for wid in workload_ids:
+    #         resolved = resolve_workload_packs(wid, workloads, packs, rid)
+    #         all_resolved[(rid, wid)] = resolved
 
     # Collect all unique packs across all RIDs
-    unique_packs = {}
-    for pack_list in all_resolved.values():
-        for p in pack_list:
-            key = (p["nugetId"], p["version"])
-            if key not in unique_packs:
-                unique_packs[key] = p
+    # unique_packs = {}
+    # for pack_list in all_resolved.values():
+    #     for p in pack_list:
+    #         key = (p["nugetId"], p["version"])
+    #         if key not in unique_packs:
+    #             unique_packs[key] = p
 
     # Fetch hashes
-    for key, p in sorted(unique_packs.items()):
-        p["hash"] = fetcher.fetch_nuget_hash(p["nugetId"], p["version"])
+    # for key, p in sorted(unique_packs.items()):
+    #     p["hash"] = fetcher.fetch_nuget_hash(p["nugetId"], p["version"])
     # Remove packs that couldn't be fetched (404)
-    missing = {k for k, p in unique_packs.items() if p["hash"] is None}
-    if missing:
-        print(f"  Skipping {len(missing)} unavailable packs", file=sys.stderr)
-        unique_packs = {
-            k: p for k, p in unique_packs.items() if p["hash"] is not None
-        }
-        # Also remove from per-RID mappings
-        for key, pack_list in all_resolved.items():
-            all_resolved[key] = [
-                p for p in pack_list if (p["nugetId"], p["version"]) not in missing
-            ]
+    # missing = {k for k, p in unique_packs.items() if p["hash"] is None}
+    # if missing:
+    #     print(f"  Skipping {len(missing)} unavailable packs", file=sys.stderr)
+    #     unique_packs = {
+    #         k: p for k, p in unique_packs.items() if p["hash"] is not None
+    #     }
+    #     # Also remove from per-RID mappings
+    #     for key, pack_list in all_resolved.items():
+    #         all_resolved[key] = [
+    #             p for p in pack_list if (p["nugetId"], p["version"]) not in missing
+    #         ]
 
     # Generate Nix
-    lines = []
-    lines.append("# Auto-generated workload pack data. Do not edit.")
-    lines.append("{")
-    lines.append("")
-    lines.append("  # All pack hashes (keyed by lowercase pname/version)")
-    lines.append("  packHashes = {")
-    for key in sorted(unique_packs.keys()):
-        p = unique_packs[key]
-        nix_key = f"{p['nugetId']}.{p['version']}".lower()
-        lines.append(f'    "{nix_key}" = {{')
-        lines.append(f'      pname = "{p["nugetId"]}";')
-        lines.append(f'      version = "{p["version"]}";')
-        lines.append(f'      hash = "{p["hash"]}";')
-        lines.append("    };")
-    lines.append("  };")
-    lines.append("")
-
-    # Per-RID workload -> pack mappings
-    lines.append("  workloadPackNames = {")
-    for rid in SUPPORTED_RIDS:
-        lines.append(f'    "{rid}" = {{')
-        for wid in sorted(workload_ids):
-            pack_list = all_resolved.get((rid, wid), [])
-            if pack_list:
-                pack_keys = [
-                    f'"{p["nugetId"]}.{p["version"]}"'.lower() for p in pack_list
-                ]
-                lines.append(f'      "{wid}" = [')
-                for pk in pack_keys:
-                    lines.append(f"        {pk}")
-                lines.append("      ];")
-        lines.append("    };")
-    lines.append("  };")
-    lines.append("}")
-
-    return "\n".join(lines)
+    print("# Auto-generated workload pack data. Do not edit.")
+    print("{ mkPack, mkWorkload }:")
+    print("let")
+    print("  packs = {")
+    for id, pack in manifest['packs'].items():
+        version = pack['version']
+        print(f"    \"{id}\" = mkPack {{")
+        if 'alias-to' in pack:
+            print( "      alias-to = {")
+            for rid, pname in pack['alias-to'].items():
+                print(f"        {rid} = {{")
+                print(f"          pname = \"{pname}\";")
+                print(f"          hash = \"{fetcher.fetch_nuget_hash(pname, version)}\";")
+                print( "        };")
+            print( "      };")
+        else:
+            print(f"        pname = \"{pname}\";")
+            print(f"        hash = \"{fetcher.fetch_nuget_hash(id, version)}\";")
+        print("    };")
+    print("  };")
+    print("")
+    print("  workloads = {")
+    for id, workload in manifest['workloads'].items():
+        print(f"    {id} = mkWorkload {{")
+        print( "      packs = [")
+        for pack in workload['packs']:
+            print(f"        packs.\"{pack}\"")
+        print( "      ];")
+        if 'extends' in workload:
+            print( "      extends = [")
+            for workload in workload['extends']:
+                print(f"        workloads.{workload}")
+            print( "      ];")
+        print( "    };")
+    print("  };")
+    print("in")
+    print("workloads")
 
 
 def resolve_sdk_path(dotnet_version: str) -> Path:
@@ -293,24 +268,12 @@ def main():
     # band = bands[0]  # Use the latest band
     # print(f"Using SDK band: {band}", file=sys.stderr)
 
-    workloads, packs, manifest_sources = load_manifest(manifest_path)
+    manifest = load_manifest(manifest_path)
 
-    workload_ids = [
-        wid
-        for wid, wdef in workloads.items()
-        if not wdef.get("abstract") and not wdef.get("redirect-to")
-    ]
-
-    print(f"Resolving workloads: {workload_ids}", file=sys.stderr)
-
-    nix_output = generate_nix(
-        workload_ids,
-        workloads,
-        packs,
+    generate_nix(
+        manifest,
         Fetcher()
     )
-
-    print(nix_output)
 
 
 if __name__ == "__main__":
