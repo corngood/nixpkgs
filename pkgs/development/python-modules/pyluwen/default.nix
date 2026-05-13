@@ -9,22 +9,22 @@
 }:
 buildPythonPackage rec {
   pname = "pyluwen";
-  version = "0.7.11";
+  version = "0.8.5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "tenstorrent";
     repo = "luwen";
     tag = "v${version}";
-    hash = "sha256-eQpKEeuy0mVrmu8ssAOWBcXi7zutStu+RbZOEF/IJ98=";
+    hash = "sha256-lY7cZ+8C0UEGGYxufl4Vi8g0L4AJFXaGqn7XE2ivTcQ=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src;
-    hash = "sha256-INzF8ORkrmPQMJbGSNm5QkfMOgE+HJ3taU1EZ9i+HJg=";
+    hash = "sha256-QBGXbRiBk4WIQFopq1OccmUHgx5GzR/PKhMH4Ie+fyg=";
   };
 
-  sourceRoot = "${src.name}/crates/${pname}";
+  sourceRoot = "${src.name}/bind/${pname}";
 
   prePatch = ''
     chmod -R u+w ../../

@@ -19998,6 +19998,8 @@ self: super: with self; {
 
   tt-tools-common = callPackage ../development/python-modules/tt-tools-common { };
 
+  tt-umd = callPackage ../development/python-modules/tt-umd { };
+
   ttach = callPackage ../development/python-modules/ttach { };
 
   ttfautohint-py = callPackage ../development/python-modules/ttfautohint-py { };
