@@ -43,10 +43,19 @@ let
     artifactsHash
     ;
 
-  artifacts = pkgsBuildBuild.stdenvNoCC.mkDerivation {
+  bootstrapPkgs =
+    if
+      lib.meta.availableOn stdenvNoCC.buildPlatform (pkgsBuildBuild.dotnetCorePackages.buildDotnetSdk bootstrapSdkFile)
+      .sdk
+    then
+      pkgsBuildBuild
+    else
+      pkgsReverseCross.gnu64.pkgsBuildBuild;
+
+  artifacts = bootstrapPkgs.stdenvNoCC.mkDerivation {
     name = lib.nameFromURL artifactsUrl ".tar.gz";
 
-    src = fetchurl {
+    src = bootstrapPkgs.fetchurl {
       url = artifactsUrl;
       hash = artifactsHash;
     };
@@ -77,19 +86,7 @@ let
           depsFile
           ;
         bootstrapSdk =
-          (
-            (
-              if
-                # TODO: clean this mess up
-                lib.meta.availableOn stdenvNoCC.buildPlatform
-                  (pkgsBuildBuild.dotnetCorePackages.buildDotnetSdk bootstrapSdkFile).sdk
-              then
-                pkgsBuildBuild
-              else
-                pkgsReverseCross.gnu64.pkgsBuildBuild
-            ).dotnetCorePackages.buildDotnetSdk
-              bootstrapSdkFile
-          ).sdk.overrideAttrs
+          (bootstrapPkgs.dotnetCorePackages.buildDotnetSdk bootstrapSdkFile).sdk.overrideAttrs
             (old: {
               passthru = old.passthru or { } // {
                 inherit artifacts;
